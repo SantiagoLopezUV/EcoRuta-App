@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Tema normal de la aplicación -->
     <style name="Theme.EcoRuta" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Tema utilizado mientras Android inicia la aplicación -->
+    <style name="Theme.EcoRuta.Splash" parent="Theme.SplashScreen">
+
+        <!-- Color de fondo de la Splash -->
+        <item name="windowSplashScreenBackground">@android:color/white</item>
+
+        <!-- Logo mostrado durante el arranque -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+
+        <!-- Tema que se utilizará después del Splash -->
+        <item name="postSplashScreenTheme">@style/Theme.EcoRuta</item>
+
+    </style>
+
 </resources>
