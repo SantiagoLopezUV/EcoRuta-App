@@ -1,16 +1,87 @@
+# EcoRuta - Android / Kotlin / Supabase
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+/build/
+/*/build/
+
+# Android Studio / IntelliJ IDEA
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+*.ipr
+*.iws
+
+# Local Android configuration
 local.properties
 /.idea/
+
+# Kotlin
+.kotlin/
+
+# Android generated files
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Native / CMake
+cmake-build-*/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Environment variables / Secrets
+.env
+.env.*
+!.env.example
+
+*.env
+secrets.properties
+
+# Supabase
+
+
+# Google / Firebase configuration
+google-services.json
+
+# Android signing / Keystores
+*.jks
+*.keystore
+*.p12
+*.key
+
+# ProGuard / R8 generated files
+proguard/
+*.mapping
+
+# Figma / Design exports
+figma-exports/
+design-exports/
+*.fig~
+
+# Generated APK / AAB files
+*.apk
+*.aab
+
+# IDE / Editor files
+.vscode/
+*.code-workspace
+
+# Miscellaneous
+*.orig
+*.rej
+
+# npm
+node_modules/
