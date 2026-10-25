@@ -85,3 +85,6 @@ design-exports/
 
 # npm
 node_modules/
+
+# Local Configuration of MCP Tools and Secret Keys
+.mcp.json
