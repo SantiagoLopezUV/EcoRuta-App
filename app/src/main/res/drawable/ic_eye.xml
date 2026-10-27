@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exportado de Figma (archivo "Prototype - design"). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF62748E"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M1.7181 9.71079C1.64865 9.89788 1.64865 10.1037 1.7181 10.2908C2.39452 11.9309 3.5427 13.3333 5.01708 14.32C6.49146 15.3068 8.22564 15.8336 9.99977 15.8336C11.7739 15.8336 13.5081 15.3068 14.9825 14.32C16.4568 13.3333 17.605 11.9309 18.2814 10.2908C18.3509 10.1037 18.3509 9.89788 18.2814 9.71079C17.605 8.07067 16.4568 6.66832 14.9825 5.68154C13.5081 4.69475 11.7739 4.16797 9.99977 4.16797C8.22564 4.16797 6.49146 4.69475 5.01708 5.68154C3.5427 6.66832 2.39452 8.07067 1.7181 9.71079Z" />
+</vector>

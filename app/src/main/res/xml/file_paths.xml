@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carpetas temporales (caché) donde la cámara del sistema guarda las fotos de reportes y de perfil. -->
+<paths>
+    <cache-path name="report_photos" path="report_photos/" />
+    <cache-path name="profile_photos" path="profile_photos/" />
+</paths>

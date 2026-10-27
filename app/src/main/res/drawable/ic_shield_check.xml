@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exportado de Figma: escudo con verificación ("Restablecer contraseña" y "Contraseña actualizada"). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M12.0005 15.9994L14.6669 18.6661L19.9997 13.3326M26.6657 17.3333C26.6657 24.0002 21.9995 27.3337 16.4534 29.2671C16.1629 29.3655 15.8475 29.3608 15.5601 29.2537C10.0007 27.3337 5.33447 24.0002 5.33447 17.3333V7.99969C5.33447 7.64606 5.47493 7.30691 5.72496 7.05685C5.97498 6.8068 6.31409 6.66632 6.66767 6.66632C9.33407 6.66632 12.6671 5.06627 14.9868 3.03953C15.2693 2.79819 15.6286 2.66559 16.0001 2.66559C16.3716 2.66559 16.7309 2.79819 17.0133 3.03953C19.3464 5.0796 22.6661 6.66632 25.3325 6.66632C25.6861 6.66632 26.0252 6.8068 26.2752 7.05685C26.5252 7.30691 26.6657 7.64606 26.6657 7.99969V17.3333Z" />
+</vector>
