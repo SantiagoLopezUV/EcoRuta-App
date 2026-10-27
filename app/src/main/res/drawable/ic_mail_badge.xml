@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exportado de Figma: sobre blanco de 33 ("Recuperar contraseña · Código"). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="33dp"
+    android:height="33dp"
+    android:viewportWidth="33"
+    android:viewportHeight="33">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M30.2512 9.62569L17.8876 17.4995C17.4681 17.7432 16.9915 17.8715 16.5063 17.8715C16.0211 17.8715 15.5446 17.7432 15.125 17.4995L2.74902 9.62569M5.49924 5.5011L27.501 5.5011C29.0199 5.5011 30.2512 6.73219 30.2512 8.25082L30.2512 24.7492C30.2512 26.2678 29.0199 27.4989 27.501 27.4989L5.49924 27.4989C3.98034 27.4989 2.74902 26.2678 2.74902 24.7492L2.74902 8.25082C2.74902 6.73219 3.98034 5.5011 5.49924 5.5011Z" />
+</vector>

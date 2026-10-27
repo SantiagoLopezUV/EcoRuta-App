@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exportado de Figma: flecha de "Volver a iniciar sesión". -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF123F31"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M9.00011 3.74939L3.74951 8.99999L9.00011 14.2506M3.74951 8.99999H14.2507" />
+</vector>

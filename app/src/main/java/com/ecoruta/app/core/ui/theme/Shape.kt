@@ -1,0 +1,14 @@
+package com.ecoruta.app.core.ui.theme
+
+// Configuración de formas y bordes redondeados del tema visual
+// Define los radios pequeño, mediano y grande para los componentes de interfaz
+
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
+import androidx.compose.ui.unit.dp
+
+val Shapes = Shapes(
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(20.dp),
+)

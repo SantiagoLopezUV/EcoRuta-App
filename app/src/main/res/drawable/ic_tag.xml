@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 483:5727 · EcoRuta / Perfil / Icono / tag -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M9.30999,1.66602C9.75201,1.66611 10.1759,1.84178 10.4884,2.15439L17.7424,9.40833C18.1188,9.78712 18.33,10.2994 18.33,10.8334C18.33,11.3675 18.1188,11.8798 17.7424,12.2586L12.2586,17.7424C11.8798,18.1188 11.3675,18.33 10.8334,18.33C10.2994,18.33 9.78712,18.1188 9.40833,17.7424L2.15439,10.4884C1.84178,10.1759 1.66611,9.75201 1.66602,9.30999V3.33282C1.66602,2.89076 1.84162,2.4668 2.15421,2.15421C2.4668,1.84162 2.89076,1.66602 3.33282,1.66602H9.30999Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#FF62748E"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round" />
+</vector>

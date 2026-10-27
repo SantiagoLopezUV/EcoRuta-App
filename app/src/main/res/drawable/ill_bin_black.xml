@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 483:7665 · Recipiente negro (no aprovechables) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="88dp"
+    android:viewportWidth="72"
+    android:viewportHeight="88">
+    <path
+        android:pathData="M28.0,0.5H44.0A3.5,3.5 0,0 1,47.5,4.0V4.0A3.5,3.5 0,0 1,44.0,7.5H28.0A3.5,3.5 0,0 1,24.5,4.0V4.0A3.5,3.5 0,0 1,28.0,0.5Z"
+        android:fillColor="#FF000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M65.5,16.5V78C65.5,82.1421 62.1421,85.5 58,85.5H14C9.85786,85.5 6.5,82.1421 6.5,78V16.5H65.5Z"
+        android:fillColor="#FF000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M4.0,8.5H68.0A3.5,3.5 0,0 1,71.5,12.0V14.0A3.5,3.5 0,0 1,68.0,17.5H4.0A3.5,3.5 0,0 1,0.5,14.0V12.0A3.5,3.5 0,0 1,4.0,8.5Z"
+        android:fillColor="#FF000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M41,39V43H43.9219L42.5723,61H29.4277L28.0781,43H31V39H41Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+</vector>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exportado de Figma (archivo "Prototype - design"), flujo de reportes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF123F31"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M10.5008 18.1667C12.0506 16.8283 16.666 12.4945 16.666 8.3333C16.666 6.56503 15.9637 4.86918 14.7136 3.61882C13.4634 2.36846 11.7679 1.66602 9.99998 1.66602C8.23205 1.66602 6.53653 2.36846 5.28641 3.61882C4.03629 4.86918 3.33398 6.56503 3.33398 8.3333C3.33398 12.4945 7.94936 16.8283 9.4992 18.1667C9.64358 18.2753 9.81934 18.334 9.99998 18.334C10.1806 18.334 10.3564 18.2753 10.5008 18.1667Z M12.5 8.33A2.5 2.5 0 1 1 7.5 8.33A2.5 2.5 0 1 1 12.5 8.33Z" />
+</vector>

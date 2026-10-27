@@ -1,59 +1,27 @@
 package com.ecoruta.app
 
+// Actividad principal y punto de entrada de la interfaz gráfica
+// Inicializa la pantalla de arranque, el tema visual y el grafo de navegación
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.ecoruta.app.ui.theme.EcoRutaTheme
+import com.ecoruta.app.core.navigation.EcoRutaNavHost
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
 
         setContent {
             EcoRutaTheme {
-
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                EcoRutaNavHost()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-
-    Text(
-        text = "¡Hola EcoRuta!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Greeting() {
-    EcoRutaTheme {
-        Greeting("Android")
     }
 }

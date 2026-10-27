@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 483:3743 · Símbolo de estado (acceso solo web) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="104dp"
+    android:height="104dp"
+    android:viewportWidth="104"
+    android:viewportHeight="104">
+    <path
+        android:pathData="M52,0A52,52 0,1 1,52,104A52,52 0,1 1,52,0Z"
+        android:fillColor="#FF2F7946" />
+    <path
+        android:pathData="M60.8889 40.8889L72 52L60.8889 63.1111M72 52H45.3333M45.3333 72H36.4444C35.2657 72 34.1352 71.5317 33.3017 70.6983C32.4683 69.8648 32 68.7343 32 67.5556V36.4444C32 35.2657 32.4683 34.1352 33.3017 33.3017C34.1352 32.4683 35.2657 32 36.4444 32H45.3333"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+</vector>

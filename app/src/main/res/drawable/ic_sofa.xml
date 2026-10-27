@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono de línea (estilo Lucide, igual que los iconos de Figma), flujo de escombros. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF123F31"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M20 9V6A2 2 0 0 0 18 4H6A2 2 0 0 0 4 6V9 M2 16A2 2 0 0 0 4 18H20A2 2 0 0 0 22 16V11A2 2 0 0 0 18 11V12.5A0.5 0.5 0 0 1 17.5 13H6.5A0.5 0.5 0 0 1 6 12.5V11A2 2 0 0 0 2 11Z M4 18V20 M20 18V20 M12 4V13" />
+</vector>
