@@ -32,6 +32,7 @@ object AuthGuard {
         EcoRutaDestination.REPORTES_SIN_SESION,
         EcoRutaDestination.RECICLAJE_SIN_SESION,
         EcoRutaDestination.BENEFICIOS_SIN_SESION,
+        EcoRutaDestination.CUPONES_SIN_SESION,
         EcoRutaDestination.EDUCACION_SIN_SESION,
         EcoRutaDestination.GUIA_SEPARACION_SIN_SESION,
         EcoRutaDestination.PERFIL_SIN_SESION,
@@ -54,7 +55,8 @@ object AuthGuard {
         EcoRutaDestination.NUEVO_REPORTE, EcoRutaDestination.MIS_REPORTES -> EcoRutaDestination.REPORTES_SIN_SESION
         EcoRutaDestination.SELECCION_BARRIO -> EcoRutaDestination.SELECCION_BARRIO_SIN_SESION
         EcoRutaDestination.RECICLAJE, EcoRutaDestination.PUBLICAR_MATERIAL -> EcoRutaDestination.RECICLAJE_SIN_SESION
-        EcoRutaDestination.BENEFICIOS, EcoRutaDestination.MIS_CUPONES -> EcoRutaDestination.BENEFICIOS_SIN_SESION
+        EcoRutaDestination.BENEFICIOS -> EcoRutaDestination.BENEFICIOS_SIN_SESION
+        EcoRutaDestination.MIS_CUPONES -> EcoRutaDestination.CUPONES_SIN_SESION
         EcoRutaDestination.EDUCACION, EcoRutaDestination.GUIA_SEPARACION -> EcoRutaDestination.EDUCACION_SIN_SESION
         EcoRutaDestination.MI_PERFIL -> EcoRutaDestination.PERFIL_SIN_SESION
         EcoRutaDestination.NOTIFICACIONES -> EcoRutaDestination.NOTIFICACIONES_SIN_SESION

@@ -17,6 +17,7 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.core.ui.components.GuestServiceScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsUiState
@@ -37,6 +38,8 @@ import com.ecoruta.app.features.gamification.presentation.my_coupons.CouponRedem
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponDetailScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsActions
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsScreen
+import com.ecoruta.app.features.reports.presentation.list.ReportsGuestActions
+import com.ecoruta.app.features.reports.presentation.list.ReportsGuestScreen
 
 private val SampleCoupons = listOf(
     Coupon(
@@ -71,6 +74,17 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         }
     }
     val tabClick: (CitizenTab) -> Unit = { tab -> navController.navigateToCitizenTab(tab) }
+
+    composable(EcoRutaDestination.CUPONES_SIN_SESION) {
+        // Pendiente Cambiar de Reports por MyCoupons y crear la pantalla de MyCoupons con Resources
+        ReportsGuestScreen(
+            actions = ReportsGuestActions(
+                onBack = { navController.popBackStack() },
+                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onTabClick = { tab -> navController.navigateToPublicTab(tab) },
+            ),
+        )
+    }
 
     composable(EcoRutaDestination.BENEFICIOS) {
         var state by remember {
