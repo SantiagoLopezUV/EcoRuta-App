@@ -17,6 +17,7 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.core.ui.components.GuestServiceActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsUiState
@@ -36,6 +37,7 @@ import com.ecoruta.app.features.gamification.presentation.my_coupons.CouponRedem
 import com.ecoruta.app.features.gamification.presentation.my_coupons.CouponRedemptionScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponDetailScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsActions
+import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsGuestScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsScreen
 
 private val SampleCoupons = listOf(
@@ -225,6 +227,16 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
             onLogin = { open(EcoRutaDestination.LOGIN) },
             onCategorySelected = { state = state.copy(category = it) },
             onTabClick = { tab -> navController.navigateToPublicTab(tab) },
+        )
+    }
+
+    composable(EcoRutaDestination.GUEST_MY_COUPONS) {
+        MyCouponsGuestScreen(
+            actions = GuestServiceActions(
+                onBack = { navController.popBackStack() },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
+                onTabClick = { tab -> navController.navigateToPublicTab(tab) },
+            ),
         )
     }
 }

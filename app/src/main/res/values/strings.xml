@@ -696,6 +696,12 @@
     <string name="my_coupons_empty_title">Aún no tienes cupones</string>
     <string name="my_coupons_empty_body">Explora Beneficios y canjea tus EcoPuntos. Tus cupones aparecerán aquí.</string>
     <string name="my_coupons_go_to_benefits">Ir a Beneficios</string>
+    <string name="my_coupons_guest_banner">Inicia sesión para ver tus cupones</string>
+    <string name="my_coupons_guest_locked">Mis cupones: requiere iniciar sesión</string>
+    <string name="my_coupons_guest_description">Aquí verás los cupones que canjees con tus EcoPuntos, listos para usar en los comercios aliados.</string>
+    <string name="my_coupons_guest_can_1">Canjear tus EcoPuntos por descuentos</string>
+    <string name="my_coupons_guest_can_2">Ver el código y el QR de cada cupón</string>
+    <string name="my_coupons_guest_can_3">Mostrar tus cupones en caja para redimirlos</string>
     <string name="my_coupons_load_error">No pudimos cargar tus cupones. Inténtalo de nuevo.</string>
     <string name="my_coupon_title">Tu cupón</string>
     <string name="my_coupon_description">Muestra este QR o el código en caja para usar tu descuento.</string>

@@ -35,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.ui.components.EcoErrorMessage
+import com.ecoruta.app.core.ui.components.GuestServiceActions
+import com.ecoruta.app.core.ui.components.GuestServiceContent
+import com.ecoruta.app.core.ui.components.GuestServiceScreen
 import com.ecoruta.app.core.ui.components.EcoInfoHint
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoSecondaryButton
@@ -238,6 +241,22 @@ private fun EmptyCoupons() {
     }
 }
 
+// Vista informativa de Mis cupones para usuarios que aún no han iniciado sesión
+@Composable
+fun MyCouponsGuestScreen(actions: GuestServiceActions) {
+    GuestServiceScreen(
+        content = GuestServiceContent(
+            banner = R.string.my_coupons_guest_banner,
+            lockedSection = R.string.my_coupons_guest_locked,
+            title = R.string.my_coupons_title,
+            description = R.string.my_coupons_guest_description,
+            benefits = listOf(R.string.my_coupons_guest_can_1, R.string.my_coupons_guest_can_2, R.string.my_coupons_guest_can_3),
+        ),
+        actions = actions,
+        selectedTab = CitizenTab.COUPONS,
+    )
+}
+
 // Vista detallada del cupón canjeado con su código alfanumérico y código QR
 @Composable
 fun MyCouponDetailScreen(
@@ -314,6 +333,13 @@ private fun MyCouponsPreview() {
             MyCouponsActions(),
         )
     }
+}
+
+// Previsualización de Mis cupones sin sesión iniciada
+@Preview(name = "Mis cupones sin sesión", widthDp = 393, heightDp = 852)
+@Composable
+private fun MyCouponsGuestPreview() {
+    EcoRutaTheme { MyCouponsGuestScreen(actions = GuestServiceActions()) }
 }
 
 @Preview(name = "Detalle de mi cupón QR", widthDp = 393, heightDp = 900)

@@ -47,8 +47,12 @@ data class GuestServiceActions(
 
 // Plantilla compartida para pantallas de servicios consultados sin sesión iniciada
 @Composable
-fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.HOME, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+fun GuestServiceScreen(
+    content: GuestServiceContent,
+    actions: GuestServiceActions,
+    selectedTab: CitizenTab = CitizenTab.HOME,
+) {
+    EcoTabScreenLayout(selectedTab = selectedTab, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

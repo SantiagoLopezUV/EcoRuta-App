@@ -131,6 +131,7 @@ object NavigationDestination {
     const val ECOPOINTS_HISTORY = "ciudadano/beneficios/historial"
     const val MY_COUPONS = "ciudadano/mis_cupones"
     const val PROFILE_MY_COUPONS = "ciudadano/perfil/mis_cupones"
+    const val GUEST_MY_COUPONS = "mis_cupones_sin_sesion"
     const val ARG_FROM_PROFILE = "perfil"
     const val MY_COUPON_DETAIL = "ciudadano/mis_cupones/{id}?perfil={perfil}"
 
@@ -196,7 +197,8 @@ fun NavHostController.navigateToPublicTab(tab: CitizenTab) {
             popBackStack(EcoRutaDestination.PUBLIC_HOME, inclusive = false)
             return
         }
-        CitizenTab.BENEFITS, CitizenTab.COUPONS -> EcoRutaDestination.GUEST_BENEFITS
+        CitizenTab.BENEFITS -> EcoRutaDestination.GUEST_BENEFITS
+        CitizenTab.COUPONS -> EcoRutaDestination.GUEST_MY_COUPONS
         CitizenTab.MAP -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
         CitizenTab.EDUCATION -> EcoRutaDestination.GUEST_EDUCATION
         CitizenTab.PROFILE -> EcoRutaDestination.GUEST_PROFILE
