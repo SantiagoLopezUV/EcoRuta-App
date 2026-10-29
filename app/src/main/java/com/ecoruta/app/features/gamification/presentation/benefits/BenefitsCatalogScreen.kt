@@ -252,7 +252,7 @@ private fun BenefitsHeader() {
 // Pantalla principal del catálogo de beneficios con saldo, acceso a cupones e historial
 @Composable
 fun BenefitsScreen(state: BenefitsUiState, actions: BenefitsActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFICIOS, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFITS, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         BenefitsHeader()
         when {
             state.isLoading -> BenefitsLoading()
@@ -310,7 +310,7 @@ fun GuestBenefitsScreen(
     onTabClick: (CitizenTab) -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.BENEFICIOS,
+        selectedTab = CitizenTab.BENEFITS,
         onBack = onBack,
         onTabClick = onTabClick,
         bottomActions = {
@@ -365,7 +365,7 @@ fun PointsHistoryScreen(
     onRetry: () -> Unit,
     onTabClick: (CitizenTab) -> Unit,
 ) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFICIOS, onBack = onBack, onTabClick = onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFITS, onBack = onBack, onTabClick = onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.points_history_title), style = EcoTextStyles.Title, color = EcoTitle)
             Text(stringResource(R.string.points_history_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)

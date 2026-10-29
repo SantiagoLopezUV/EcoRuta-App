@@ -517,7 +517,7 @@ fun DebrisSentScreen(
         BackHandler(onBack = onGoHome)
     }
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.INICIO,
+        selectedTab = CitizenTab.HOME,
         onBack = onGoHome,
         onTabClick = onTabClick,
         bottomActions = {

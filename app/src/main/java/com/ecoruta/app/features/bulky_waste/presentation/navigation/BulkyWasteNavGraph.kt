@@ -124,7 +124,7 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
                 request = SampleDebrisRequest,
                 sentWithoutBackend = true,
                 onViewTracking = { open(EcoRutaDestination.NEW_DEBRIS_TRACKING) },
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             )
         }
@@ -138,7 +138,7 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
                     onBack = { navController.popBackStack() },
                     onCancelRequest = {},
                     onApproveQuote = {},
-                    onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                    onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                     onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
                 ),
             )

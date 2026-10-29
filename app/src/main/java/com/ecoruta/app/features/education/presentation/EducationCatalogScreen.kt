@@ -59,7 +59,7 @@ data class EducationActions(
 
 @Composable
 fun EducationScreen(state: EducationUiState, actions: EducationActions, isSignedIn: Boolean = true) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.EDUCACION, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.EDUCATION, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.education_title), style = EcoTextStyles.Title, color = EcoTitle)
             Text(stringResource(R.string.education_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
@@ -168,10 +168,10 @@ fun FavoriteButton(favorite: Boolean, onClick: () -> Unit, cornerRadius: Int, ic
 }
 
 private fun TopicIcon.iconRes(): Int = when (this) {
-    TopicIcon.LISTA -> R.drawable.ic_list
-    TopicIcon.RECICLAJE -> R.drawable.ic_recycle
-    TopicIcon.ESCOMBROS -> R.drawable.ic_trash
-    TopicIcon.ECOPUNTOS -> R.drawable.ic_truck
+    TopicIcon.LIST -> R.drawable.ic_list
+    TopicIcon.RECYCLING -> R.drawable.ic_recycle
+    TopicIcon.DEBRIS -> R.drawable.ic_trash
+    TopicIcon.ECOPOINTS -> R.drawable.ic_truck
 }
 
 @Preview(name = "Educación", widthDp = 393, heightDp = 900)
@@ -187,7 +187,7 @@ private fun EducationPreview() {
                         title = "Cómo separar tus residuos",
                         summary = "Guía rápida del código de colores en Colombia",
                         rewardPoints = 50,
-                        icon = TopicIcon.LISTA,
+                        icon = TopicIcon.LIST,
                         opensSeparationGuide = true,
                     ),
                 ),

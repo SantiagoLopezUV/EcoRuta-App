@@ -99,10 +99,10 @@ enum class PublicService(
     @StringRes val descriptionRes: Int,
     @DrawableRes val iconRes: Int,
 ) {
-    RESIDUOS_ESPECIALES(R.string.service_special_waste_title, R.string.service_special_waste_description, R.drawable.ic_truck),
-    BASURA(R.string.service_garbage_title, R.string.service_garbage_description, R.drawable.ic_trash),
-    RECICLAJE(R.string.service_recycling_title, R.string.service_recycling_description, R.drawable.ic_recycle),
-    REPORTES(R.string.service_reports_title, R.string.service_reports_description, R.drawable.ic_report_alert),
+    SPECIAL_WASTE(R.string.service_special_waste_title, R.string.service_special_waste_description, R.drawable.ic_truck),
+    GARBAGE(R.string.service_garbage_title, R.string.service_garbage_description, R.drawable.ic_trash),
+    RECYCLING(R.string.service_recycling_title, R.string.service_recycling_description, R.drawable.ic_recycle),
+    REPORTS(R.string.service_reports_title, R.string.service_reports_description, R.drawable.ic_report_alert),
 }
 
 // Acciones de interacción de la pantalla de inicio
@@ -168,7 +168,7 @@ fun HomeScreen(
 
         EcoBottomBar(
             items = CitizenTab.entries,
-            selectedItem = CitizenTab.INICIO,
+            selectedItem = CitizenTab.HOME,
             onItemClick = actions.onTabClick,
             modifier = Modifier.padding(bottom = 12.dp),
         )
@@ -300,7 +300,7 @@ private fun ServicesSection(onServiceClick: (PublicService) -> Unit) {
                             title = stringResource(service.titleRes),
                             description = stringResource(service.descriptionRes),
                             iconRes = service.iconRes,
-                            iconSize = if (service == PublicService.REPORTES) 32.dp else 20.dp,
+                            iconSize = if (service == PublicService.REPORTS) 32.dp else 20.dp,
                             onClick = { onServiceClick(service) },
                             modifier = Modifier
                                 .weight(1f)
@@ -327,7 +327,7 @@ data class NeighborhoodSelectionActions(
 @Composable
 fun NeighborhoodSelectionScreen(state: NeighborhoodSelectionUiState, actions: NeighborhoodSelectionActions) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.MAPA,
+        selectedTab = CitizenTab.MAP,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = {
@@ -423,7 +423,7 @@ data class RouteActions(
 @Composable
 fun RouteScreen(state: RouteUiState, isSignedIn: Boolean, actions: RouteActions) {
     val route = (state as? RouteUiState.Loaded)?.route
-    EcoTabScreenLayout(selectedTab = CitizenTab.MAPA, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.MAP, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.route_title), style = EcoTextStyles.Title, color = EcoTitle)
             if (route != null) {
@@ -636,7 +636,7 @@ fun NotificationsScreen(state: NotificationsUiState, actions: NotificationsActio
         null
     }
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.INICIO,
+        selectedTab = CitizenTab.HOME,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
@@ -754,7 +754,7 @@ private fun BellMessage(title: String, body: String, highlighted: Boolean) {
 @Composable
 fun GuestNotificationsScreen(onBack: () -> Unit, onLogin: () -> Unit, onTabClick: (CitizenTab) -> Unit) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.INICIO,
+        selectedTab = CitizenTab.HOME,
         onBack = onBack,
         onTabClick = onTabClick,
         bottomActions = {

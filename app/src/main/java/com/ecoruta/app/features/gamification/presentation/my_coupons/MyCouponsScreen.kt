@@ -71,7 +71,7 @@ data class MyCouponsActions(
 
 // Pantalla de cupones canjeados del ciudadano con soporte para estado vacío y filtro por categoría
 @Composable
-fun MyCouponsScreen(state: MyCouponsUiState, actions: MyCouponsActions, selectedTab: CitizenTab = CitizenTab.CUPONES) {
+fun MyCouponsScreen(state: MyCouponsUiState, actions: MyCouponsActions, selectedTab: CitizenTab = CitizenTab.COUPONS) {
     val isEmpty = !state.isLoading && state.error == null && state.coupons.isEmpty()
     val bottomActions: (@Composable ColumnScope.() -> Unit)? = if (isEmpty) {
         { EcoPrimaryButton(text = stringResource(R.string.my_coupons_go_to_benefits), onClick = actions.onGoToBenefits) }
@@ -322,7 +322,7 @@ private fun MyCouponDetailPreview() {
     EcoRutaTheme {
         MyCouponDetailScreen(
             state = MyCouponUiState.Loaded(coupon = sampleRedeemedCoupon, isSample = false),
-            selectedTab = CitizenTab.CUPONES,
+            selectedTab = CitizenTab.COUPONS,
             onBack = {},
             onBackToMyCoupons = {},
             onBackToBenefits = {},

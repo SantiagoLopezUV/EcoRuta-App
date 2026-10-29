@@ -95,7 +95,7 @@ private val requestableRoles = listOf(UserRole.COMERCIO, UserRole.RECICLADOR)
 
 @Composable
 fun ChangeProfileScreen(state: ProfileUiState, actions: ChangeProfileActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.PERFIL, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.PROFILE, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.change_profile_title), style = EcoTextStyles.Title, color = EcoTitle)
             Text(stringResource(R.string.change_profile_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
@@ -476,7 +476,7 @@ fun StoreRequestInReviewScreen(
     onTabClick: (CitizenTab) -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.PERFIL,
+        selectedTab = CitizenTab.PROFILE,
         onBack = onBack,
         onTabClick = onTabClick,
         bottomActions = {

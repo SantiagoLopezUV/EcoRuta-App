@@ -68,7 +68,7 @@ data class MyReportsActions(
 @Composable
 fun MyReportsScreen(state: MyReportsUiState, actions: MyReportsActions) {
     ReportsTabLayout(
-        selectedTab = CitizenTab.PERFIL,
+        selectedTab = CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = {
@@ -178,7 +178,7 @@ fun ReportDetailScreen(state: ReportDetailUiState, actions: ReportDetailActions)
         null
     }
     ReportsTabLayout(
-        selectedTab = CitizenTab.PERFIL,
+        selectedTab = CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,

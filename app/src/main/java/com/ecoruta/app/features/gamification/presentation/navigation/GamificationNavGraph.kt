@@ -67,7 +67,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
     fun backToBenefits() {
         if (!navController.popBackStack(EcoRutaDestination.BENEFITS, inclusive = false)) {
-            navController.navigateToCitizenTab(CitizenTab.BENEFICIOS)
+            navController.navigateToCitizenTab(CitizenTab.BENEFITS)
         }
     }
     val tabClick: (CitizenTab) -> Unit = { tab -> navController.navigateToCitizenTab(tab) }
@@ -89,7 +89,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() },
                 onCouponClick = { open(EcoRutaDestination.couponRedemption(it.id)) },
                 onCategorySelected = { state = state.copy(category = it) },
-                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.CUPONES) },
+                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
                 onHistory = { open(EcoRutaDestination.ECOPOINTS_HISTORY) },
                 onRetry = {},
                 onTabClick = tabClick,
@@ -138,7 +138,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
                     )
                 },
                 onBackToDetail = { state = state.copy(step = RedemptionStep.DETAIL) },
-                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.CUPONES) },
+                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
                 onBackToBenefits = ::backToBenefits,
                 onRetry = {},
                 onTabClick = tabClick,
@@ -173,13 +173,13 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
             }
             MyCouponsScreen(
                 state = state,
-                selectedTab = if (fromProfile) CitizenTab.PERFIL else CitizenTab.CUPONES,
+                selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
                 actions = MyCouponsActions(
                     onBack = { navController.popBackStack() },
                     onCategorySelected = { state = state.copy(category = it) },
                     onToggleExpanded = { id -> state = state.copy(expandedId = if (state.expandedId == id) null else id) },
                     onShowQr = { open(EcoRutaDestination.myCouponDetail(it.id, fromProfile)) },
-                    onGoToBenefits = { navController.navigateToCitizenTab(CitizenTab.BENEFICIOS) },
+                    onGoToBenefits = { navController.navigateToCitizenTab(CitizenTab.BENEFITS) },
                     onRetry = {},
                     onTabClick = tabClick,
                 ),
@@ -200,7 +200,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         val fromProfile = entry.arguments?.getBoolean(EcoRutaDestination.ARG_FROM_PROFILE) ?: false
         MyCouponDetailScreen(
             state = MyCouponUiState.Loaded(coupon = SampleRedeemedCoupons.first(), isSample = true),
-            selectedTab = if (fromProfile) CitizenTab.PERFIL else CitizenTab.CUPONES,
+            selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
             onBack = { navController.popBackStack() },
             onBackToMyCoupons = { navController.popBackStack() },
             onBackToBenefits = ::backToBenefits,

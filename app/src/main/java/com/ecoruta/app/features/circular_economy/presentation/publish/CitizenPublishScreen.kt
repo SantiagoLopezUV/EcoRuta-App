@@ -202,7 +202,7 @@ data class RecyclingHomeActions(
 // Pantalla principal del módulo de reciclaje con saldo de puntos y listado de publicaciones
 @Composable
 fun RecyclingHomeScreen(state: RecyclingHomeUiState, actions: RecyclingHomeActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.INICIO, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.HOME, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         val loaded = state as? RecyclingHomeUiState.Loaded
         Column(
             modifier = Modifier
@@ -453,7 +453,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
     }
 
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.INICIO,
+        selectedTab = CitizenTab.HOME,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
@@ -589,7 +589,7 @@ fun DeliveryCompletedScreen(
     onTabClick: (CitizenTab) -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.INICIO,
+        selectedTab = CitizenTab.HOME,
         onBack = onBackToRecycling,
         onTabClick = onTabClick,
         bottomActions = {

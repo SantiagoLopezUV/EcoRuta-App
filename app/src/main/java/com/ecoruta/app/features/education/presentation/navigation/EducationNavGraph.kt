@@ -33,7 +33,7 @@ private val SampleEducationTopics = listOf(
         title = "Cómo separar tus residuos",
         summary = "Guía rápida del código de colores en Colombia",
         rewardPoints = 50,
-        icon = TopicIcon.LISTA,
+        icon = TopicIcon.LIST,
         opensSeparationGuide = true,
     ),
 )
@@ -95,7 +95,7 @@ fun NavGraphBuilder.educationGraph(
                 },
                 onViewBenefits = {
                     state = state.copy(reward = null)
-                    navController.navigateToCitizenTab(CitizenTab.BENEFICIOS)
+                    navController.navigateToCitizenTab(CitizenTab.BENEFITS)
                 },
                 onCloseReward = {
                     state = state.copy(reward = null)

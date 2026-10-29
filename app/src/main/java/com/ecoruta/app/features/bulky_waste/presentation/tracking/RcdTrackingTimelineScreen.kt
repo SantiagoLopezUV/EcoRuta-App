@@ -129,7 +129,7 @@ fun DebrisTrackingScreen(
         }
 
     EcoTabScreenLayout(
-        selectedTab = if (showGoHome) CitizenTab.INICIO else CitizenTab.PERFIL,
+        selectedTab = if (showGoHome) CitizenTab.HOME else CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
@@ -325,7 +325,7 @@ data class MyDebrisRequestsActions(
 @Composable
 fun MyDebrisRequestsScreen(state: MyDebrisRequestsUiState, actions: MyDebrisRequestsActions) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.PERFIL,
+        selectedTab = CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = {

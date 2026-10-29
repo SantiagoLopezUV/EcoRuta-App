@@ -10,10 +10,10 @@ enum class CitizenTab(
     override val labelRes: Int,
     override val iconRes: Int,
 ) : EcoBottomBarItem {
-    INICIO(R.string.tab_inicio, R.drawable.ic_nav_home),
-    BENEFICIOS(R.string.tab_beneficios, R.drawable.ic_nav_gift),
-    CUPONES(R.string.tab_cupones, R.drawable.ic_nav_ticket),
-    MAPA(R.string.tab_mapa, R.drawable.ic_nav_map),
-    EDUCACION(R.string.tab_educacion, R.drawable.ic_nav_book),
-    PERFIL(R.string.tab_perfil, R.drawable.ic_nav_user),
+    HOME(R.string.tab_inicio, R.drawable.ic_nav_home),
+    BENEFITS(R.string.tab_beneficios, R.drawable.ic_nav_gift),
+    COUPONS(R.string.tab_cupones, R.drawable.ic_nav_ticket),
+    MAP(R.string.tab_mapa, R.drawable.ic_nav_map),
+    EDUCATION(R.string.tab_educacion, R.drawable.ic_nav_book),
+    PROFILE(R.string.tab_perfil, R.drawable.ic_nav_user),
 }

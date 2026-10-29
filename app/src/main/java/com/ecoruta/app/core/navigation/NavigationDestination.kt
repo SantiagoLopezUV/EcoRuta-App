@@ -192,14 +192,14 @@ fun NavHostController.goToPublicHomeAfterSignOut() {
 // Navega entre las pestañas principales cuando el usuario explora sin sesión iniciada
 fun NavHostController.navigateToPublicTab(tab: CitizenTab) {
     val route = when (tab) {
-        CitizenTab.INICIO -> {
+        CitizenTab.HOME -> {
             popBackStack(EcoRutaDestination.PUBLIC_HOME, inclusive = false)
             return
         }
-        CitizenTab.BENEFICIOS, CitizenTab.CUPONES -> EcoRutaDestination.GUEST_BENEFITS
-        CitizenTab.MAPA -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
-        CitizenTab.EDUCACION -> EcoRutaDestination.GUEST_EDUCATION
-        CitizenTab.PERFIL -> EcoRutaDestination.GUEST_PROFILE
+        CitizenTab.BENEFITS, CitizenTab.COUPONS -> EcoRutaDestination.GUEST_BENEFITS
+        CitizenTab.MAP -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
+        CitizenTab.EDUCATION -> EcoRutaDestination.GUEST_EDUCATION
+        CitizenTab.PROFILE -> EcoRutaDestination.GUEST_PROFILE
     }
     navigate(route) {
         popUpTo(EcoRutaDestination.PUBLIC_HOME)
@@ -210,15 +210,15 @@ fun NavHostController.navigateToPublicTab(tab: CitizenTab) {
 // Navega entre las pestañas principales del ciudadano con sesión activa
 fun NavHostController.navigateToCitizenTab(tab: CitizenTab) {
     val route = when (tab) {
-        CitizenTab.INICIO -> {
+        CitizenTab.HOME -> {
             popBackStack(EcoRutaDestination.CITIZEN_HOME, inclusive = false)
             return
         }
-        CitizenTab.BENEFICIOS -> EcoRutaDestination.BENEFITS
-        CitizenTab.CUPONES -> EcoRutaDestination.MY_COUPONS
-        CitizenTab.MAPA -> EcoRutaDestination.NEIGHBORHOOD_SELECTION
-        CitizenTab.EDUCACION -> EcoRutaDestination.EDUCATION
-        CitizenTab.PERFIL -> EcoRutaDestination.MY_PROFILE
+        CitizenTab.BENEFITS -> EcoRutaDestination.BENEFITS
+        CitizenTab.COUPONS -> EcoRutaDestination.MY_COUPONS
+        CitizenTab.MAP -> EcoRutaDestination.NEIGHBORHOOD_SELECTION
+        CitizenTab.EDUCATION -> EcoRutaDestination.EDUCATION
+        CitizenTab.PROFILE -> EcoRutaDestination.MY_PROFILE
     }
     navigate(route) {
         popUpTo(EcoRutaDestination.CITIZEN_HOME)

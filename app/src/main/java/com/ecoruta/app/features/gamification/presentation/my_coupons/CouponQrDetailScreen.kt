@@ -100,7 +100,7 @@ private fun RedemptionLayout(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.BENEFICIOS,
+        selectedTab = CitizenTab.BENEFITS,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,

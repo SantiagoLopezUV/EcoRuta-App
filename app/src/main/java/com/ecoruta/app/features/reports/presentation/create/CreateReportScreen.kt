@@ -502,7 +502,7 @@ fun ReportLocationScreen(state: NewReportUiState, actions: ReportLocationActions
     }
     if (showLocationRationale) {
         EcoPermissionScreen(
-            kind = EcoPermissionKind.UBICACION,
+            kind = EcoPermissionKind.LOCATION,
             onAllow = {
                 showLocationRationale = false
                 permissionLauncher?.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))

@@ -122,7 +122,7 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             )
         }
     }

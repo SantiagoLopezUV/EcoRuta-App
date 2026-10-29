@@ -85,10 +85,10 @@ fun NavGraphBuilder.routesGraph(
                 onServiceClick = { service ->
                     open(
                         when (service) {
-                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.GUEST_SPECIAL_WASTE
-                            PublicService.BASURA -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
-                            PublicService.RECICLAJE -> EcoRutaDestination.GUEST_RECYCLING
-                            PublicService.REPORTES -> EcoRutaDestination.GUEST_REPORTS
+                            PublicService.SPECIAL_WASTE -> EcoRutaDestination.GUEST_SPECIAL_WASTE
+                            PublicService.GARBAGE -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
+                            PublicService.RECYCLING -> EcoRutaDestination.GUEST_RECYCLING
+                            PublicService.REPORTS -> EcoRutaDestination.GUEST_REPORTS
                         },
                     )
                 },
@@ -107,10 +107,10 @@ fun NavGraphBuilder.routesGraph(
                 onServiceClick = { service ->
                     open(
                         when (service) {
-                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.REQUEST_DEBRIS_PICKUP
-                            PublicService.BASURA -> EcoRutaDestination.NEIGHBORHOOD_SELECTION
-                            PublicService.RECICLAJE -> EcoRutaDestination.RECYCLING
-                            PublicService.REPORTES -> EcoRutaDestination.NEW_REPORT
+                            PublicService.SPECIAL_WASTE -> EcoRutaDestination.REQUEST_DEBRIS_PICKUP
+                            PublicService.GARBAGE -> EcoRutaDestination.NEIGHBORHOOD_SELECTION
+                            PublicService.RECYCLING -> EcoRutaDestination.RECYCLING
+                            PublicService.REPORTS -> EcoRutaDestination.NEW_REPORT
                         },
                     )
                 },
@@ -261,7 +261,7 @@ private fun NavGraphBuilder.notificationsDestinations(navController: NavHostCont
                     }
                     navController.navigate(route) { launchSingleTop = true }
                 },
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),

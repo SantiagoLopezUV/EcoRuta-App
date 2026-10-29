@@ -109,7 +109,7 @@ private fun ProfileLayout(
         }
         EcoBottomBar(
             items = CitizenTab.entries,
-            selectedItem = CitizenTab.PERFIL,
+            selectedItem = CitizenTab.PROFILE,
             onItemClick = onTabClick,
             modifier = Modifier.padding(bottom = 12.dp),
         )

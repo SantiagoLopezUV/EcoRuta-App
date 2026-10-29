@@ -95,7 +95,7 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
     }
     if (showNotificationsRationale) {
         EcoPermissionScreen(
-            kind = EcoPermissionKind.NOTIFICACIONES,
+            kind = EcoPermissionKind.NOTIFICATIONS,
             onAllow = {
                 showNotificationsRationale = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -109,7 +109,7 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
         return
     }
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.MAPA,
+        selectedTab = CitizenTab.MAP,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = {
@@ -252,7 +252,7 @@ fun ProximityAlertScreen(
 ) {
     val name = neighborhoodName ?: "—"
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.MAPA,
+        selectedTab = CitizenTab.MAP,
         onBack = onBack,
         onTabClick = onTabClick,
         bottomActions = {

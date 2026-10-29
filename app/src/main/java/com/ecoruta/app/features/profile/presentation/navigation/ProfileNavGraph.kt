@@ -86,7 +86,7 @@ fun NavGraphBuilder.profileGraph(
             isSigningOut = false,
             isUpdatingPhoto = false,
             actions = ProfileActions(
-                onBack = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onBack = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                 onPhotoSelected = { uri -> localPhoto = uri },
                 onRemovePhoto = { localPhoto = null },
                 onCameraUnavailable = { showNotice(context.getString(R.string.profile_camera_unavailable)) },
@@ -132,7 +132,7 @@ fun NavGraphBuilder.profileGraph(
 private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostController) {
     fun backToProfile() {
         if (!navController.popBackStack(EcoRutaDestination.MY_PROFILE, inclusive = false)) {
-            navController.navigateToCitizenTab(CitizenTab.PERFIL)
+            navController.navigateToCitizenTab(CitizenTab.PROFILE)
         }
     }
 
@@ -174,7 +174,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
         StoreRequestInReviewScreen(
             withoutBackend = withoutBackend,
             onBack = ::backToProfile,
-            onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+            onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
         )
     }
@@ -259,7 +259,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
             RecyclerApplicationSentScreen(
                 state = RecyclerApplicationUiState(submittedWithoutBackend = true),
                 onBack = ::backToProfile,
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             )
         }
 
@@ -267,7 +267,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
             BackHandler { backToProfile() }
             CompanyRequestSentScreen(
                 state = RecyclerApplicationUiState(company = SampleCompanies.first(), submittedWithoutBackend = true),
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             )
         }
     }

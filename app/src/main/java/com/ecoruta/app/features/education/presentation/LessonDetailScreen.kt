@@ -135,7 +135,7 @@ private fun GuideLayout(
     bottomAction: @Composable () -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.EDUCACION,
+        selectedTab = CitizenTab.EDUCATION,
         onBack = onBack,
         onTabClick = onTabClick,
         topBarAction = { FavoriteButton(favorite = favorite, onClick = onToggleFavorite, cornerRadius = 12, iconSize = 20, bordered = false) },
