@@ -32,6 +32,7 @@ object AuthGuard {
         EcoRutaDestination.GUEST_REPORTS,
         EcoRutaDestination.GUEST_RECYCLING,
         EcoRutaDestination.GUEST_BENEFITS,
+        EcoRutaDestination.GUEST_MY_COUPONS,
         EcoRutaDestination.GUEST_EDUCATION,
         EcoRutaDestination.GUEST_SEPARATION_GUIDE,
         EcoRutaDestination.GUEST_PROFILE,
@@ -54,7 +55,8 @@ object AuthGuard {
         EcoRutaDestination.NEW_REPORT, EcoRutaDestination.MY_REPORTS -> EcoRutaDestination.GUEST_REPORTS
         EcoRutaDestination.NEIGHBORHOOD_SELECTION -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
         EcoRutaDestination.RECYCLING, EcoRutaDestination.PUBLISH_MATERIAL -> EcoRutaDestination.GUEST_RECYCLING
-        EcoRutaDestination.BENEFITS, EcoRutaDestination.MY_COUPONS -> EcoRutaDestination.GUEST_BENEFITS
+        EcoRutaDestination.BENEFITS -> EcoRutaDestination.GUEST_BENEFITS
+        EcoRutaDestination.MY_COUPONS -> EcoRutaDestination.GUEST_MY_COUPONS
         EcoRutaDestination.EDUCATION, EcoRutaDestination.SEPARATION_GUIDE -> EcoRutaDestination.GUEST_EDUCATION
         EcoRutaDestination.MY_PROFILE -> EcoRutaDestination.GUEST_PROFILE
         EcoRutaDestination.NOTIFICATIONS -> EcoRutaDestination.GUEST_NOTIFICATIONS
