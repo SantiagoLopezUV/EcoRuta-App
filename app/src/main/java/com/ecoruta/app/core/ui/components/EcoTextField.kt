@@ -68,7 +68,7 @@ fun EcoTextField(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(text = label, style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(text = label, style = EcoTextStyles.FieldLabel, color = EcoTitle)
 
         BasicTextField(
             value = value,
@@ -76,7 +76,7 @@ fun EcoTextField(
             enabled = enabled,
             singleLine = singleLine,
             // El texto escrito utiliza el color de título mientras que el texto de sugerencia usa el de subtítulo
-            textStyle = EcoTextStyles.Subtitulo.copy(color = EcoTitle),
+            textStyle = EcoTextStyles.Subtitle.copy(color = EcoTitle),
             cursorBrush = SolidColor(EcoTitle),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
@@ -105,7 +105,7 @@ fun EcoTextField(
                     }
                     Box(Modifier.weight(1f)) {
                         if (value.isEmpty() && placeholder != null) {
-                            Text(text = placeholder, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                            Text(text = placeholder, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                         }
                         innerTextField()
                     }
@@ -126,7 +126,7 @@ fun EcoTextField(
         if (errorMessage != null) {
             EcoErrorMessage(text = errorMessage)
         } else if (supportingText != null) {
-            Text(text = supportingText, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(text = supportingText, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
     }
 }
@@ -151,6 +151,6 @@ fun EcoErrorMessage(
                 .padding(top = 2.dp)
                 .size(iconSize),
         )
-        Text(text = text, style = EcoTextStyles.Subtitulo, color = EcoError)
+        Text(text = text, style = EcoTextStyles.Subtitle, color = EcoError)
     }
 }

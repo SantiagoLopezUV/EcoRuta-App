@@ -162,7 +162,7 @@ fun DebrisRequestScreen(state: DebrisRequestUiState, actions: DebrisRequestActio
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.debris_type_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.debris_type_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 DebrisType.entries.forEach { type ->
                     DebrisTypeOption(type = type, selected = state.type == type, onClick = { actions.onTypeSelected(type) })
@@ -229,8 +229,8 @@ private fun DebrisTypeOption(type: DebrisType, selected: Boolean, onClick: () ->
             )
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(type.labelRes()), style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(stringResource(type.descriptionRes()), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(stringResource(type.labelRes()), style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(stringResource(type.descriptionRes()), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
         RadioMark(selected)
     }
@@ -300,9 +300,9 @@ fun DebrisGuideScreen(selectedType: DebrisType?, onContinue: () -> Unit, onBack:
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(painterResource(R.drawable.ic_shield_check), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(22.dp))
-                Text(stringResource(R.string.debris_guide_care_title), style = EcoTextStyles.Boton, color = EcoWhite)
+                Text(stringResource(R.string.debris_guide_care_title), style = EcoTextStyles.ButtonText, color = EcoWhite)
             }
-            Text(stringResource(R.string.debris_guide_care_body), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(stringResource(R.string.debris_guide_care_body), style = EcoTextStyles.Subtitle, color = EcoWhite)
         }
     }
 }
@@ -321,14 +321,14 @@ private fun GuideCard(iconRes: Int, title: String, category: String, body: Strin
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Icon(painterResource(iconRes), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
-            Text(title, style = EcoTextStyles.Boton, color = EcoTitle)
+            Text(title, style = EcoTextStyles.ButtonText, color = EcoTitle)
         }
         Text(
             text = if (highlighted) stringResource(R.string.debris_guide_your_selection, category) else category,
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = if (highlighted) EcoPrimary else EcoSubtitle,
         )
-        Text(body, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -367,14 +367,14 @@ fun DebrisScheduleScreen(state: DebrisRequestUiState, actions: DebrisScheduleAct
                 Icon(painterResource(R.drawable.ic_calendar), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
                 Text(
                     formatMonth(DayMillis.addDays(state.weekStart, 3)),
-                    style = EcoTextStyles.Boton,
+                    style = EcoTextStyles.ButtonText,
                     color = EcoTitle,
                     modifier = Modifier.weight(1f),
                 )
                 WeekArrow(R.drawable.ic_chevron_left, R.string.debris_previous_week, state.canGoToPreviousWeek, actions.onPreviousWeek)
                 WeekArrow(R.drawable.ic_chevron_right, R.string.debris_next_week, state.canGoToNextWeek, actions.onNextWeek)
             }
-            Text(weekLabel(state.weekStart, weekEnd), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(weekLabel(state.weekStart, weekEnd), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             when {
                 state.isLoadingDays -> Box(
                     Modifier
@@ -403,7 +403,7 @@ fun DebrisScheduleScreen(state: DebrisRequestUiState, actions: DebrisScheduleAct
                     }
                 }
             }
-            Text(stringResource(R.string.debris_availability_legend), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(stringResource(R.string.debris_availability_legend), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             if (state.daysAreSample) EcoInfoHint(text = stringResource(R.string.debris_sample_dates_hint))
             state.dateError?.let { EcoErrorMessage(text = stringResource(it)) }
         }
@@ -419,14 +419,14 @@ fun DebrisScheduleScreen(state: DebrisRequestUiState, actions: DebrisScheduleAct
                 EcoDataLabel(stringResource(R.string.debris_preferred_date))
                 Text(
                     state.selectedDay?.let(::formatLongDate) ?: stringResource(R.string.debris_no_date_selected),
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoTitle,
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 EcoDataLabel(stringResource(R.string.debris_waste_and_location))
-                state.type?.let { Text(stringResource(it.labelRes()), style = EcoTextStyles.Subtitulo, color = EcoTitle) }
-                Text(stringResource(R.string.debris_address_in_city, state.address.trim()), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+                state.type?.let { Text(stringResource(it.labelRes()), style = EcoTextStyles.Subtitle, color = EcoTitle) }
+                Text(stringResource(R.string.debris_address_in_city, state.address.trim()), style = EcoTextStyles.Subtitle, color = EcoTitle)
             }
         }
     }
@@ -469,8 +469,8 @@ private fun DayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(formatWeekday(day), style = EcoTextStyles.EtiquetaNavegacion, color = content)
-        Text(formatDayNumber(day), style = EcoTextStyles.Boton.copy(fontSize = 18.sp), color = content)
+        Text(formatWeekday(day), style = EcoTextStyles.NavigationLabel, color = content)
+        Text(formatDayNumber(day), style = EcoTextStyles.ButtonText.copy(fontSize = 18.sp), color = content)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
             if (available) {
                 Box(
@@ -488,7 +488,7 @@ private fun DayCell(
                         else -> R.string.debris_day_unavailable
                     },
                 ),
-                style = EcoTextStyles.EtiquetaNavegacion,
+                style = EcoTextStyles.NavigationLabel,
                 color = content,
             )
         }
@@ -529,8 +529,8 @@ fun DebrisSentScreen(
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.debris_sent_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.debris_sent_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.debris_sent_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.debris_sent_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(
             modifier = Modifier
@@ -550,7 +550,7 @@ fun DebrisSentScreen(
             ) {
                 Icon(painterResource(R.drawable.ic_check_large), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(40.dp))
             }
-            Text(stringResource(R.string.debris_sent_motto), style = EcoTextStyles.Boton, color = EcoTitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.debris_sent_motto), style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center)
             DebrisStatusChip(DebrisStatus.PENDIENTE)
         }
         DebrisSummaryCard(request)
@@ -579,7 +579,7 @@ internal fun DebrisSummaryCard(request: DebrisRequest) {
 private fun SummaryItem(label: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         EcoDataLabel(label)
-        Text(value, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(value, style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 

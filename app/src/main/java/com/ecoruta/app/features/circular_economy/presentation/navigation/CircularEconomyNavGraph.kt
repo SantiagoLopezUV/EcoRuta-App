@@ -63,23 +63,23 @@ fun NavGraphBuilder.circularEconomyGraph(
     val idArgument = listOf(navArgument(EcoRutaDestination.ARG_ID) { type = NavType.StringType })
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
     fun backToRecycling() {
-        if (!navController.popBackStack(EcoRutaDestination.RECICLAJE, inclusive = false)) open(EcoRutaDestination.RECICLAJE)
+        if (!navController.popBackStack(EcoRutaDestination.RECYCLING, inclusive = false)) open(EcoRutaDestination.RECYCLING)
     }
 
-    composable(EcoRutaDestination.RECICLAJE) {
+    composable(EcoRutaDestination.RECYCLING) {
         RecyclingHomeScreen(
             state = RecyclingHomeUiState.Loaded(ecoPoints = 1_250, publications = SamplePublications, isSample = true),
             actions = RecyclingHomeActions(
                 onBack = { navController.popBackStack() },
-                onPublish = { open(EcoRutaDestination.PUBLICAR_MATERIAL) },
-                onPublicationClick = { open(EcoRutaDestination.detallePublicacion(it.id)) },
+                onPublish = { open(EcoRutaDestination.PUBLISH_MATERIAL) },
+                onPublicationClick = { open(EcoRutaDestination.publicationDetail(it.id)) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.PUBLICAR_MATERIAL) {
+    composable(EcoRutaDestination.PUBLISH_MATERIAL) {
         var state by remember { mutableStateOf(PublishMaterialUiState()) }
         PublishMaterialScreen(
             state = state,
@@ -96,7 +96,7 @@ fun NavGraphBuilder.circularEconomyGraph(
         )
     }
 
-    composable(EcoRutaDestination.DETALLE_PUBLICACION, arguments = idArgument) { entry ->
+    composable(EcoRutaDestination.PUBLICATION_DETAIL, arguments = idArgument) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
         val pub = SamplePublications.find { it.id == id } ?: SamplePublications.first()
         val context = LocalContext.current
@@ -105,7 +105,7 @@ fun NavGraphBuilder.circularEconomyGraph(
             isCancelling = false,
             actions = PublicationDetailActions(
                 onBack = { navController.popBackStack() },
-                onShowQr = { open(EcoRutaDestination.codigoEntrega(id)) },
+                onShowQr = { open(EcoRutaDestination.deliveryCode(id)) },
                 onCallRecycler = { phone ->
                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone.filter { it.isDigit() }))
                     try {
@@ -115,14 +115,14 @@ fun NavGraphBuilder.circularEconomyGraph(
                     }
                 },
                 onCancel = { navController.popBackStack() },
-                onViewDelivery = { open(EcoRutaDestination.entregaCompletada(id)) },
+                onViewDelivery = { open(EcoRutaDestination.deliveryCompleted(id)) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.CODIGO_ENTREGA, arguments = idArgument) {
+    composable(EcoRutaDestination.DELIVERY_CODE, arguments = idArgument) {
         val code = DeliveryCode(token = "ECO-4829", expiresAtMillis = System.currentTimeMillis() + DeliveryCode.VALIDITY_MS)
         DeliveryCodeScreen(
             state = DeliveryCodeUiState(isLoading = false, publication = SamplePublications.first(), code = code, isSample = true),
@@ -131,7 +131,7 @@ fun NavGraphBuilder.circularEconomyGraph(
         )
     }
 
-    composable(EcoRutaDestination.ENTREGA_COMPLETADA, arguments = idArgument) {
+    composable(EcoRutaDestination.DELIVERY_COMPLETED, arguments = idArgument) {
         val delivered = SamplePublications.first().copy(status = PublicationStatus.ENTREGADA, deliveredAtMillis = 1_760_150_000_000L)
         DeliveryCompletedScreen(
             state = PublicationUiState.Loaded(publication = delivered, isSample = true),
@@ -140,11 +140,11 @@ fun NavGraphBuilder.circularEconomyGraph(
         )
     }
 
-    composable(EcoRutaDestination.RECICLAJE_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_RECYCLING) {
         RecyclingGuestScreen(
             actions = GuestServiceActions(
                 onBack = { navController.popBackStack() },
-                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )

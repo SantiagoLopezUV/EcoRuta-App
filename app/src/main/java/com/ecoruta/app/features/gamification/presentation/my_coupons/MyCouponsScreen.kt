@@ -85,8 +85,8 @@ fun MyCouponsScreen(state: MyCouponsUiState, actions: MyCouponsActions, selected
         bottomActions = bottomActions,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.my_coupons_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            if (!isEmpty) Text(stringResource(R.string.my_coupons_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.my_coupons_title), style = EcoTextStyles.Title, color = EcoTitle)
+            if (!isEmpty) Text(stringResource(R.string.my_coupons_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when {
             state.isLoading -> BenefitsLoading()
@@ -100,7 +100,7 @@ fun MyCouponsScreen(state: MyCouponsUiState, actions: MyCouponsActions, selected
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.my_coupons_sample_hint))
                 CategoryFilterRow(selected = state.category, onSelected = actions.onCategorySelected)
                 if (state.visibleCoupons.isEmpty()) {
-                    Text(stringResource(R.string.my_coupons_empty_category), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.my_coupons_empty_category), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     state.visibleCoupons.forEach { redeemed ->
@@ -130,8 +130,8 @@ private fun AvailableCounter(count: Int) {
     ) {
         Icon(painterResource(R.drawable.ic_nav_ticket), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(24.dp))
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(R.string.my_coupons_available_label), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.85f))
-            Text(pluralStringResource(R.plurals.my_coupons_count, count, count), style = EcoTextStyles.Titulo, color = EcoWhite)
+            Text(stringResource(R.string.my_coupons_available_label), style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.85f))
+            Text(pluralStringResource(R.plurals.my_coupons_count, count, count), style = EcoTextStyles.Title, color = EcoWhite)
         }
     }
 }
@@ -160,8 +160,8 @@ private fun RedeemedCouponCard(redeemed: RedeemedCoupon, expanded: Boolean, onTo
         ) {
             StoreBadge()
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(redeemed.coupon.businessName, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
-                Text(redeemed.coupon.title, style = EcoTextStyles.Boton, color = EcoTitle)
+                Text(redeemed.coupon.businessName, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
+                Text(redeemed.coupon.title, style = EcoTextStyles.ButtonText, color = EcoTitle)
                 AvailableMark()
             }
             Icon(
@@ -181,7 +181,7 @@ private fun RedeemedCouponCard(redeemed: RedeemedCoupon, expanded: Boolean, onTo
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 HorizontalDivider(color = EcoBorder)
-                Text(stringResource(R.string.my_coupons_how_to_redeem), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+                Text(stringResource(R.string.my_coupons_how_to_redeem), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -190,19 +190,19 @@ private fun RedeemedCouponCard(redeemed: RedeemedCoupon, expanded: Boolean, onTo
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(redeemed.code, style = EcoTextStyles.Numeros.copy(fontFamily = FontFamily.Monospace), color = EcoTitle)
+                    Text(redeemed.code, style = EcoTextStyles.Numbers.copy(fontFamily = FontFamily.Monospace), color = EcoTitle)
                 }
-                Text(stringResource(R.string.coupon_code_hint_short), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.coupon_code_hint_short), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         stringResource(R.string.my_coupons_redeemed_for, formatPoints(redeemed.pointsSpent)),
-                        style = EcoTextStyles.EtiquetaCampo,
+                        style = EcoTextStyles.FieldLabel,
                         color = EcoSubtitle,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
                         stringResource(R.string.coupon_valid_until_short, formatShortCouponDate(redeemed.coupon.validUntilMillis)),
-                        style = EcoTextStyles.EtiquetaCampo,
+                        style = EcoTextStyles.FieldLabel,
                         color = EcoSubtitle,
                     )
                 }
@@ -233,8 +233,8 @@ private fun EmptyCoupons() {
         ) {
             Icon(painterResource(R.drawable.ic_nav_ticket), contentDescription = null, tint = EcoTitle, modifier = Modifier.size(28.dp))
         }
-        Text(stringResource(R.string.my_coupons_empty_title), style = EcoTextStyles.Boton, color = EcoTitle, textAlign = TextAlign.Center)
-        Text(stringResource(R.string.my_coupons_empty_body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.my_coupons_empty_title), style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.my_coupons_empty_body), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
     }
 }
 
@@ -259,8 +259,8 @@ fun MyCouponDetailScreen(
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.my_coupon_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.my_coupon_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.my_coupon_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.my_coupon_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             MyCouponUiState.Loading -> BenefitsLoading()
@@ -274,7 +274,7 @@ fun MyCouponDetailScreen(
                 CouponCodeCard(redeemed = state.coupon, isSample = state.isSample)
                 Text(
                     stringResource(R.string.my_coupons_redeemed_on, formatShortCouponDate(state.coupon.redeemedAtMillis), formatPoints(state.coupon.pointsSpent)),
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoSubtitle,
                 )
             }

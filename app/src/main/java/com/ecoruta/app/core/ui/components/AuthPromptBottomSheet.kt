@@ -102,13 +102,13 @@ fun AuthPromptBottomSheet(
             ) {
                 Text(
                     text = title,
-                    style = EcoTextStyles.Titulo,
+                    style = EcoTextStyles.Title,
                     color = EcoTitle,
                     textAlign = TextAlign.Center,
                 )
                 Text(
                     text = subtitle,
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoSubtitle,
                     textAlign = TextAlign.Center,
                 )
@@ -164,13 +164,13 @@ fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceAction
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(stringResource(content.banner), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(stringResource(content.banner), style = EcoTextStyles.Subtitle, color = EcoWhite)
             EcoPrimaryButton(text = stringResource(R.string.home_login), onClick = actions.onLogin, height = 48.dp)
-            Text(stringResource(content.lockedSection), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+            Text(stringResource(content.lockedSection), style = EcoTextStyles.FieldLabel, color = EcoWhite)
         }
         Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(content.title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(content.description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(content.title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(content.description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(
             modifier = Modifier
@@ -181,7 +181,7 @@ fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceAction
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text(stringResource(R.string.guest_can_title), style = EcoTextStyles.Boton, color = EcoTitle)
+            Text(stringResource(R.string.guest_can_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
             content.benefits.forEach { res ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(
@@ -191,7 +191,7 @@ fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceAction
                             .clip(RoundedCornerShape(3.dp))
                             .background(EcoPrimary),
                     )
-                    Text(stringResource(res), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(res), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
             }
         }
@@ -208,10 +208,10 @@ fun PendingScreen(screenName: String, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = screenName, style = EcoTextStyles.Titulo, color = EcoTitle, textAlign = TextAlign.Center)
+        Text(text = screenName, style = EcoTextStyles.Title, color = EcoTitle, textAlign = TextAlign.Center)
         Text(
             text = "Pantalla pendiente de implementar",
-            style = EcoTextStyles.Subtitulo,
+            style = EcoTextStyles.Subtitle,
             color = EcoSubtitle,
             textAlign = TextAlign.Center,
         )
@@ -263,7 +263,7 @@ fun SplashScreen(
         )
         Text(
             text = stringResource(R.string.app_name),
-            style = EcoTextStyles.MarcaSplash,
+            style = EcoTextStyles.SplashBrand,
             color = EcoWhite,
             textAlign = TextAlign.Center,
             modifier = Modifier

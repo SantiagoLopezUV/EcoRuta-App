@@ -75,7 +75,7 @@ fun MyReportsScreen(state: MyReportsUiState, actions: MyReportsActions) {
             EcoPrimaryButton(text = stringResource(R.string.report_create), onClick = actions.onCreateReport)
         },
     ) {
-        Text(stringResource(R.string.profile_my_reports), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.profile_my_reports), style = EcoTextStyles.Title, color = EcoTitle)
         when (state) {
             MyReportsUiState.Loading -> LoadingBox()
             MyReportsUiState.Error -> ErrorBox(R.string.report_list_error, actions.onRetry)
@@ -83,7 +83,7 @@ fun MyReportsScreen(state: MyReportsUiState, actions: MyReportsActions) {
                 if (state.reports.isEmpty()) {
                     EmptyReports()
                 } else {
-                    Text(stringResource(R.string.report_list_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.report_list_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                     if (state.isSample) ReportInfoHint(text = stringResource(R.string.report_sample_data_hint))
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         state.reports.forEach { report ->
@@ -116,11 +116,11 @@ private fun ReportCard(report: Report, onClick: () -> Unit) {
         )
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(report.type.labelRes()), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+                Text(stringResource(report.type.labelRes()), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
                 ReportStatusChip(report.status)
             }
-            Text(report.fullAddress(), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
-            Text(formatReportDate(report.createdAtMillis), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(report.fullAddress(), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+            Text(formatReportDate(report.createdAtMillis), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
     }
 }
@@ -143,10 +143,10 @@ private fun EmptyReports() {
         ) {
             Icon(painterResource(R.drawable.ic_file_text), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(48.dp))
         }
-        Text(stringResource(R.string.report_empty_title), style = EcoTextStyles.Boton, color = EcoTitle)
+        Text(stringResource(R.string.report_empty_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
         Text(
             stringResource(R.string.report_empty_description),
-            style = EcoTextStyles.Subtitulo,
+            style = EcoTextStyles.Subtitle,
             color = EcoSubtitle,
             textAlign = TextAlign.Center,
         )
@@ -183,7 +183,7 @@ fun ReportDetailScreen(state: ReportDetailUiState, actions: ReportDetailActions)
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
     ) {
-        Text(stringResource(R.string.report_detail_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.report_detail_title), style = EcoTextStyles.Title, color = EcoTitle)
         when (state) {
             ReportDetailUiState.Loading -> LoadingBox()
             ReportDetailUiState.Error -> ErrorBox(R.string.report_detail_error, actions.onRetry)
@@ -206,24 +206,24 @@ private fun ReportDetailContent(report: Report, isSample: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         DetailLabel(R.string.report_type_title)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(report.type.labelRes()), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(stringResource(report.type.labelRes()), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             ReportStatusChip(report.status)
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         DetailLabel(R.string.report_address_label)
-        Text(report.fullAddress(), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(report.fullAddress(), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f)) { DetailLabel(R.string.report_date_label) }
-        Text(formatReportDate(report.createdAtMillis), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(formatReportDate(report.createdAtMillis), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
     StatusExplanation(report)
 }
 
 @Composable
 private fun DetailLabel(textRes: Int) {
-    Text(stringResource(textRes), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+    Text(stringResource(textRes), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
 }
 
 @Composable
@@ -245,8 +245,8 @@ private fun StatusExplanation(report: Report) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(stringResource(titleRes), style = EcoTextStyles.Boton, color = EcoTitle)
-        Text(report.statusNote ?: stringResource(bodyRes), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(titleRes), style = EcoTextStyles.ButtonText, color = EcoTitle)
+        Text(report.statusNote ?: stringResource(bodyRes), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 

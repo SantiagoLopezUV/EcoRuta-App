@@ -104,7 +104,7 @@ private fun ProfileLayout(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             EcoTopBar(onBackClick = onBack)
-            Text(stringResource(R.string.my_profile), style = EcoTextStyles.Titulo, color = EcoTitle)
+            Text(stringResource(R.string.my_profile), style = EcoTextStyles.Title, color = EcoTitle)
             content()
         }
         EcoBottomBar(
@@ -216,15 +216,15 @@ private fun UserCard(profile: UserProfile, localPhoto: Uri?, isUpdatingPhoto: Bo
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(profile.fullName, style = EcoTextStyles.Boton, color = EcoWhite)
+                Text(profile.fullName, style = EcoTextStyles.ButtonText, color = EcoWhite)
                 Text(
                     stringResource(R.string.profile_role_city, stringResource(profile.role.roleNameRes()), profile.city),
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoWhite,
                 )
                 Text(
                     text = stringResource(if (isUpdatingPhoto) R.string.profile_photo_saving else R.string.profile_change_photo),
-                    style = EcoTextStyles.EtiquetaCampo.copy(letterSpacing = 0.sp),
+                    style = EcoTextStyles.FieldLabel.copy(letterSpacing = 0.sp),
                     color = PhotoLinkColor,
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
@@ -232,7 +232,7 @@ private fun UserCard(profile: UserProfile, localPhoto: Uri?, isUpdatingPhoto: Bo
                 )
             }
         }
-        Text(profile.email, style = EcoTextStyles.Subtitulo, color = EcoWhite)
+        Text(profile.email, style = EcoTextStyles.Subtitle, color = EcoWhite)
     }
 }
 
@@ -265,13 +265,13 @@ private fun EcoPointsCard(points: Int?, modifier: Modifier = Modifier, emptyText
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 stringResource(if (points != null) R.string.profile_ecopoints_available else R.string.profile_ecopoints),
-                style = EcoTextStyles.EtiquetaCampo,
+                style = EcoTextStyles.FieldLabel,
                 color = EcoSubtitle,
             )
             if (points != null) {
-                Text(formatPoints(points), style = EcoTextStyles.Numeros, color = EcoPrimary)
+                Text(formatPoints(points), style = EcoTextStyles.Numbers, color = EcoPrimary)
             } else if (emptyText != null) {
-                Text(emptyText, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(emptyText, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
         }
     }
@@ -322,17 +322,17 @@ fun GuestProfileScreen(actions: GuestProfileActions) {
                     )
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(stringResource(R.string.profile_guest_title), style = EcoTextStyles.Boton, color = EcoWhite)
-                    Text(stringResource(R.string.profile_guest_subtitle), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+                    Text(stringResource(R.string.profile_guest_title), style = EcoTextStyles.ButtonText, color = EcoWhite)
+                    Text(stringResource(R.string.profile_guest_subtitle), style = EcoTextStyles.Subtitle, color = EcoWhite)
                 }
             }
-            Text(stringResource(R.string.profile_guest_description), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(stringResource(R.string.profile_guest_description), style = EcoTextStyles.Subtitle, color = EcoWhite)
             EcoPrimaryButton(text = stringResource(R.string.home_login), onClick = actions.onLogin)
         }
         EcoPointsCard(points = null, emptyText = stringResource(R.string.profile_guest_ecopoints))
         Text(
             stringResource(R.string.profile_requires_login),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoTitle,
             modifier = Modifier.padding(top = 8.dp),
         )

@@ -24,8 +24,8 @@ import com.ecoruta.app.core.navigation.navigateToPublicTab
 import com.ecoruta.app.features.routes.presentation.map.AppNotification
 import com.ecoruta.app.features.routes.presentation.map.CollectionRoute
 import com.ecoruta.app.features.routes.presentation.map.GuestNotificationsScreen
-import com.ecoruta.app.features.routes.presentation.map.InicioPublicoActions
-import com.ecoruta.app.features.routes.presentation.map.InicioPublicoScreen
+import com.ecoruta.app.features.routes.presentation.map.HomeActions
+import com.ecoruta.app.features.routes.presentation.map.HomeScreen
 import com.ecoruta.app.features.routes.presentation.map.Neighborhood
 import com.ecoruta.app.features.routes.presentation.map.NeighborhoodSelectionActions
 import com.ecoruta.app.features.routes.presentation.map.NeighborhoodSelectionScreen
@@ -73,22 +73,22 @@ fun NavGraphBuilder.routesGraph(
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
     composable(
-        route = EcoRutaDestination.INICIO_PUBLICO,
+        route = EcoRutaDestination.PUBLIC_HOME,
         enterTransition = { publicHomeEnterTransition },
     ) {
         val helpPendingMessage = stringResource(R.string.notice_help_pending)
-        InicioPublicoScreen(
-            actions = InicioPublicoActions(
+        HomeScreen(
+            actions = HomeActions(
                 onHelpClick = { showNotice(helpPendingMessage) },
-                onNotificationsClick = { open(EcoRutaDestination.NOTIFICACIONES_SIN_SESION) },
-                onLoginClick = { open(EcoRutaDestination.INICIAR_SESION) },
+                onNotificationsClick = { open(EcoRutaDestination.GUEST_NOTIFICATIONS) },
+                onLoginClick = { open(EcoRutaDestination.LOGIN) },
                 onServiceClick = { service ->
                     open(
                         when (service) {
-                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.RESIDUOS_ESPECIALES_SIN_SESION
-                            PublicService.BASURA -> EcoRutaDestination.SELECCION_BARRIO_SIN_SESION
-                            PublicService.RECICLAJE -> EcoRutaDestination.RECICLAJE_SIN_SESION
-                            PublicService.REPORTES -> EcoRutaDestination.REPORTES_SIN_SESION
+                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.GUEST_SPECIAL_WASTE
+                            PublicService.BASURA -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
+                            PublicService.RECICLAJE -> EcoRutaDestination.GUEST_RECYCLING
+                            PublicService.REPORTES -> EcoRutaDestination.GUEST_REPORTS
                         },
                     )
                 },
@@ -97,20 +97,20 @@ fun NavGraphBuilder.routesGraph(
         )
     }
 
-    composable(EcoRutaDestination.INICIO_CIUDADANO) {
-        InicioPublicoScreen(
+    composable(EcoRutaDestination.CITIZEN_HOME) {
+        HomeScreen(
             isSignedIn = true,
             userName = "Camila Restrepo",
-            actions = InicioPublicoActions(
-                onNotificationsClick = { open(EcoRutaDestination.NOTIFICACIONES) },
+            actions = HomeActions(
+                onNotificationsClick = { open(EcoRutaDestination.NOTIFICATIONS) },
                 onLogoutClick = { navController.goToPublicHomeAfterSignOut() },
                 onServiceClick = { service ->
                     open(
                         when (service) {
-                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.SOLICITAR_RETIRO
-                            PublicService.BASURA -> EcoRutaDestination.SELECCION_BARRIO
-                            PublicService.RECICLAJE -> EcoRutaDestination.RECICLAJE
-                            PublicService.REPORTES -> EcoRutaDestination.NUEVO_REPORTE
+                            PublicService.RESIDUOS_ESPECIALES -> EcoRutaDestination.REQUEST_DEBRIS_PICKUP
+                            PublicService.BASURA -> EcoRutaDestination.NEIGHBORHOOD_SELECTION
+                            PublicService.RECICLAJE -> EcoRutaDestination.RECYCLING
+                            PublicService.REPORTES -> EcoRutaDestination.NEW_REPORT
                         },
                     )
                 },
@@ -133,7 +133,7 @@ private fun NavGraphBuilder.neighborhoodDestinations(
     }
 
     listOf(true, false).forEach { signedIn ->
-        composable(if (signedIn) EcoRutaDestination.SELECCION_BARRIO else EcoRutaDestination.SELECCION_BARRIO_SIN_SESION) {
+        composable(if (signedIn) EcoRutaDestination.NEIGHBORHOOD_SELECTION else EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION) {
             var state by remember {
                 mutableStateOf(
                     NeighborhoodSelectionUiState(
@@ -153,7 +153,7 @@ private fun NavGraphBuilder.neighborhoodDestinations(
                     onContinue = {
                         val id = state.selectedId ?: SampleNeighborhoods.first().id
                         navController.navigate(
-                            if (signedIn) EcoRutaDestination.rutasBarrio(id) else EcoRutaDestination.rutasBarrioSinSesion(id),
+                            if (signedIn) EcoRutaDestination.neighborhoodRoutes(id) else EcoRutaDestination.guestNeighborhoodRoutes(id),
                         ) { launchSingleTop = true }
                     },
                     onRetry = {},
@@ -163,7 +163,7 @@ private fun NavGraphBuilder.neighborhoodDestinations(
         }
 
         composable(
-            route = if (signedIn) EcoRutaDestination.RUTAS_BARRIO else EcoRutaDestination.RUTAS_BARRIO_SIN_SESION,
+            route = if (signedIn) EcoRutaDestination.NEIGHBORHOOD_ROUTES else EcoRutaDestination.GUEST_NEIGHBORHOOD_ROUTES,
             arguments = idArgument,
         ) { entry ->
             val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
@@ -181,7 +181,7 @@ private fun NavGraphBuilder.neighborhoodDestinations(
                 actions = RouteActions(
                     onBack = { navController.popBackStack() },
                     onPrimaryAction = {
-                        navController.navigate(if (signedIn) EcoRutaDestination.radar(id) else EcoRutaDestination.INICIAR_SESION) {
+                        navController.navigate(if (signedIn) EcoRutaDestination.radar(id) else EcoRutaDestination.LOGIN) {
                             launchSingleTop = true
                         }
                     },
@@ -202,15 +202,15 @@ private fun NavGraphBuilder.neighborhoodDestinations(
             actions = RadarActions(
                 onBack = { navController.popBackStack() },
                 onChangeNeighborhood = {
-                    if (!navController.popBackStack(EcoRutaDestination.SELECCION_BARRIO, inclusive = false)) {
-                        navController.navigate(EcoRutaDestination.SELECCION_BARRIO) { launchSingleTop = true }
+                    if (!navController.popBackStack(EcoRutaDestination.NEIGHBORHOOD_SELECTION, inclusive = false)) {
+                        navController.navigate(EcoRutaDestination.NEIGHBORHOOD_SELECTION) { launchSingleTop = true }
                     }
                 },
                 onRadiusChange = { state = state.copy(radiusMeters = it) },
                 onNotificationsChange = { state = state.copy(notificationsEnabled = it) },
                 onSave = {
                     navController.navigate(
-                        EcoRutaDestination.alertaProximidad(id, state.radiusMeters, state.notificationsEnabled),
+                        EcoRutaDestination.proximityAlert(id, state.radiusMeters, state.notificationsEnabled),
                     ) { launchSingleTop = true }
                 },
                 onNotificationsDenied = { showNotice(context.getString(R.string.radar_notifications_denied)) },
@@ -220,24 +220,24 @@ private fun NavGraphBuilder.neighborhoodDestinations(
     }
 
     composable(
-        route = EcoRutaDestination.ALERTA_PROXIMIDAD,
+        route = EcoRutaDestination.PROXIMITY_ALERT,
         arguments = listOf(
             navArgument(EcoRutaDestination.ARG_ID) { type = NavType.StringType },
-            navArgument(EcoRutaDestination.ARG_RADIO) { type = NavType.IntType },
-            navArgument(EcoRutaDestination.ARG_AVISOS) { type = NavType.BoolType },
+            navArgument(EcoRutaDestination.ARG_RADIUS) { type = NavType.IntType },
+            navArgument(EcoRutaDestination.ARG_NOTIFICATIONS_ENABLED) { type = NavType.BoolType },
         ),
     ) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
-        val radius = entry.arguments?.getInt(EcoRutaDestination.ARG_RADIO) ?: 500
-        val enabled = entry.arguments?.getBoolean(EcoRutaDestination.ARG_AVISOS) ?: true
+        val radius = entry.arguments?.getInt(EcoRutaDestination.ARG_RADIUS) ?: 500
+        val enabled = entry.arguments?.getBoolean(EcoRutaDestination.ARG_NOTIFICATIONS_ENABLED) ?: true
         val neighborhood = SampleNeighborhoods.find { it.id == id } ?: SampleNeighborhoods.first()
         ProximityAlertScreen(
             neighborhoodName = neighborhood.name,
             radiusMeters = radius,
             notificationsEnabled = enabled,
             onViewRoute = {
-                if (!navController.popBackStack(EcoRutaDestination.RUTAS_BARRIO, inclusive = false)) {
-                    navController.navigate(EcoRutaDestination.rutasBarrio(id)) { launchSingleTop = true }
+                if (!navController.popBackStack(EcoRutaDestination.NEIGHBORHOOD_ROUTES, inclusive = false)) {
+                    navController.navigate(EcoRutaDestination.neighborhoodRoutes(id)) { launchSingleTop = true }
                 }
             },
             onBack = { navController.popBackStack() },
@@ -247,7 +247,7 @@ private fun NavGraphBuilder.neighborhoodDestinations(
 }
 
 private fun NavGraphBuilder.notificationsDestinations(navController: NavHostController) {
-    composable(EcoRutaDestination.NOTIFICACIONES) {
+    composable(EcoRutaDestination.NOTIFICATIONS) {
         NotificationsScreen(
             state = NotificationsUiState.Loaded(notifications = SampleNotifications, isSample = true),
             actions = NotificationsActions(
@@ -255,9 +255,9 @@ private fun NavGraphBuilder.notificationsDestinations(navController: NavHostCont
                 onNotificationClick = { notification ->
                     val route = when (notification.kind) {
                         NotificationKind.PROXIMIDAD ->
-                            notification.referenceId?.let { EcoRutaDestination.rutasBarrio(it) } ?: EcoRutaDestination.SELECCION_BARRIO
-                        NotificationKind.SOLICITUD_ESCOMBROS -> EcoRutaDestination.MIS_SOLICITUDES_ESCOMBROS
-                        NotificationKind.REPORTE -> EcoRutaDestination.MIS_REPORTES
+                            notification.referenceId?.let { EcoRutaDestination.neighborhoodRoutes(it) } ?: EcoRutaDestination.NEIGHBORHOOD_SELECTION
+                        NotificationKind.SOLICITUD_ESCOMBROS -> EcoRutaDestination.MY_DEBRIS_REQUESTS
+                        NotificationKind.REPORTE -> EcoRutaDestination.MY_REPORTS
                     }
                     navController.navigate(route) { launchSingleTop = true }
                 },
@@ -268,10 +268,10 @@ private fun NavGraphBuilder.notificationsDestinations(navController: NavHostCont
         )
     }
 
-    composable(EcoRutaDestination.NOTIFICACIONES_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_NOTIFICATIONS) {
         GuestNotificationsScreen(
             onBack = { navController.popBackStack() },
-            onLogin = { navController.navigate(EcoRutaDestination.INICIAR_SESION) { launchSingleTop = true } },
+            onLogin = { navController.navigate(EcoRutaDestination.LOGIN) { launchSingleTop = true } },
             onTabClick = { tab -> navController.navigateToPublicTab(tab) },
         )
     }

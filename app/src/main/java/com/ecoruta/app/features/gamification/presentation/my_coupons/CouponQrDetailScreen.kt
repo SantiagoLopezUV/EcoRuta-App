@@ -111,8 +111,8 @@ private fun RedemptionLayout(
 @Composable
 private fun StepHeader(title: String, description: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-        Text(description, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+        Text(description, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -130,9 +130,9 @@ private fun CouponHeaderCard(coupon: Coupon) {
     ) {
         StoreBadge(size = 52)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(coupon.businessName, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
-            Text(coupon.title, style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(coupon.subtitle, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(coupon.businessName, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
+            Text(coupon.title, style = EcoTextStyles.Title, color = EcoTitle)
+            Text(coupon.subtitle, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
     }
 }
@@ -150,12 +150,12 @@ private fun CouponDetailStep(coupon: Coupon, state: CouponRedemptionUiState, act
             InfoTile(stringResource(R.string.coupon_cost), stringResource(R.string.benefits_points_short, formatPoints(coupon.pointsCost)), Modifier.weight(1f))
             InfoTile(stringResource(R.string.coupon_available), formatPoints(coupon.availableQuantity), Modifier.weight(1f))
         }
-        Text(stringResource(R.string.coupon_valid_until, formatCouponDate(coupon.validUntilMillis)), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.coupon_valid_until, formatCouponDate(coupon.validUntilMillis)), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         SummaryBox(title = stringResource(R.string.coupon_conditions)) {
             coupon.conditions.forEach { condition ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("•", style = EcoTextStyles.Subtitulo, color = EcoPrimary)
-                    Text(condition, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+                    Text("•", style = EcoTextStyles.Subtitle, color = EcoPrimary)
+                    Text(condition, style = EcoTextStyles.Subtitle, color = EcoTitle)
                 }
             }
         }
@@ -171,8 +171,8 @@ private fun InfoTile(label: String, value: String, modifier: Modifier = Modifier
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(label, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
-        Text(value, style = EcoTextStyles.Boton, color = EcoTitle)
+        Text(label, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
+        Text(value, style = EcoTextStyles.ButtonText, color = EcoTitle)
     }
 }
 
@@ -228,7 +228,7 @@ private fun InsufficientStep(coupon: Coupon, state: CouponRedemptionUiState, act
                 valueColor = EcoError,
             )
         }
-        Text(stringResource(R.string.coupon_no_points_deducted), style = EcoTextStyles.Boton, color = EcoTitle)
+        Text(stringResource(R.string.coupon_no_points_deducted), style = EcoTextStyles.ButtonText, color = EcoTitle)
         EcoInfoHint(text = stringResource(R.string.coupon_keep_recycling, formatPoints(coupon.pointsCost)))
     }
 }
@@ -276,8 +276,8 @@ fun CouponCodeCard(redeemed: RedeemedCoupon, isSample: Boolean) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(redeemed.coupon.businessName, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
-        Text(redeemed.coupon.title, style = EcoTextStyles.Boton, color = EcoTitle, textAlign = TextAlign.Center)
+        Text(redeemed.coupon.businessName, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
+        Text(redeemed.coupon.title, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center)
         if (isSample) {
             Box(
                 modifier = Modifier
@@ -290,16 +290,16 @@ fun CouponCodeCard(redeemed: RedeemedCoupon, isSample: Boolean) {
             ) { EcoSampleQrCode(seed = redeemed.code) }
             EcoStatusChip(stringResource(R.string.recycling_qr_sample_label), EcoTitle, EcoWhite)
         }
-        Text(stringResource(R.string.coupon_code_label), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+        Text(stringResource(R.string.coupon_code_label), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         Text(
             redeemed.code,
-            style = EcoTextStyles.Numeros.copy(fontFamily = FontFamily.Monospace),
+            style = EcoTextStyles.Numbers.copy(fontFamily = FontFamily.Monospace),
             color = EcoTitle,
         )
-        Text(stringResource(R.string.coupon_code_hint), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.coupon_code_hint), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
         Text(
             stringResource(R.string.coupon_valid_until, formatCouponDate(redeemed.coupon.validUntilMillis)),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoPrimary,
         )
     }

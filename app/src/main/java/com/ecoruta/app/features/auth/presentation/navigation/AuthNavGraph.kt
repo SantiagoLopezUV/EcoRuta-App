@@ -46,7 +46,7 @@ import com.ecoruta.app.features.profile.presentation.UserRole
 fun NavGraphBuilder.authGraph(navController: NavHostController) {
     fun navigateTo(route: String) = navController.navigate(route) { launchSingleTop = true }
 
-    composable(EcoRutaDestination.INICIAR_SESION) {
+    composable(EcoRutaDestination.LOGIN) {
         var state by remember { mutableStateOf(LoginUiState()) }
         LoginScreen(
             state = state,
@@ -54,23 +54,23 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
                 onEmailChange = { state = state.copy(email = it, emailErrorRes = null, showInvalidCredentials = false) },
                 onPasswordChange = { state = state.copy(password = it, passwordErrorRes = null, showInvalidCredentials = false) },
                 onTogglePasswordVisibility = { state = state.copy(isPasswordVisible = !state.isPasswordVisible) },
-                onForgotPasswordClick = { navigateTo(EcoRutaDestination.RECUPERACION) },
+                onForgotPasswordClick = { navigateTo(EcoRutaDestination.PASSWORD_RECOVERY) },
                 onSubmit = {
-                    navController.navigate(EcoRutaDestination.INICIO_CIUDADANO) {
-                        popUpTo(EcoRutaDestination.INICIO_PUBLICO) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
+                        popUpTo(EcoRutaDestination.PUBLIC_HOME) { inclusive = true }
                     }
                 },
                 onGoogleClick = {
-                    navController.navigate(EcoRutaDestination.INICIO_CIUDADANO) {
-                        popUpTo(EcoRutaDestination.INICIO_PUBLICO) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
+                        popUpTo(EcoRutaDestination.PUBLIC_HOME) { inclusive = true }
                     }
                 },
-                onRegisterClick = { navigateTo(EcoRutaDestination.REGISTRO) },
+                onRegisterClick = { navigateTo(EcoRutaDestination.REGISTRATION) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.ACCESO_NO_DISPONIBLE) {
+    composable(EcoRutaDestination.WEB_ONLY_ACCESS) {
         WebOnlyAccessScreen(
             isSigningOut = false,
             onSignOut = { navController.goToPublicHomeAfterSignOut() },
@@ -84,32 +84,32 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
 
 private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostController) {
     val backToLogin: () -> Unit = {
-        navController.popBackStack(EcoRutaDestination.RECUPERACION, inclusive = true)
+        navController.popBackStack(EcoRutaDestination.PASSWORD_RECOVERY, inclusive = true)
     }
 
     navigation(
-        startDestination = EcoRutaDestination.RECUPERAR_CORREO,
-        route = EcoRutaDestination.RECUPERACION,
+        startDestination = EcoRutaDestination.RECOVERY_EMAIL,
+        route = EcoRutaDestination.PASSWORD_RECOVERY,
     ) {
-        composable(EcoRutaDestination.RECUPERAR_CORREO) {
+        composable(EcoRutaDestination.RECOVERY_EMAIL) {
             var state by remember { mutableStateOf(PasswordRecoveryUiState()) }
             RecoveryEmailScreen(
                 state = state,
                 onEmailChange = { state = state.copy(email = it, emailErrorRes = null) },
-                onSubmit = { navController.navigate(EcoRutaDestination.RECUPERAR_CODIGO) { launchSingleTop = true } },
+                onSubmit = { navController.navigate(EcoRutaDestination.RECOVERY_CODE) { launchSingleTop = true } },
                 onBackClick = backToLogin,
             )
         }
-        composable(EcoRutaDestination.RECUPERAR_CODIGO) {
+        composable(EcoRutaDestination.RECOVERY_CODE) {
             var state by remember { mutableStateOf(PasswordRecoveryUiState(email = "ciudadano@ecoruta.co")) }
             RecoveryCodeScreen(
                 state = state,
                 onCodeChange = { state = state.copy(code = it, codeErrorRes = null) },
-                onSubmit = { navController.navigate(EcoRutaDestination.RESTABLECER_CONTRASENA) { launchSingleTop = true } },
+                onSubmit = { navController.navigate(EcoRutaDestination.RESET_PASSWORD) { launchSingleTop = true } },
                 onResendClick = {},
             )
         }
-        composable(EcoRutaDestination.RESTABLECER_CONTRASENA) {
+        composable(EcoRutaDestination.RESET_PASSWORD) {
             var state by remember { mutableStateOf(PasswordRecoveryUiState()) }
             ResetPasswordScreen(
                 state = state,
@@ -118,12 +118,12 @@ private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostControll
                     onConfirmPasswordChange = { state = state.copy(confirmPassword = it, confirmPasswordErrorRes = null) },
                     onToggleNewPasswordVisibility = { state = state.copy(isNewPasswordVisible = !state.isNewPasswordVisible) },
                     onToggleConfirmPasswordVisibility = { state = state.copy(isConfirmPasswordVisible = !state.isConfirmPasswordVisible) },
-                    onSave = { navController.navigate(EcoRutaDestination.CONTRASENA_ACTUALIZADA) { launchSingleTop = true } },
+                    onSave = { navController.navigate(EcoRutaDestination.PASSWORD_UPDATED) { launchSingleTop = true } },
                     onBackToLogin = backToLogin,
                 ),
             )
         }
-        composable(EcoRutaDestination.CONTRASENA_ACTUALIZADA) {
+        composable(EcoRutaDestination.PASSWORD_UPDATED) {
             PasswordUpdatedScreen(onBackToLogin = backToLogin)
         }
     }
@@ -131,44 +131,44 @@ private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostControll
 
 private fun NavGraphBuilder.registrationGraph(navController: NavHostController) {
     val backToLogin: () -> Unit = {
-        navController.popBackStack(EcoRutaDestination.REGISTRO, inclusive = true)
+        navController.popBackStack(EcoRutaDestination.REGISTRATION, inclusive = true)
     }
 
     navigation(
-        startDestination = EcoRutaDestination.SELECCION_TIPO_REGISTRO,
-        route = EcoRutaDestination.REGISTRO,
+        startDestination = EcoRutaDestination.REGISTRATION_TYPE_SELECTION,
+        route = EcoRutaDestination.REGISTRATION,
     ) {
-        composable(EcoRutaDestination.SELECCION_TIPO_REGISTRO) {
+        composable(EcoRutaDestination.REGISTRATION_TYPE_SELECTION) {
             var selectedType by rememberSaveable { mutableStateOf<RegistrationType?>(null) }
             RegistrationTypeScreen(
                 selectedType = selectedType,
                 onTypeSelected = { selectedType = it },
                 onContinue = { type ->
                     val route = when (type) {
-                        RegistrationType.CIUDADANO -> EcoRutaDestination.REGISTRO_CIUDADANO_CUENTA
-                        RegistrationType.RECICLADOR_INDEPENDIENTE -> EcoRutaDestination.REGISTRO_RECICLADOR_INDEPENDIENTE
-                        RegistrationType.RECICLADOR_EMPRESA -> EcoRutaDestination.REGISTRO_RECICLADOR_EMPRESA
-                        RegistrationType.COMERCIO -> EcoRutaDestination.REGISTRO_COMERCIO
+                        RegistrationType.CIUDADANO -> EcoRutaDestination.CITIZEN_REGISTRATION_ACCOUNT
+                        RegistrationType.RECICLADOR_INDEPENDIENTE -> EcoRutaDestination.INDEPENDENT_RECYCLER_REGISTRATION
+                        RegistrationType.RECICLADOR_EMPRESA -> EcoRutaDestination.COMPANY_RECYCLER_REGISTRATION
+                        RegistrationType.COMERCIO -> EcoRutaDestination.STORE_REGISTRATION
                     }
                     navController.navigate(route) { launchSingleTop = true }
                 },
                 onLoginClick = backToLogin,
             )
         }
-        composable(EcoRutaDestination.REGISTRO_CIUDADANO_CUENTA) {
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_ACCOUNT) {
             var state by remember { mutableStateOf(CitizenRegistrationUiState()) }
             CitizenAccountScreen(
                 state = state,
                 actions = CitizenAccountActions(
                     onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
                     onEmailChange = { state = state.copy(email = it, emailErrorRes = null) },
-                    onGoogleClick = { navController.navigate(EcoRutaDestination.REGISTRO_CIUDADANO_PERFIL) { launchSingleTop = true } },
-                    onContinue = { navController.navigate(EcoRutaDestination.REGISTRO_CIUDADANO_PERFIL) { launchSingleTop = true } },
+                    onGoogleClick = { navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { launchSingleTop = true } },
+                    onContinue = { navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { launchSingleTop = true } },
                     onChangeRegistrationType = { navController.popBackStack() },
                 ),
             )
         }
-        composable(EcoRutaDestination.REGISTRO_CIUDADANO_PERFIL) {
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) {
             var state by remember { mutableStateOf(CitizenRegistrationUiState()) }
             CitizenProfileScreen(
                 state = state,
@@ -180,8 +180,8 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
                     onDataPolicyChange = { state = state.copy(acceptedDataPolicy = it) },
                     onViewPolicyClick = {},
                     onCreateAccount = {
-                        navController.navigate(EcoRutaDestination.REGISTRO_CIUDADANO_CONFIRMACION) {
-                            popUpTo(EcoRutaDestination.SELECCION_TIPO_REGISTRO)
+                        navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) {
+                            popUpTo(EcoRutaDestination.REGISTRATION_TYPE_SELECTION)
                             launchSingleTop = true
                         }
                     },
@@ -189,7 +189,7 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
                 ),
             )
         }
-        composable(EcoRutaDestination.REGISTRO_CIUDADANO_CONFIRMACION) {
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) {
             CitizenEmailConfirmationScreen(
                 email = "ciudadano@ecoruta.co",
                 isResending = false,
@@ -197,7 +197,7 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
                 onGoToLogin = backToLogin,
             )
         }
-        composable(EcoRutaDestination.REGISTRO_CIUDADANO_LISTO) {
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_DONE) {
             CitizenAccessReadyScreen(onEnterClick = backToLogin)
         }
     }
@@ -205,13 +205,13 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
 
 private fun NavGraphBuilder.changePasswordDestinations(navController: NavHostController) {
     val arguments = listOf(
-        navArgument(EcoRutaDestination.ARG_MODO) { type = NavType.StringType },
-        navArgument(EcoRutaDestination.ARG_ROL) { type = NavType.StringType },
+        navArgument(EcoRutaDestination.ARG_MODE) { type = NavType.StringType },
+        navArgument(EcoRutaDestination.ARG_ROLE) { type = NavType.StringType },
     )
 
-    composable(EcoRutaDestination.CAMBIAR_CONTRASENA, arguments = arguments) { entry ->
-        val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODO).orEmpty())
-        val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROL).orEmpty())
+    composable(EcoRutaDestination.CHANGE_PASSWORD, arguments = arguments) { entry ->
+        val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODE).orEmpty())
+        val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROLE).orEmpty())
         var state by remember { mutableStateOf(ChangePasswordUiState()) }
         ChangePasswordScreen(
             mode = mode,
@@ -225,8 +225,8 @@ private fun NavGraphBuilder.changePasswordDestinations(navController: NavHostCon
                 onToggleNewVisibility = { state = state.copy(isNewVisible = !state.isNewVisible) },
                 onToggleConfirmVisibility = { state = state.copy(isConfirmVisible = !state.isConfirmVisible) },
                 onSave = {
-                    navController.navigate(EcoRutaDestination.contrasenaCambiada(mode, role)) {
-                        popUpTo(EcoRutaDestination.CAMBIAR_CONTRASENA) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.passwordChanged(mode, role)) {
+                        popUpTo(EcoRutaDestination.CHANGE_PASSWORD) { inclusive = true }
                     }
                 },
                 onBack = { navController.popBackStack() },
@@ -234,16 +234,16 @@ private fun NavGraphBuilder.changePasswordDestinations(navController: NavHostCon
         )
     }
 
-    composable(EcoRutaDestination.CONTRASENA_CAMBIADA, arguments = arguments) { entry ->
-        val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODO).orEmpty())
-        val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROL).orEmpty())
+    composable(EcoRutaDestination.PASSWORD_CHANGED, arguments = arguments) { entry ->
+        val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODE).orEmpty())
+        val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROLE).orEmpty())
         PasswordChangedScreen(
             mode = mode,
             role = role,
             onContinue = {
                 if (mode == ChangePasswordMode.PRIMER_INGRESO) {
-                    navController.navigate(EcoRutaDestination.inicioDelRol(role)) {
-                        popUpTo(EcoRutaDestination.INICIO_PUBLICO) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.homeForRole(role)) {
+                        popUpTo(EcoRutaDestination.PUBLIC_HOME) { inclusive = true }
                     }
                 } else {
                     navController.popBackStack()

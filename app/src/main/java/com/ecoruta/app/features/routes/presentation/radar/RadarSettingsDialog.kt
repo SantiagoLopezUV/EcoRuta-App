@@ -122,8 +122,8 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.radar_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.radar_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.radar_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.radar_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Row(
             modifier = Modifier
@@ -136,8 +136,8 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
         ) {
             Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(state.neighborhoodName ?: "—", style = EcoTextStyles.Boton, color = EcoTitle)
-                Text(stringResource(R.string.report_default_area), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+                Text(state.neighborhoodName ?: "—", style = EcoTextStyles.ButtonText, color = EcoTitle)
+                Text(stringResource(R.string.report_default_area), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             }
             EcoTextLink(text = stringResource(R.string.radar_change), onClick = actions.onChangeNeighborhood)
         }
@@ -150,8 +150,8 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.radar_radius), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
-                Text(formatMeters(state.radiusMeters), style = EcoTextStyles.Numeros, color = EcoTitle)
+                Text(stringResource(R.string.radar_radius), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
+                Text(formatMeters(state.radiusMeters), style = EcoTextStyles.Numbers, color = EcoTitle)
             }
             RadarRings(radiusMeters = state.radiusMeters)
             Slider(
@@ -183,10 +183,10 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
         ) {
             Icon(painterResource(R.drawable.ic_bell), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(stringResource(R.string.radar_notifications), style = EcoTextStyles.Boton, color = EcoTitle)
+                Text(stringResource(R.string.radar_notifications), style = EcoTextStyles.ButtonText, color = EcoTitle)
                 Text(
                     stringResource(if (state.notificationsEnabled) R.string.radar_notifications_on else R.string.radar_notifications_off),
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoSubtitle,
                 )
             }
@@ -204,7 +204,7 @@ fun RadarScreen(state: RadarUiState, actions: RadarActions) {
         }
         Text(
             stringResource(R.string.radar_explanation, formatMeters(state.radiusMeters)),
-            style = EcoTextStyles.Subtitulo,
+            style = EcoTextStyles.Subtitle,
             color = EcoSubtitle,
         )
         EcoInfoHint(text = stringResource(R.string.radar_push_pending_hint))
@@ -260,8 +260,8 @@ fun ProximityAlertScreen(
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.alert_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.alert_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.alert_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.alert_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(
             modifier = Modifier
@@ -282,14 +282,14 @@ fun ProximityAlertScreen(
                 ) {
                     Icon(painterResource(R.drawable.ic_brand_leaf), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(14.dp))
                 }
-                Text(stringResource(R.string.app_name), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle, modifier = Modifier.weight(1f))
-                Text(stringResource(R.string.alert_preview_label), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+                Text(stringResource(R.string.app_name), style = EcoTextStyles.FieldLabel, color = EcoTitle, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.alert_preview_label), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(painterResource(R.drawable.ic_bell), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(18.dp))
-                Text(stringResource(R.string.alert_message_title), style = EcoTextStyles.Boton, color = EcoTitle)
+                Text(stringResource(R.string.alert_message_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
             }
-            Text(stringResource(R.string.alert_message_detail, name, formatMeters(radiusMeters)), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.alert_message_detail, name, formatMeters(radiusMeters)), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(
             modifier = Modifier
@@ -302,20 +302,20 @@ fun ProximityAlertScreen(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(painterResource(R.drawable.ic_truck), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(name, style = EcoTextStyles.Boton, color = EcoWhite)
-                    Text(stringResource(R.string.alert_route_caption), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.8f))
+                    Text(name, style = EcoTextStyles.ButtonText, color = EcoWhite)
+                    Text(stringResource(R.string.alert_route_caption), style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.8f))
                 }
             }
             Row {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(stringResource(R.string.radar_radius), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.8f))
-                    Text(formatMeters(radiusMeters), style = EcoTextStyles.Numeros, color = EcoWhite)
+                    Text(stringResource(R.string.radar_radius), style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.8f))
+                    Text(formatMeters(radiusMeters), style = EcoTextStyles.Numbers, color = EcoWhite)
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(stringResource(R.string.radar_notifications), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.8f))
+                    Text(stringResource(R.string.radar_notifications), style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.8f))
                     Text(
                         stringResource(if (notificationsEnabled) R.string.radar_notifications_on else R.string.radar_notifications_off),
-                        style = EcoTextStyles.Boton,
+                        style = EcoTextStyles.ButtonText,
                         color = EcoWhite,
                     )
                 }
@@ -323,8 +323,8 @@ fun ProximityAlertScreen(
         }
         if (!notificationsEnabled) EcoInfoHint(text = stringResource(R.string.alert_notifications_off_hint))
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.alert_prepare_title), style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(stringResource(R.string.alert_prepare_body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.alert_prepare_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(stringResource(R.string.alert_prepare_body), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
     }
 }

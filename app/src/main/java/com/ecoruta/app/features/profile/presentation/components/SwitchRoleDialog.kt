@@ -97,8 +97,8 @@ private val requestableRoles = listOf(UserRole.COMERCIO, UserRole.RECICLADOR)
 fun ChangeProfileScreen(state: ProfileUiState, actions: ChangeProfileActions) {
     EcoTabScreenLayout(selectedTab = CitizenTab.PERFIL, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.change_profile_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.change_profile_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.change_profile_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.change_profile_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             ProfileUiState.Loading -> Box(
@@ -127,7 +127,7 @@ private fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileAct
     val available = requestableRoles.filter { it !in profile.approvedRoles }
     if (available.isNotEmpty()) {
         Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.change_profile_request_title), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(stringResource(R.string.change_profile_request_title), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             available.forEach { role ->
                 RequestRow(role = role, pending = role in profile.pendingRoles, onClick = { actions.onRequestRole(role) })
             }
@@ -165,10 +165,10 @@ private fun RoleCard(role: UserRole, isCurrent: Boolean, onClick: () -> Unit) {
                 )
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(info.nameRes), style = EcoTextStyles.Boton, color = if (isCurrent) EcoTitle else EcoSubtitle)
+                Text(stringResource(info.nameRes), style = EcoTextStyles.ButtonText, color = if (isCurrent) EcoTitle else EcoSubtitle)
                 Text(
                     stringResource(if (isCurrent) R.string.change_profile_current else R.string.change_profile_tap_to_switch),
-                    style = EcoTextStyles.EtiquetaCampo,
+                    style = EcoTextStyles.FieldLabel,
                     color = if (isCurrent) EcoPrimary else EcoSubtitle,
                 )
             }
@@ -179,7 +179,7 @@ private fun RoleCard(role: UserRole, isCurrent: Boolean, onClick: () -> Unit) {
                 modifier = Modifier.size(20.dp),
             )
         }
-        Text(stringResource(info.descriptionRes), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(info.descriptionRes), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -197,11 +197,11 @@ private fun RequestRow(role: UserRole, pending: Boolean, onClick: () -> Unit) {
         Icon(painterResource(role.info().iconRes), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
         Text(
             stringResource(if (role == UserRole.COMERCIO) R.string.change_profile_register_store else R.string.change_profile_apply_recycler),
-            style = EcoTextStyles.Enlace,
+            style = EcoTextStyles.LinkText,
             color = EcoPrimary,
             modifier = Modifier.weight(1f),
         )
-        if (pending) Text(stringResource(R.string.change_profile_in_review), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+        if (pending) Text(stringResource(R.string.change_profile_in_review), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
     }
 }
@@ -235,7 +235,7 @@ internal fun <T> SelectField(
     var expanded by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(EcoDimens.ControlCornerRadius)
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(label, style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(label, style = EcoTextStyles.FieldLabel, color = EcoTitle)
         Box {
             Row(
                 modifier = Modifier
@@ -252,7 +252,7 @@ internal fun <T> SelectField(
                 FieldIcon(iconRes)
                 Text(
                     selected?.let { optionLabel(it) } ?: placeholder,
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = if (selected != null) EcoTitle else EcoSubtitle,
                     modifier = Modifier.weight(1f),
                 )
@@ -268,7 +268,7 @@ internal fun <T> SelectField(
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(optionLabel(option), style = EcoTextStyles.Subtitulo, color = EcoTitle) },
+                        text = { Text(optionLabel(option), style = EcoTextStyles.Subtitle, color = EcoTitle) },
                         onClick = {
                             expanded = false
                             onSelected(option)
@@ -292,14 +292,14 @@ internal fun SupportInfo(@DrawableRes iconRes: Int, text: String) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Icon(painterResource(iconRes), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
-        Text(text, style = EcoTextStyles.Subtitulo, color = EcoSubtitle, modifier = Modifier.weight(1f))
+        Text(text, style = EcoTextStyles.Subtitle, color = EcoSubtitle, modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
 internal fun ReadOnlyField(label: String, value: String, @DrawableRes iconRes: Int) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(label, style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(label, style = EcoTextStyles.FieldLabel, color = EcoTitle)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -311,7 +311,7 @@ internal fun ReadOnlyField(label: String, value: String, @DrawableRes iconRes: I
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             FieldIcon(iconRes)
-            Text(value, style = EcoTextStyles.Subtitulo, color = EcoSubtitle, modifier = Modifier.weight(1f))
+            Text(value, style = EcoTextStyles.Subtitle, color = EcoSubtitle, modifier = Modifier.weight(1f))
             Icon(painterResource(R.drawable.ic_lock), contentDescription = null, tint = EcoSubtitle, modifier = Modifier.size(20.dp))
         }
     }
@@ -339,7 +339,7 @@ fun StoreApplicationScreen(state: StoreApplicationUiState, actions: StoreApplica
         bottomActions = {
             Text(
                 stringResource(R.string.role_request_citizen_stays_active),
-                style = EcoTextStyles.Subtitulo,
+                style = EcoTextStyles.Subtitle,
                 color = EcoSubtitle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -356,10 +356,10 @@ fun StoreApplicationScreen(state: StoreApplicationUiState, actions: StoreApplica
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.store_application_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.store_application_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.store_application_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.store_application_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
-        Text(stringResource(R.string.role_request_all_required), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+        Text(stringResource(R.string.role_request_all_required), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         EcoTextField(
             value = state.name,
             onValueChange = actions.onNameChange,
@@ -437,7 +437,7 @@ private fun IdTypeSelector(selected: StoreIdType, onSelected: (StoreIdType) -> U
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(stringResource(selected.shortLabelRes()), style = EcoTextStyles.EtiquetaCampo.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle)
+                Text(stringResource(selected.shortLabelRes()), style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle)
                 Icon(
                     painterResource(R.drawable.ic_chevron_right),
                     contentDescription = null,
@@ -450,7 +450,7 @@ private fun IdTypeSelector(selected: StoreIdType, onSelected: (StoreIdType) -> U
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 StoreIdType.entries.forEach { type ->
                     DropdownMenuItem(
-                        text = { Text(stringResource(type.labelRes()), style = EcoTextStyles.Subtitulo, color = EcoTitle) },
+                        text = { Text(stringResource(type.labelRes()), style = EcoTextStyles.Subtitle, color = EcoTitle) },
                         onClick = {
                             expanded = false
                             onSelected(type)
@@ -483,7 +483,7 @@ fun StoreRequestInReviewScreen(
             EcoPrimaryButton(text = stringResource(R.string.role_request_go_home), onClick = onGoHome, trailingIconRes = R.drawable.ic_arrow_right)
         },
     ) {
-        Text(stringResource(R.string.store_review_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.store_review_title), style = EcoTextStyles.Title, color = EcoTitle)
         if (withoutBackend) EcoInfoHint(text = stringResource(R.string.role_request_design_mode))
         Column(
             modifier = Modifier
@@ -505,17 +505,17 @@ fun StoreRequestInReviewScreen(
             }
             Text(
                 stringResource(R.string.store_review_status),
-                style = EcoTextStyles.Enlace,
+                style = EcoTextStyles.LinkText,
                 color = EcoPrimary,
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(EcoWhite)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             )
-            Text(stringResource(R.string.store_review_body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.store_review_body), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
         }
         SupportInfo(iconRes = R.drawable.ic_bell, text = stringResource(R.string.role_request_notification))
-        Text(stringResource(R.string.role_request_meanwhile), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.role_request_meanwhile), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -567,11 +567,11 @@ fun RecyclerApplicationScreen(state: RecyclerApplicationUiState, actions: Recycl
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycler_application_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.recycler_application_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.recycler_application_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.recycler_application_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycler_application_modality), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.recycler_application_modality), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             RecyclerModality.entries.forEach { modality ->
                 ModalityOption(
                     text = stringResource(modality.labelRes()),
@@ -625,7 +625,7 @@ private fun ModalityOption(text: String, selected: Boolean, onClick: () -> Unit)
                 .clip(CircleShape)
                 .then(if (selected) Modifier.background(EcoGreenSecondary) else Modifier.border(1.5.dp, EcoSubtitle, CircleShape)),
         )
-        Text(text, style = EcoTextStyles.Enlace, color = EcoTitle, modifier = Modifier.weight(1f))
+        Text(text, style = EcoTextStyles.LinkText, color = EcoTitle, modifier = Modifier.weight(1f))
     }
 }
 
@@ -657,12 +657,12 @@ fun CompanySearchScreen(
             }
             state.searchError != null -> EcoErrorMessage(text = stringResource(state.searchError))
             state.query.isNotBlank() && state.results.isEmpty() ->
-                Text(stringResource(R.string.recycler_company_search_empty), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+                Text(stringResource(R.string.recycler_company_search_empty), style = EcoTextStyles.Subtitle, color = EcoTitle)
             else -> Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 state.results.forEach { company -> CompanyCard(company = company, selected = false, onClick = { onCompanySelected(company) }) }
             }
         }
-        if (state.query.isBlank()) Text(stringResource(R.string.recycler_company_search_hint), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        if (state.query.isBlank()) Text(stringResource(R.string.recycler_company_search_hint), style = EcoTextStyles.Subtitle, color = EcoTitle)
         CenteredBrand(Modifier.padding(top = 48.dp))
     }
 }
@@ -683,9 +683,9 @@ fun SelectedCompanyScreen(
             EcoTextLink(text = stringResource(R.string.registration_back), onClick = onBack)
         },
     ) {
-        Text(stringResource(R.string.recycler_company_selected_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.recycler_company_selected_title), style = EcoTextStyles.Title, color = EcoTitle)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycler_company_linked_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.recycler_company_linked_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             state.company?.let { CompanyCard(company = it, selected = true, onClick = null) }
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 EcoTextLink(text = stringResource(R.string.recycler_company_change), onClick = onChangeCompany)
@@ -693,7 +693,7 @@ fun SelectedCompanyScreen(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(painterResource(R.drawable.ic_alert_circle), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
-            Text(stringResource(R.string.recycler_company_must_activate), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(stringResource(R.string.recycler_company_must_activate), style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
         CenteredBrand(Modifier.padding(top = 48.dp))
     }
@@ -711,10 +711,10 @@ fun CompanyRequestSentScreen(state: RecyclerApplicationUiState, onGoHome: () -> 
         if (state.submittedWithoutBackend) EcoInfoHint(text = stringResource(R.string.role_request_design_mode))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(painterResource(R.drawable.ic_clock), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
-            Text(stringResource(R.string.recycler_company_pending_activation), style = EcoTextStyles.Enlace, color = EcoGreenSecondary)
+            Text(stringResource(R.string.recycler_company_pending_activation), style = EcoTextStyles.LinkText, color = EcoGreenSecondary)
         }
         state.company?.let { CompanyCard(company = it, selected = true, onClick = null) }
-        Text(stringResource(R.string.recycler_company_sent_body), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(stringResource(R.string.recycler_company_sent_body), style = EcoTextStyles.Subtitle, color = EcoTitle)
         CenteredBrand(Modifier.padding(top = 32.dp))
     }
 }
@@ -722,8 +722,8 @@ fun CompanyRequestSentScreen(state: RecyclerApplicationUiState, onGoHome: () -> 
 @Composable
 private fun StageTitle(title: String, description: String) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-        Text(description, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+        Text(description, style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
@@ -743,8 +743,8 @@ private fun CompanyCard(company: Company, selected: Boolean, onClick: (() -> Uni
     ) {
         Icon(painterResource(R.drawable.ic_building), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(24.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(company.name, style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(company.type, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(company.name, style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(company.type, style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
         Icon(
             painterResource(if (selected) R.drawable.ic_circle_check else R.drawable.ic_chevron_right),
@@ -773,8 +773,8 @@ fun RecyclerApplicationSentScreen(state: RecyclerApplicationUiState, onBack: () 
             Icon(painterResource(R.drawable.ic_circle_check), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(32.dp))
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycler_sent_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.recycler_sent_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.recycler_sent_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.recycler_sent_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         if (state.submittedWithoutBackend) EcoInfoHint(text = stringResource(R.string.role_request_design_mode))
         Column(
@@ -788,16 +788,16 @@ fun RecyclerApplicationSentScreen(state: RecyclerApplicationUiState, onBack: () 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(painterResource(R.drawable.ic_file_text), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(24.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(stringResource(R.string.recycler_sent_modality_label), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
-                    Text(stringResource(state.modality.labelRes()), style = EcoTextStyles.Boton, color = EcoWhite)
+                    Text(stringResource(R.string.recycler_sent_modality_label), style = EcoTextStyles.FieldLabel, color = EcoWhite)
+                    Text(stringResource(state.modality.labelRes()), style = EcoTextStyles.ButtonText, color = EcoWhite)
                 }
             }
             HorizontalDivider(color = EcoWhite.copy(alpha = 0.6f))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.recycler_sent_status_label), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.recycler_sent_status_label), style = EcoTextStyles.FieldLabel, color = EcoWhite, modifier = Modifier.weight(1f))
                 Text(
                     stringResource(R.string.recycler_sent_status),
-                    style = EcoTextStyles.EtiquetaCampo,
+                    style = EcoTextStyles.FieldLabel,
                     color = EcoTitle,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
@@ -814,11 +814,11 @@ fun RecyclerApplicationSentScreen(state: RecyclerApplicationUiState, onBack: () 
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(stringResource(R.string.recycler_sent_operator_title), style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(stringResource(R.string.recycler_sent_operator_body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.recycler_sent_operator_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(stringResource(R.string.recycler_sent_operator_body), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(painterResource(R.drawable.ic_bell), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
-                Text(stringResource(R.string.recycler_sent_notification), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.recycler_sent_notification), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
         }
     }

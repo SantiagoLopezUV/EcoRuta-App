@@ -106,7 +106,7 @@ enum class PublicService(
 }
 
 // Acciones de interacción de la pantalla de inicio
-data class InicioPublicoActions(
+data class HomeActions(
     val onHelpClick: () -> Unit = {},
     val onNotificationsClick: () -> Unit = {},
     val onLoginClick: () -> Unit = {},
@@ -116,8 +116,8 @@ data class InicioPublicoActions(
 )
 
 @Composable
-fun InicioPublicoScreen(
-    actions: InicioPublicoActions,
+fun HomeScreen(
+    actions: HomeActions,
     modifier: Modifier = Modifier,
     isSignedIn: Boolean = false,
     userName: String? = null,
@@ -216,7 +216,7 @@ private fun WelcomeHeader(
                 )
             }
             Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.app_name), style = EcoTextStyles.Boton, color = EcoWhite)
+            Text(stringResource(R.string.app_name), style = EcoTextStyles.ButtonText, color = EcoWhite)
             Spacer(Modifier.weight(1f))
             HeaderIconButton(
                 iconRes = R.drawable.ic_help,
@@ -234,8 +234,8 @@ private fun WelcomeHeader(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 17.dp, bottom = if (onLogoutClick == null) 20.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(title, style = EcoTextStyles.Titulo, color = EcoWhite)
-            Text(stringResource(R.string.home_welcome_message), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(title, style = EcoTextStyles.Title, color = EcoWhite)
+            Text(stringResource(R.string.home_welcome_message), style = EcoTextStyles.Subtitle, color = EcoWhite)
         }
         if (onLogoutClick != null) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
@@ -248,7 +248,7 @@ private fun WelcomeHeader(
                         .padding(horizontal = 24.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(stringResource(R.string.home_logout), style = EcoTextStyles.Enlace, color = EcoBlack)
+                    Text(stringResource(R.string.home_logout), style = EcoTextStyles.LinkText, color = EcoBlack)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -284,8 +284,8 @@ private fun HeaderIconButton(
 private fun ServicesSection(onServiceClick: (PublicService) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.home_services_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.home_services_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.home_services_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.home_services_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             PublicService.entries.chunked(2).forEach { rowServices ->
@@ -340,8 +340,8 @@ fun NeighborhoodSelectionScreen(state: NeighborhoodSelectionUiState, actions: Ne
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.neighborhood_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.neighborhood_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.neighborhood_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.neighborhood_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         EcoTextField(
             value = state.query,
@@ -352,7 +352,7 @@ fun NeighborhoodSelectionScreen(state: NeighborhoodSelectionUiState, actions: Ne
                 Icon(painterResource(R.drawable.ic_search), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
             },
         )
-        Text(stringResource(R.string.neighborhood_list_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(stringResource(R.string.neighborhood_list_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
         when {
             state.isLoading -> CenteredLoading()
             state.loadError != null -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -363,7 +363,7 @@ fun NeighborhoodSelectionScreen(state: NeighborhoodSelectionUiState, actions: Ne
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.neighborhood_sample_hint))
                 val visible = state.visibleNeighborhoods
                 if (visible.isEmpty()) {
-                    Text(stringResource(R.string.neighborhood_no_results), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.neighborhood_no_results), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
                 Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     visible.forEach { neighborhood ->
@@ -396,7 +396,7 @@ private fun NeighborhoodRow(neighborhood: Neighborhood, selected: Boolean, onCli
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = if (selected) EcoPrimary else EcoSubtitle, modifier = Modifier.size(20.dp))
-        Text(neighborhood.name, style = EcoTextStyles.Enlace, color = EcoTitle, modifier = Modifier.weight(1f))
+        Text(neighborhood.name, style = EcoTextStyles.LinkText, color = EcoTitle, modifier = Modifier.weight(1f))
         Box(
             modifier = Modifier
                 .size(22.dp)
@@ -425,9 +425,9 @@ fun RouteScreen(state: RouteUiState, isSignedIn: Boolean, actions: RouteActions)
     val route = (state as? RouteUiState.Loaded)?.route
     EcoTabScreenLayout(selectedTab = CitizenTab.MAPA, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.route_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+            Text(stringResource(R.string.route_title), style = EcoTextStyles.Title, color = EcoTitle)
             if (route != null) {
-                Text(stringResource(R.string.debris_address_in_city, route.neighborhood.name), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.debris_address_in_city, route.neighborhood.name), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
         }
         when (state) {
@@ -499,7 +499,7 @@ private fun RouteMap(route: CollectionRoute) {
         }
         Text(
             text = route.neighborhood.name,
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoTitle,
             modifier = Modifier
                 .offset(x = pinX + 44.dp, y = pinY + 22.dp)
@@ -509,7 +509,7 @@ private fun RouteMap(route: CollectionRoute) {
         )
         Text(
             text = stringResource(route.liveStatus.labelRes()),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoTitle,
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -520,7 +520,7 @@ private fun RouteMap(route: CollectionRoute) {
         )
         Text(
             text = stringResource(R.string.report_map_illustrative),
-            style = EcoTextStyles.EtiquetaNavegacion,
+            style = EcoTextStyles.NavigationLabel,
             color = EcoSubtitle,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -552,13 +552,13 @@ private fun RouteCard(route: CollectionRoute, isSignedIn: Boolean, onPrimaryActi
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Icon(painterResource(R.drawable.ic_truck), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
-            Text(stringResource(R.string.route_ordinary, route.neighborhood.name), style = EcoTextStyles.Boton, color = EcoTitle)
+            Text(stringResource(R.string.route_ordinary, route.neighborhood.name), style = EcoTextStyles.ButtonText, color = EcoTitle)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             route.days.forEach { day ->
                 Text(
                     text = stringResource(dayNameRes(day)),
-                    style = EcoTextStyles.Enlace,
+                    style = EcoTextStyles.LinkText,
                     color = EcoTitle,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -571,7 +571,7 @@ private fun RouteCard(route: CollectionRoute, isSignedIn: Boolean, onPrimaryActi
         }
         Text(
             stringResource(R.string.route_time_range, formatMinute(route.startMinute), formatMinute(route.endMinute)),
-            style = EcoTextStyles.Subtitulo,
+            style = EcoTextStyles.Subtitle,
             color = EcoTitle,
         )
         EcoPrimaryButton(
@@ -642,8 +642,8 @@ fun NotificationsScreen(state: NotificationsUiState, actions: NotificationsActio
         bottomActions = bottomActions,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.notifications_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            if (!isEmpty) Text(stringResource(R.string.notifications_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.notifications_title), style = EcoTextStyles.Title, color = EcoTitle)
+            if (!isEmpty) Text(stringResource(R.string.notifications_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             NotificationsUiState.Loading -> CenteredLoading()
@@ -698,16 +698,16 @@ private fun NotificationCard(notification: AppNotification, onClick: () -> Unit)
                     modifier = Modifier.size(16.dp),
                 )
             }
-            Text(notification.label, style = EcoTextStyles.EtiquetaCampo, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(notification.label, style = EcoTextStyles.FieldLabel, color = EcoTitle, modifier = Modifier.weight(1f))
             if (notification.read) {
                 EcoStatusChip(stringResource(R.string.notifications_read), EcoSubtitle, EcoWhite)
             } else {
                 EcoStatusChip(stringResource(R.string.notifications_unread), EcoAccent, EcoBlack)
             }
         }
-        Text(notification.title, style = EcoTextStyles.Boton, color = EcoTitle)
-        Text(notification.body, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
-        Text(formatNotificationDate(notification.createdAtMillis), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+        Text(notification.title, style = EcoTextStyles.ButtonText, color = EcoTitle)
+        Text(notification.body, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+        Text(formatNotificationDate(notification.createdAtMillis), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
     }
 }
 
@@ -743,11 +743,11 @@ private fun BellMessage(title: String, body: String, highlighted: Boolean) {
         }
         Text(
             title,
-            style = if (highlighted) EcoTextStyles.Titulo else EcoTextStyles.Boton,
+            style = if (highlighted) EcoTextStyles.Title else EcoTextStyles.ButtonText,
             color = EcoTitle,
             textAlign = TextAlign.Center,
         )
-        Text(body, style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+        Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
     }
 }
 
@@ -762,8 +762,8 @@ fun GuestNotificationsScreen(onBack: () -> Unit, onLogin: () -> Unit, onTabClick
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.notifications_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.notifications_guest_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.notifications_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.notifications_guest_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         BellMessage(
             title = stringResource(R.string.notifications_guest_title),
@@ -775,10 +775,10 @@ fun GuestNotificationsScreen(onBack: () -> Unit, onLogin: () -> Unit, onTabClick
 
 @Preview(name = "Inicio Público (Visitante)", widthDp = 393, heightDp = 900)
 @Composable
-private fun InicioPublicoGuestPreview() {
+private fun HomeGuestPreview() {
     EcoRutaTheme {
-        InicioPublicoScreen(
-            actions = InicioPublicoActions(),
+        HomeScreen(
+            actions = HomeActions(),
             isSignedIn = false,
         )
     }
@@ -786,10 +786,10 @@ private fun InicioPublicoGuestPreview() {
 
 @Preview(name = "Inicio Ciudadano (Con Sesión)", widthDp = 393, heightDp = 900)
 @Composable
-private fun InicioPublicoSignedInPreview() {
+private fun HomeSignedInPreview() {
     EcoRutaTheme {
-        InicioPublicoScreen(
-            actions = InicioPublicoActions(),
+        HomeScreen(
+            actions = HomeActions(),
             isSignedIn = true,
             userName = "Camila",
         )

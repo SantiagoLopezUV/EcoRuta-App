@@ -84,13 +84,13 @@ fun AuthRequiredDialog(
             ) {
                 Text(
                     text = title,
-                    style = EcoTextStyles.Titulo.copy(fontSize = 20.sp),
+                    style = EcoTextStyles.Title.copy(fontSize = 20.sp),
                     color = EcoTitle,
                     textAlign = TextAlign.Center,
                 )
                 Text(
                     text = message,
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoSubtitle,
                     textAlign = TextAlign.Center,
                 )

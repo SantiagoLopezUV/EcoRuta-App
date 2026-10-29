@@ -165,7 +165,7 @@ fun ChoiceOption(text: String, selected: Boolean, onClick: () -> Unit, modifier:
                 )
             }
         }
-        Text(text, style = EcoTextStyles.Enlace, color = EcoTitle)
+        Text(text, style = EcoTextStyles.LinkText, color = EcoTitle)
     }
 }
 
@@ -212,21 +212,21 @@ fun RecyclingHomeScreen(state: RecyclingHomeUiState, actions: RecyclingHomeActio
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(stringResource(R.string.service_recycling_title), style = EcoTextStyles.Titulo, color = EcoWhite)
-            Text(stringResource(R.string.recycling_description), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(stringResource(R.string.service_recycling_title), style = EcoTextStyles.Title, color = EcoWhite)
+            Text(stringResource(R.string.recycling_description), style = EcoTextStyles.Subtitle, color = EcoWhite)
             Row {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(loaded?.ecoPoints?.let(::formatPoints) ?: "—", style = EcoTextStyles.Numeros, color = EcoWhite)
-                    Text(stringResource(R.string.recycling_current_points), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+                    Text(loaded?.ecoPoints?.let(::formatPoints) ?: "—", style = EcoTextStyles.Numbers, color = EcoWhite)
+                    Text(stringResource(R.string.recycling_current_points), style = EcoTextStyles.FieldLabel, color = EcoWhite)
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(loaded?.publications?.count { it.isOngoing }?.toString() ?: "—", style = EcoTextStyles.Numeros, color = EcoWhite)
-                    Text(stringResource(R.string.recycling_active_publications), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+                    Text(loaded?.publications?.count { it.isOngoing }?.toString() ?: "—", style = EcoTextStyles.Numbers, color = EcoWhite)
+                    Text(stringResource(R.string.recycling_active_publications), style = EcoTextStyles.FieldLabel, color = EcoWhite)
                 }
             }
         }
         EcoPrimaryButton(text = stringResource(R.string.recycling_publish), onClick = actions.onPublish, trailingIconRes = R.drawable.ic_arrow_right)
-        Text(stringResource(R.string.recycling_my_publications), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.padding(top = 4.dp))
+        Text(stringResource(R.string.recycling_my_publications), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.padding(top = 4.dp))
         when (state) {
             RecyclingHomeUiState.Loading -> CenteredLoading()
             RecyclingHomeUiState.Error -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -236,7 +236,7 @@ fun RecyclingHomeScreen(state: RecyclingHomeUiState, actions: RecyclingHomeActio
             is RecyclingHomeUiState.Loaded -> {
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.recycling_sample_hint))
                 if (state.publications.isEmpty()) {
-                    Text(stringResource(R.string.recycling_empty), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.recycling_empty), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     state.publications.forEach { publication ->
@@ -261,16 +261,16 @@ private fun PublicationCard(publication: RecyclingPublication, onClick: () -> Un
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(painterResource(R.drawable.ic_recycle), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
-            Text(publication.materialName(), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(publication.materialName(), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             PublicationStatusChip(publication.status)
         }
-        Text(stringResource(publication.volume.labelRes()), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(stringResource(publication.volume.labelRes()), style = EcoTextStyles.Subtitle, color = EcoTitle)
         Row(verticalAlignment = Alignment.CenterVertically) {
             EcoDataLabel(
                 stringResource(R.string.recycling_date_code, formatShort(publication.createdAtMillis), publication.code),
                 Modifier.weight(1f),
             )
-            Text(stringResource(R.string.recycling_view_detail_arrow), style = EcoTextStyles.Enlace, color = EcoPrimary)
+            Text(stringResource(R.string.recycling_view_detail_arrow), style = EcoTextStyles.LinkText, color = EcoPrimary)
         }
     }
 }
@@ -310,11 +310,11 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycling_publish), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.recycling_publish_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.recycling_publish), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.recycling_publish_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycling_material_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.recycling_material_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             MaterialType.entries.chunked(2).forEach { pair ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { material ->
@@ -339,7 +339,7 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
             )
         }
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycling_volume_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.recycling_volume_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             MaterialVolume.entries.forEach { volume ->
                 ChoiceOption(
                     text = stringResource(volume.labelRes()),
@@ -363,7 +363,7 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
         )
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycling_photo_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.recycling_photo_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             val photo = state.photo
             if (photo == null) {
                 Row(
@@ -378,15 +378,15 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
                 ) {
                     Icon(painterResource(R.drawable.ic_camera), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(22.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(stringResource(R.string.recycling_add_photo), style = EcoTextStyles.Enlace, color = EcoPrimary)
-                        Text(stringResource(R.string.recycling_add_photo_hint), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+                        Text(stringResource(R.string.recycling_add_photo), style = EcoTextStyles.LinkText, color = EcoPrimary)
+                        Text(stringResource(R.string.recycling_add_photo_hint), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
                     }
                 }
             } else {
                 PhotoPreview(uri = photo, onChange = openGallery, onRemove = actions.onPhotoRemoved)
             }
         }
-        Text(stringResource(state.material.hintRes()), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(state.material.hintRes()), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -443,7 +443,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, EcoTitle),
                     colors = ButtonDefaults.outlinedButtonColors(containerColor = EcoWhite, contentColor = EcoTitle),
-                ) { Text(stringResource(R.string.recycling_cancel_publication), style = EcoTextStyles.Boton) }
+                ) { Text(stringResource(R.string.recycling_cancel_publication), style = EcoTextStyles.ButtonText) }
             }
         }
         PublicationStatus.ENTREGADA -> {
@@ -458,7 +458,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
     ) {
-        Text(stringResource(R.string.recycling_detail_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.recycling_detail_title), style = EcoTextStyles.Title, color = EcoTitle)
         when (state) {
             PublicationUiState.Loading -> CenteredLoading()
             PublicationUiState.Error -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -473,17 +473,17 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
     if (confirmCancel) {
         AlertDialog(
             onDismissRequest = { confirmCancel = false },
-            title = { Text(stringResource(R.string.recycling_cancel_title), style = EcoTextStyles.Boton, color = EcoTitle) },
-            text = { Text(stringResource(R.string.recycling_cancel_message), style = EcoTextStyles.Subtitulo, color = EcoSubtitle) },
+            title = { Text(stringResource(R.string.recycling_cancel_title), style = EcoTextStyles.ButtonText, color = EcoTitle) },
+            text = { Text(stringResource(R.string.recycling_cancel_message), style = EcoTextStyles.Subtitle, color = EcoSubtitle) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmCancel = false
                     actions.onCancel()
-                }) { Text(stringResource(R.string.debris_cancel_confirm), style = EcoTextStyles.Boton, color = EcoError) }
+                }) { Text(stringResource(R.string.debris_cancel_confirm), style = EcoTextStyles.ButtonText, color = EcoError) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmCancel = false }) {
-                    Text(stringResource(R.string.debris_cancel_dismiss), style = EcoTextStyles.Boton, color = EcoPrimary)
+                    Text(stringResource(R.string.debris_cancel_dismiss), style = EcoTextStyles.ButtonText, color = EcoPrimary)
                 }
             },
             containerColor = EcoWhite,
@@ -493,7 +493,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
 
 @Composable
 private fun PublicationDetailContent(publication: RecyclingPublication, isSample: Boolean, onCallRecycler: (String) -> Unit) {
-    Text(stringResource(R.string.recycling_published_on, formatLong(publication.createdAtMillis)), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+    Text(stringResource(R.string.recycling_published_on, formatLong(publication.createdAtMillis)), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     PublicationStatusChip(publication.status)
     if (isSample) EcoInfoHint(text = stringResource(R.string.recycling_sample_hint))
     PublicationSummary(publication)
@@ -507,18 +507,18 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text(stringResource(R.string.recycling_your_recycler), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+            Text(stringResource(R.string.recycling_your_recycler), style = EcoTextStyles.FieldLabel, color = EcoWhite)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Image(painterResource(R.drawable.ic_avatar_default), contentDescription = null, modifier = Modifier.size(44.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(recycler.name, style = EcoTextStyles.Boton, color = EcoWhite)
-                    Text(recycler.affiliation, style = EcoTextStyles.Subtitulo, color = EcoWhite.copy(alpha = 0.85f))
+                    Text(recycler.name, style = EcoTextStyles.ButtonText, color = EcoWhite)
+                    Text(recycler.affiliation, style = EcoTextStyles.Subtitle, color = EcoWhite.copy(alpha = 0.85f))
                 }
             }
             val phone = recycler.phone
             if (phone != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.recycling_phone, phone), style = EcoTextStyles.Subtitulo, color = EcoWhite, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.recycling_phone, phone), style = EcoTextStyles.Subtitle, color = EcoWhite, modifier = Modifier.weight(1f))
                     if (publication.status == PublicationStatus.EN_CAMINO) {
                         Row(
                             modifier = Modifier
@@ -530,7 +530,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
                             Icon(painterResource(R.drawable.ic_phone), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(16.dp))
-                            Text(stringResource(R.string.recycling_call), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+                            Text(stringResource(R.string.recycling_call), style = EcoTextStyles.FieldLabel, color = EcoWhite)
                         }
                     }
                 }
@@ -543,7 +543,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
                     )
                     else -> stringResource(R.string.recycling_on_the_way_text)
                 },
-                style = EcoTextStyles.Subtitulo,
+                style = EcoTextStyles.Subtitle,
                 color = EcoWhite,
             )
         }
@@ -555,11 +555,11 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         EcoDataLabel(stringResource(R.string.recycling_delivery_place))
-        Text(stringResource(R.string.recycling_address_with_area, publication.address, publication.area), style = EcoTextStyles.Subtitulo, color = EcoTitle)
-        Text(stringResource(R.string.report_default_area), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(stringResource(R.string.recycling_address_with_area, publication.address, publication.area), style = EcoTextStyles.Subtitle, color = EcoTitle)
+        Text(stringResource(R.string.report_default_area), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
     if (publication.status == PublicationStatus.EN_CAMINO) {
-        Text(stringResource(R.string.recycling_qr_instructions), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.recycling_qr_instructions), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -575,10 +575,10 @@ fun PublicationSummary(publication: RecyclingPublication) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(publication.materialName(), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(publication.materialName(), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             EcoDataLabel(publication.code)
         }
-        Text(stringResource(publication.volume.labelRes()), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(stringResource(publication.volume.labelRes()), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
@@ -612,10 +612,10 @@ fun DeliveryCompletedScreen(
                     ) {
                         Icon(painterResource(R.drawable.ic_check_large), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(34.dp))
                     }
-                    Text(stringResource(R.string.recycling_completed_title), style = EcoTextStyles.Titulo, color = EcoTitle, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.recycling_completed_title), style = EcoTextStyles.Title, color = EcoTitle, textAlign = TextAlign.Center)
                     Text(
                         stringResource(R.string.recycling_completed_description, publication.materialName()),
-                        style = EcoTextStyles.Subtitulo,
+                        style = EcoTextStyles.Subtitle,
                         color = EcoSubtitle,
                         textAlign = TextAlign.Center,
                     )
@@ -628,17 +628,17 @@ fun DeliveryCompletedScreen(
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text(stringResource(R.string.recycling_points_earned), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+                    Text(stringResource(R.string.recycling_points_earned), style = EcoTextStyles.FieldLabel, color = EcoWhite)
                     Text(
                         publication.pointsEarned?.let { stringResource(R.string.recycling_points_plus, formatPoints(it)) }
                             ?: stringResource(R.string.recycling_points_pending),
-                        style = EcoTextStyles.Numeros,
+                        style = EcoTextStyles.Numbers,
                         color = EcoWhite,
                     )
                     publication.balanceAfter?.let { balance ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.recycling_new_balance), style = EcoTextStyles.Subtitulo, color = EcoWhite, modifier = Modifier.weight(1f))
-                            Text(formatPoints(balance), style = EcoTextStyles.Numeros, color = EcoWhite)
+                            Text(stringResource(R.string.recycling_new_balance), style = EcoTextStyles.Subtitle, color = EcoWhite, modifier = Modifier.weight(1f))
+                            Text(formatPoints(balance), style = EcoTextStyles.Numbers, color = EcoWhite)
                         }
                     }
                 }
@@ -650,7 +650,7 @@ fun DeliveryCompletedScreen(
                         recycler?.name ?: "—",
                         publication.deliveredAtMillis?.let(::formatShort) ?: "—",
                     ),
-                    style = EcoTextStyles.Subtitulo,
+                    style = EcoTextStyles.Subtitle,
                     color = EcoSubtitle,
                 )
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.recycling_sample_hint))

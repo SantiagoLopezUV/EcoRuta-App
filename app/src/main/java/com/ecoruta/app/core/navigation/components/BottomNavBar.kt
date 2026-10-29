@@ -95,7 +95,7 @@ fun <T : EcoBottomBarItem> EcoBottomBar(
                 }
                 Text(
                     text = stringResource(item.labelRes),
-                    style = EcoTextStyles.EtiquetaNavegacion,
+                    style = EcoTextStyles.NavigationLabel,
                     color = if (selected) EcoAccent else EcoSubtitle,
                     textAlign = TextAlign.Center,
                     maxLines = 1,

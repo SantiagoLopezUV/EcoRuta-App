@@ -68,8 +68,8 @@ fun EcoSystemStateScreen(
         ) {
             EcoTopBar()
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(subtitle, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+                Text(subtitle, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
             Column(
                 modifier = Modifier
@@ -82,8 +82,8 @@ fun EcoSystemStateScreen(
             ) {
                 Image(painterResource(illustrationRes), contentDescription = null, modifier = Modifier.size(104.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(heading, style = EcoTextStyles.Boton, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-                    Text(body, style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Text(heading, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                 }
             }
         }

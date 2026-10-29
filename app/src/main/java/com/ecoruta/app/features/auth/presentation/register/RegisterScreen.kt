@@ -106,8 +106,8 @@ fun RegistrationLayout(
 @Composable
 fun RegistrationTitle(title: String, description: String) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-        Text(description, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+        Text(description, style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
@@ -132,7 +132,7 @@ fun CenteredBrand(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(24.dp),
                 )
             }
-            Text(stringResource(R.string.app_name), style = EcoTextStyles.Titulo, color = EcoPrimary)
+            Text(stringResource(R.string.app_name), style = EcoTextStyles.Title, color = EcoPrimary)
         }
     }
 }
@@ -144,7 +144,7 @@ internal fun HaveAccountRow(onLoginClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(stringResource(R.string.registration_have_account), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(stringResource(R.string.registration_have_account), style = EcoTextStyles.Subtitle, color = EcoTitle)
         EcoTextLink(
             text = stringResource(R.string.registration_login),
             onClick = onLoginClick,
@@ -254,7 +254,7 @@ fun CitizenAccountScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = EcoBorder)
-            Text(stringResource(R.string.registration_or_email), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.registration_or_email), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = EcoBorder)
         }
         EcoTextField(
@@ -397,7 +397,7 @@ private fun DocumentTypeSelector(
             ) {
                 Text(
                     stringResource(selected.shortLabelRes),
-                    style = EcoTextStyles.EtiquetaCampo.copy(fontSize = 13.sp, letterSpacing = 0.sp),
+                    style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp),
                     color = EcoTitle,
                 )
                 Icon(
@@ -412,7 +412,7 @@ private fun DocumentTypeSelector(
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 DocumentType.entries.forEach { type ->
                     DropdownMenuItem(
-                        text = { Text(stringResource(type.labelRes), style = EcoTextStyles.Subtitulo, color = EcoTitle) },
+                        text = { Text(stringResource(type.labelRes), style = EcoTextStyles.Subtitle, color = EcoTitle) },
                         onClick = {
                             expanded = false
                             onSelected(type)
@@ -462,10 +462,10 @@ fun CitizenEmailConfirmationScreen(
             description = stringResource(R.string.registration_confirm_description),
         )
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.registration_delivery_email), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
-            Text(email, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(stringResource(R.string.registration_delivery_email), style = EcoTextStyles.FieldLabel, color = EcoTitle)
+            Text(email, style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
-        Text(stringResource(R.string.registration_spam_hint), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.registration_spam_hint), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         CenteredBrand(modifier = Modifier.padding(top = 48.dp))
     }
 }

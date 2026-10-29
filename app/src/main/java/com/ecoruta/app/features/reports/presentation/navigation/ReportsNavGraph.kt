@@ -52,21 +52,21 @@ private val SampleReports = listOf(
 fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
-    composable(EcoRutaDestination.REPORTES_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_REPORTS) {
         ReportsGuestScreen(
             actions = ReportsGuestActions(
                 onBack = { navController.popBackStack() },
-                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )
     }
 
     navigation(
-        startDestination = EcoRutaDestination.REPORTE_FOTO,
-        route = EcoRutaDestination.NUEVO_REPORTE,
+        startDestination = EcoRutaDestination.REPORT_PHOTO,
+        route = EcoRutaDestination.NEW_REPORT,
     ) {
-        composable(EcoRutaDestination.REPORTE_FOTO) {
+        composable(EcoRutaDestination.REPORT_PHOTO) {
             var state by remember { mutableStateOf(NewReportUiState()) }
             ReportPhotoScreen(
                 state = state,
@@ -76,24 +76,24 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
                     onPhotoLimitReached = {},
                     onCameraUnavailable = {},
                     onDescriptionChange = { state = state.copy(description = it) },
-                    onContinue = { navController.navigate(EcoRutaDestination.REPORTE_TIPO) { launchSingleTop = true } },
-                    onBack = { navController.popBackStack(EcoRutaDestination.NUEVO_REPORTE, inclusive = true) },
+                    onContinue = { navController.navigate(EcoRutaDestination.REPORT_TYPE) { launchSingleTop = true } },
+                    onBack = { navController.popBackStack(EcoRutaDestination.NEW_REPORT, inclusive = true) },
                 ),
             )
         }
-        composable(EcoRutaDestination.REPORTE_TIPO) {
+        composable(EcoRutaDestination.REPORT_TYPE) {
             var state by remember { mutableStateOf(NewReportUiState(type = ReportType.CONTENEDOR_LLENO)) }
             ReportTypeScreen(
                 state = state,
                 actions = ReportTypeActions(
                     onTypeSelected = { state = state.copy(type = it, typeError = null) },
-                    onSpecialWasteClick = { open(EcoRutaDestination.SOLICITAR_RETIRO) },
-                    onContinue = { navController.navigate(EcoRutaDestination.REPORTE_UBICACION) { launchSingleTop = true } },
+                    onSpecialWasteClick = { open(EcoRutaDestination.REQUEST_DEBRIS_PICKUP) },
+                    onContinue = { navController.navigate(EcoRutaDestination.REPORT_LOCATION) { launchSingleTop = true } },
                     onBack = { navController.popBackStack() },
                 ),
             )
         }
-        composable(EcoRutaDestination.REPORTE_UBICACION) {
+        composable(EcoRutaDestination.REPORT_LOCATION) {
             var state by remember { mutableStateOf(NewReportUiState(address = "Calle 14 #8-20")) }
             ReportLocationScreen(
                 state = state,
@@ -104,8 +104,8 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
                     onAddressChange = { state = state.copy(address = it, locationError = null) },
                     onAddressDone = { state = state.copy(isEditingAddress = false) },
                     onSubmit = {
-                        navController.navigate(EcoRutaDestination.REPORTE_ENVIADO) {
-                            popUpTo(EcoRutaDestination.REPORTE_FOTO)
+                        navController.navigate(EcoRutaDestination.REPORT_SENT) {
+                            popUpTo(EcoRutaDestination.REPORT_PHOTO)
                             launchSingleTop = true
                         }
                     },
@@ -113,12 +113,12 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
                 ),
             )
         }
-        composable(EcoRutaDestination.REPORTE_ENVIADO) {
+        composable(EcoRutaDestination.REPORT_SENT) {
             ReportSentScreen(
                 sentWithoutBackend = true,
                 onViewMyReports = {
-                    navController.navigate(EcoRutaDestination.MIS_REPORTES) {
-                        popUpTo(EcoRutaDestination.INICIO_CIUDADANO)
+                    navController.navigate(EcoRutaDestination.MY_REPORTS) {
+                        popUpTo(EcoRutaDestination.CITIZEN_HOME)
                         launchSingleTop = true
                     }
                 },
@@ -127,13 +127,13 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
         }
     }
 
-    composable(EcoRutaDestination.MIS_REPORTES) {
+    composable(EcoRutaDestination.MY_REPORTS) {
         MyReportsScreen(
             state = MyReportsUiState.Loaded(reports = SampleReports, isSample = true),
             actions = MyReportsActions(
                 onBack = { navController.popBackStack() },
-                onReportClick = { report -> open(EcoRutaDestination.detalleReporte(report.id)) },
-                onCreateReport = { open(EcoRutaDestination.NUEVO_REPORTE) },
+                onReportClick = { report -> open(EcoRutaDestination.reportDetail(report.id)) },
+                onCreateReport = { open(EcoRutaDestination.NEW_REPORT) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
@@ -141,7 +141,7 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
     }
 
     composable(
-        route = EcoRutaDestination.DETALLE_REPORTE,
+        route = EcoRutaDestination.REPORT_DETAIL,
         arguments = listOf(navArgument(EcoRutaDestination.ARG_REPORT_ID) { type = NavType.StringType }),
     ) { entry ->
         val reportId = entry.arguments?.getString(EcoRutaDestination.ARG_REPORT_ID).orEmpty()
@@ -150,8 +150,8 @@ fun NavGraphBuilder.reportsGraph(navController: NavHostController) {
             state = ReportDetailUiState.Loaded(report = report, isSample = true),
             actions = ReportDetailActions(
                 onBack = { navController.popBackStack() },
-                onCreateReport = { open(EcoRutaDestination.NUEVO_REPORTE) },
-                onViewOriginal = { id -> navController.navigate(EcoRutaDestination.detalleReporte(id)) },
+                onCreateReport = { open(EcoRutaDestination.NEW_REPORT) },
+                onViewOriginal = { id -> navController.navigate(EcoRutaDestination.reportDetail(id)) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),

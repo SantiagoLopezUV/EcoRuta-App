@@ -45,7 +45,7 @@ fun NavGraphBuilder.educationGraph(
 ) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
-    composable(EcoRutaDestination.EDUCACION) {
+    composable(EcoRutaDestination.EDUCATION) {
         var state by remember {
             mutableStateOf(
                 EducationUiState(
@@ -63,7 +63,7 @@ fun NavGraphBuilder.educationGraph(
                 onQueryChange = { state = state.copy(query = it) },
                 onTopicClick = { topic ->
                     if (topic.opensSeparationGuide) {
-                        open(EcoRutaDestination.GUIA_SEPARACION)
+                        open(EcoRutaDestination.SEPARATION_GUIDE)
                     } else {
                         showNotice(context.getString(R.string.education_topic_coming_soon))
                     }
@@ -79,7 +79,7 @@ fun NavGraphBuilder.educationGraph(
         )
     }
 
-    composable(EcoRutaDestination.GUIA_SEPARACION) {
+    composable(EcoRutaDestination.SEPARATION_GUIDE) {
         var state by remember { mutableStateOf(SeparationGuideUiState()) }
         SeparationGuideScreen(
             state = state,
@@ -106,7 +106,7 @@ fun NavGraphBuilder.educationGraph(
         )
     }
 
-    composable(EcoRutaDestination.EDUCACION_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_EDUCATION) {
         var state by remember {
             mutableStateOf(
                 EducationUiState(
@@ -125,22 +125,22 @@ fun NavGraphBuilder.educationGraph(
                 onQueryChange = { state = state.copy(query = it) },
                 onTopicClick = { topic ->
                     if (topic.opensSeparationGuide) {
-                        open(EcoRutaDestination.GUIA_SEPARACION_SIN_SESION)
+                        open(EcoRutaDestination.GUEST_SEPARATION_GUIDE)
                     } else {
                         showNotice(context.getString(R.string.education_topic_coming_soon))
                     }
                 },
-                onToggleFavorite = { open(EcoRutaDestination.INICIAR_SESION) },
+                onToggleFavorite = { open(EcoRutaDestination.LOGIN) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.GUIA_SEPARACION_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_SEPARATION_GUIDE) {
         GuestSeparationGuideScreen(
             onBack = { navController.popBackStack() },
-            onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+            onLogin = { open(EcoRutaDestination.LOGIN) },
             onTabClick = { tab -> navController.navigateToPublicTab(tab) },
         )
     }
