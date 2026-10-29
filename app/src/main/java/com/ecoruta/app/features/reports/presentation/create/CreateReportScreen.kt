@@ -1,18 +1,15 @@
 package com.ecoruta.app.features.reports.presentation.create
 
-// Vista composable para el formulario guiado de reporte en 3 pasos
-// Paso 1: Fotografías. Paso 2: Afectación. Paso 3: Ubicación en mapa y dirección
+// Componentes compartidos del flujo de reporte y primer paso de captura de fotografías
+// Paso 1: Fotografías. Los pasos de afectación, ubicación y envío están en archivos propios
 
-import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,7 +21,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -32,23 +28,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -66,28 +55,20 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.ui.components.EcoErrorMessage
 import com.ecoruta.app.core.ui.components.EcoInfoHint
-import com.ecoruta.app.core.ui.components.EcoPermissionKind
-import com.ecoruta.app.core.ui.components.EcoPermissionScreen
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
-import com.ecoruta.app.core.ui.components.EcoSelectionCard
 import com.ecoruta.app.core.ui.components.EcoStatusChip
 import com.ecoruta.app.core.ui.components.EcoTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoTextField
-import com.ecoruta.app.core.ui.components.EcoTextLink
-import com.ecoruta.app.core.ui.components.EcoTopBar
 import com.ecoruta.app.core.ui.components.EcoWizardLayout
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoBlack
@@ -409,389 +390,6 @@ private fun PhotoThumbnail(uri: Uri, index: Int, onRemove: () -> Unit) {
     }
 }
 
-// Segundo paso del formulario de reporte para seleccionar el tipo de afectación
-data class ReportTypeActions(
-    val onTypeSelected: (ReportType) -> Unit = {},
-    val onSpecialWasteClick: () -> Unit = {},
-    val onContinue: () -> Unit = {},
-    val onBack: () -> Unit = {},
-)
-
-@Composable
-fun ReportTypeScreen(state: NewReportUiState, actions: ReportTypeActions) {
-    ReportStepLayout(
-        step = 2,
-        stageLabel = stringResource(R.string.report_stage_type),
-        title = stringResource(R.string.report_type_title),
-        description = stringResource(R.string.report_type_description),
-        onBack = actions.onBack,
-        bottomActions = {
-            EcoPrimaryButton(
-                text = stringResource(R.string.action_continue),
-                onClick = actions.onContinue,
-                height = 48.dp,
-                trailingIconRes = R.drawable.ic_arrow_right,
-            )
-        },
-    ) {
-        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            EcoSelectionCard(
-                title = stringResource(R.string.report_type_full_container),
-                description = stringResource(R.string.report_type_full_container_description),
-                iconRes = R.drawable.ic_trash,
-                iconSize = 24.dp,
-                selected = state.type == ReportType.CONTENEDOR_LLENO,
-                onClick = { actions.onTypeSelected(ReportType.CONTENEDOR_LLENO) },
-            )
-            EcoSelectionCard(
-                title = stringResource(R.string.report_type_illegal_dump),
-                description = stringResource(R.string.report_type_illegal_dump_description),
-                iconRes = R.drawable.ic_report_alert,
-                iconSize = 24.dp,
-                selected = state.type == ReportType.BOTADERO_CLANDESTINO,
-                onClick = { actions.onTypeSelected(ReportType.BOTADERO_CLANDESTINO) },
-            )
-        }
-        state.typeError?.let { EcoErrorMessage(text = stringResource(it)) }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(EcoFieldBackground)
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Icon(painterResource(R.drawable.ic_info), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
-                Text(stringResource(R.string.report_special_waste_hint), style = EcoTextStyles.Subtitle, color = EcoTitle)
-            }
-            EcoTextLink(
-                text = stringResource(R.string.report_special_waste_link),
-                onClick = actions.onSpecialWasteClick,
-                modifier = Modifier.padding(start = 30.dp),
-            )
-        }
-    }
-}
-
-// Tercer paso del formulario de reporte para indicar la ubicación en el mapa y dirección
-data class ReportLocationActions(
-    val onUseCurrentLocation: () -> Unit = {},
-    val onLocationPermissionDenied: () -> Unit = {},
-    val onEditAddress: () -> Unit = {},
-    val onAddressChange: (String) -> Unit = {},
-    val onAddressDone: () -> Unit = {},
-    val onSubmit: () -> Unit = {},
-    val onBack: () -> Unit = {},
-)
-
-@Composable
-fun ReportLocationScreen(state: NewReportUiState, actions: ReportLocationActions) {
-    val context = LocalContext.current
-    val inPreview = LocalInspectionMode.current
-    val permissionLauncher = if (inPreview) {
-        null
-    } else {
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
-            if (grants.values.any { it }) actions.onUseCurrentLocation() else actions.onLocationPermissionDenied()
-        }
-    }
-    var showLocationRationale by rememberSaveable { mutableStateOf(false) }
-    val requestLocation: () -> Unit = {
-        if (context.hasLocationPermission()) actions.onUseCurrentLocation() else showLocationRationale = true
-    }
-    if (showLocationRationale) {
-        EcoPermissionScreen(
-            kind = EcoPermissionKind.LOCATION,
-            onAllow = {
-                showLocationRationale = false
-                permissionLauncher?.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
-            },
-            onBack = { showLocationRationale = false },
-        )
-        return
-    }
-    if (!inPreview) {
-        LaunchedEffect(Unit) {
-            if (state.address.isBlank() && !state.hasGpsLocation && context.hasLocationPermission()) actions.onUseCurrentLocation()
-        }
-    }
-
-    ReportStepLayout(
-        step = 3,
-        stageLabel = stringResource(R.string.report_stage_location),
-        title = stringResource(R.string.report_location_title),
-        description = stringResource(R.string.report_location_description),
-        onBack = actions.onBack,
-        bottomActions = {
-            EcoPrimaryButton(
-                text = stringResource(if (state.isSubmitting) R.string.report_sending else R.string.report_send),
-                onClick = actions.onSubmit,
-                isLoading = state.isSubmitting,
-                enabled = !state.isLocating,
-                trailingIconRes = R.drawable.ic_arrow_right,
-            )
-        },
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            IllustrativeMap(
-                hasLocation = state.hasGpsLocation,
-                isLocating = state.isLocating,
-                onMyLocationClick = requestLocation,
-            )
-            Text(stringResource(R.string.report_location_helper), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
-            OutlinedButton(
-                onClick = requestLocation,
-                enabled = !state.isLocating && !state.isSubmitting,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, EcoBorder),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = EcoWhite, contentColor = EcoPrimary),
-            ) {
-                if (state.isLocating) {
-                    CircularProgressIndicator(color = EcoPrimary, strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
-                } else {
-                    Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    stringResource(if (state.isLocating) R.string.report_locating else R.string.report_use_current_location),
-                    style = EcoTextStyles.LinkText,
-                )
-            }
-            if (state.isEditingAddress) {
-                EcoTextField(
-                    value = state.address,
-                    onValueChange = actions.onAddressChange,
-                    label = stringResource(R.string.report_address_label),
-                    placeholder = stringResource(R.string.report_address_placeholder),
-                    leadingIcon = {
-                        Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
-                    },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { actions.onAddressDone() }),
-                )
-                if (state.address.isNotBlank()) {
-                    EcoTextLink(text = stringResource(R.string.report_address_save), onClick = actions.onAddressDone)
-                }
-            } else if (state.address.isNotBlank()) {
-                AddressCard(state = state, onEdit = actions.onEditAddress)
-            }
-            state.locationError?.let { EcoErrorMessage(text = stringResource(it)) }
-        }
-    }
-}
-
-private fun Context.hasLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
-@Composable
-private fun AddressCard(state: NewReportUiState, onEdit: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(EcoFieldBackground)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(state.address, style = EcoTextStyles.ButtonText, color = EcoTitle)
-            Text(
-                state.area.ifBlank { stringResource(R.string.report_default_area) },
-                style = EcoTextStyles.FieldLabel,
-                color = EcoSubtitle,
-            )
-            if (state.latitude != null && state.longitude != null) {
-                Text(
-                    stringResource(R.string.report_gps_coordinates, state.latitude, state.longitude),
-                    style = EcoTextStyles.FieldLabel.copy(fontSize = 11.sp),
-                    color = EcoSubtitle,
-                )
-            }
-        }
-        EcoTextLink(text = stringResource(R.string.action_edit), onClick = onEdit)
-    }
-}
-
-private val MapBlocks = listOf(
-    floatArrayOf(18f, 12f, 74f, 46f), floatArrayOf(115f, 12f, 74f, 46f), floatArrayOf(214f, 12f, 90f, 46f),
-    floatArrayOf(18f, 80f, 74f, 48f), floatArrayOf(115f, 80f, 74f, 48f),
-    floatArrayOf(18f, 151f, 74f, 48f), floatArrayOf(115f, 151f, 74f, 48f), floatArrayOf(215f, 151f, 90f, 48f),
-)
-
-@Composable
-private fun IllustrativeMap(hasLocation: Boolean, isLocating: Boolean, onMyLocationClick: () -> Unit) {
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(212.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(EcoFieldBackground),
-    ) {
-        val scale = maxWidth / 350f
-        MapBlocks.forEach { (x, y, w, h) ->
-            Box(
-                Modifier
-                    .offset(x = scale * x, y = y.dp)
-                    .size(width = scale * w, height = h.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(EcoWhite),
-            )
-        }
-        Box(
-            Modifier
-                .offset(x = scale * 215f, y = 80.dp)
-                .size(width = scale * 90f, height = 48.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .background(EcoGreenSecondary),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                stringResource(R.string.report_map_park),
-                style = EcoTextStyles.FieldLabel,
-                color = EcoWhite
-            )
-        }
-        Text(
-            stringResource(R.string.report_map_street_a),
-            style = EcoTextStyles.FieldLabel,
-            color = EcoSubtitle,
-            modifier = Modifier.offset(x = scale * 21f, y = 60.dp)
-        )
-        Text(
-            stringResource(R.string.report_map_street_b),
-            style = EcoTextStyles.FieldLabel,
-            color = EcoSubtitle,
-            modifier = Modifier.offset(x = scale * 22f, y = 131.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(if (hasLocation) EcoPrimary else EcoSubtitle),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (isLocating) {
-                CircularProgressIndicator(
-                    color = EcoWhite,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(22.dp)
-                )
-            } else {
-                Icon(
-                    painterResource(R.drawable.ic_map_pin_white),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
-        Text(
-            text = stringResource(R.string.report_map_illustrative),
-            style = EcoTextStyles.NavigationLabel,
-            color = EcoSubtitle,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(12.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(EcoWhite)
-                .padding(horizontal = 8.dp, vertical = 2.dp),
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(12.dp)
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(EcoWhite)
-                .border(1.dp, EcoPrimary, CircleShape)
-                .clickable(
-                    enabled = !isLocating,
-                    role = Role.Button,
-                    onClickLabel = stringResource(R.string.report_use_current_location),
-                    onClick = onMyLocationClick,
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painterResource(R.drawable.ic_map_pin),
-                contentDescription = stringResource(R.string.report_use_current_location),
-                tint = Color.Unspecified,
-                modifier = Modifier.size(24.dp),
-            )
-        }
-    }
-}
-
-// Pantalla de confirmación tras enviar el reporte ciudadano
-@Composable
-fun ReportSentScreen(
-    sentWithoutBackend: Boolean,
-    onViewMyReports: () -> Unit,
-    onGoHome: () -> Unit,
-) {
-    if (!LocalInspectionMode.current) {
-        BackHandler(onBack = onGoHome)
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(EcoWhite)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(20.dp),
-    ) {
-        EcoTopBar(onBackClick = onGoHome)
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(EcoPrimary),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(painterResource(R.drawable.ic_check_large), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(56.dp))
-            }
-            Text(stringResource(R.string.report_sent_title), style = EcoTextStyles.Title, color = EcoTitle, textAlign = TextAlign.Center)
-            Text(
-                stringResource(R.string.report_sent_description),
-                style = EcoTextStyles.Subtitle,
-                color = EcoSubtitle,
-                textAlign = TextAlign.Center,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.report_current_status), style = EcoTextStyles.FieldLabel, color = EcoTitle)
-                ReportStatusChip(ReportStatus.PENDIENTE)
-            }
-            if (sentWithoutBackend) {
-                ReportInfoHint(text = stringResource(R.string.report_design_mode_sent_hint))
-            }
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            EcoPrimaryButton(
-                text = stringResource(R.string.report_view_my_reports),
-                onClick = onViewMyReports,
-                trailingIconRes = R.drawable.ic_arrow_right,
-            )
-            EcoTextLink(text = stringResource(R.string.report_back_home), onClick = onGoHome)
-        }
-    }
-}
-
 @Preview(name = "Paso 1 Foto", widthDp = 393, heightDp = 852)
 @Composable
 private fun ReportPhotoPreview() {
@@ -799,46 +397,6 @@ private fun ReportPhotoPreview() {
         ReportPhotoScreen(
             state = NewReportUiState(description = "Hay bolsas acumuladas fuera del contenedor desde ayer."),
             actions = ReportPhotoActions(),
-        )
-    }
-}
-
-@Preview(name = "Paso 2 Tipo", widthDp = 393, heightDp = 852)
-@Composable
-private fun ReportTypePreview() {
-    EcoRutaTheme {
-        ReportTypeScreen(
-            state = NewReportUiState(type = ReportType.CONTENEDOR_LLENO),
-            actions = ReportTypeActions(),
-        )
-    }
-}
-
-@Preview(name = "Paso 3 Ubicación", widthDp = 393, heightDp = 852)
-@Composable
-private fun ReportLocationPreview() {
-    EcoRutaTheme {
-        ReportLocationScreen(
-            state = NewReportUiState(
-                address = "Cra. 22E #6-40",
-                area = "Torobajo · Pasto",
-                latitude = 1.2136,
-                longitude = -77.2811,
-                isEditingAddress = false,
-            ),
-            actions = ReportLocationActions(),
-        )
-    }
-}
-
-@Preview(name = "Reporte Enviado", widthDp = 393, heightDp = 852)
-@Composable
-private fun ReportSentPreview() {
-    EcoRutaTheme {
-        ReportSentScreen(
-            sentWithoutBackend = false,
-            onViewMyReports = {},
-            onGoHome = {},
         )
     }
 }
