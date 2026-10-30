@@ -59,10 +59,10 @@ data class EducationActions(
 
 @Composable
 fun EducationScreen(state: EducationUiState, actions: EducationActions, isSignedIn: Boolean = true) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.EDUCACION, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.EDUCATION, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.education_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.education_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.education_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.education_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         EcoTextField(
             value = state.query,
@@ -87,7 +87,7 @@ fun EducationScreen(state: EducationUiState, actions: EducationActions, isSigned
             else -> {
                 if (state.isSample && isSignedIn) EcoInfoHint(text = stringResource(R.string.education_sample_hint))
                 if (state.visibleTopics.isEmpty()) {
-                    Text(stringResource(R.string.education_no_results), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.education_no_results), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     state.visibleTopics.forEach { topic ->
@@ -126,8 +126,8 @@ private fun TopicCard(topic: EducationTopic, onClick: () -> Unit, onToggleFavori
             Icon(painterResource(topic.icon.iconRes()), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(topic.title, style = EcoTextStyles.Enlace, color = EcoTitle)
-            Text(topic.summary, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(topic.title, style = EcoTextStyles.LinkText, color = EcoTitle)
+            Text(topic.summary, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 EcoStatusChip(stringResource(R.string.education_reward, topic.rewardPoints), EcoAccent, EcoBlack)
                 if (topic.completed) {
@@ -138,7 +138,7 @@ private fun TopicCard(topic: EducationTopic, onClick: () -> Unit, onToggleFavori
             }
         }
         FavoriteButton(favorite = topic.favorite, onClick = onToggleFavorite, cornerRadius = 10, iconSize = 16, bordered = true)
-        Text("›", style = EcoTextStyles.Boton, color = EcoPrimary)
+        Text("›", style = EcoTextStyles.ButtonText, color = EcoPrimary)
     }
 }
 
@@ -168,10 +168,10 @@ fun FavoriteButton(favorite: Boolean, onClick: () -> Unit, cornerRadius: Int, ic
 }
 
 private fun TopicIcon.iconRes(): Int = when (this) {
-    TopicIcon.LISTA -> R.drawable.ic_list
-    TopicIcon.RECICLAJE -> R.drawable.ic_recycle
-    TopicIcon.ESCOMBROS -> R.drawable.ic_trash
-    TopicIcon.ECOPUNTOS -> R.drawable.ic_truck
+    TopicIcon.LIST -> R.drawable.ic_list
+    TopicIcon.RECYCLING -> R.drawable.ic_recycle
+    TopicIcon.DEBRIS -> R.drawable.ic_trash
+    TopicIcon.ECOPOINTS -> R.drawable.ic_truck
 }
 
 @Preview(name = "Educación", widthDp = 393, heightDp = 900)
@@ -187,7 +187,7 @@ private fun EducationPreview() {
                         title = "Cómo separar tus residuos",
                         summary = "Guía rápida del código de colores en Colombia",
                         rewardPoints = 50,
-                        icon = TopicIcon.LISTA,
+                        icon = TopicIcon.LIST,
                         opensSeparationGuide = true,
                     ),
                 ),

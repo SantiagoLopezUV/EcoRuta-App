@@ -8,10 +8,10 @@ import androidx.annotation.StringRes
 // Define el origen desde el cual se solicita el cambio de contraseña
 enum class ChangePasswordMode {
     // Primer ingreso utilizando la contraseña provisional enviada por correo
-    PRIMER_INGRESO,
+    FIRST_LOGIN,
 
     // Solicitud iniciada voluntariamente desde las opciones del perfil
-    PERFIL,
+    PROFILE,
 }
 
 data class ChangePasswordUiState(

@@ -93,8 +93,8 @@ fun RecoveryEmailScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.recovery_email_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(stringResource(R.string.recovery_email_subtitle), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.recovery_email_title), style = EcoTextStyles.Title, color = EcoTitle)
+                Text(stringResource(R.string.recovery_email_subtitle), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
@@ -173,16 +173,16 @@ fun RecoveryCodeScreen(
                         )
                     }
                 }
-                Text(stringResource(R.string.recovery_code_overline), style = EcoTextStyles.Subtitulo, color = EcoPrimary)
+                Text(stringResource(R.string.recovery_code_overline), style = EcoTextStyles.Subtitle, color = EcoPrimary)
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text(stringResource(R.string.recovery_code_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+                Text(stringResource(R.string.recovery_code_title), style = EcoTextStyles.Title, color = EcoTitle)
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         stringResource(R.string.recovery_code_subtitle, state.email.trim()),
-                        style = EcoTextStyles.Subtitulo.copy(fontSize = 12.sp),
+                        style = EcoTextStyles.Subtitle.copy(fontSize = 12.sp),
                         color = EcoSubtitle,
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -217,7 +217,7 @@ fun RecoveryCodeScreen(
                 if (state.resendSecondsLeft > 0 && !state.isCodeExpired) {
                     Text(
                         text = stringResource(R.string.recovery_resend_in, formatSeconds(state.resendSecondsLeft)),
-                        style = EcoTextStyles.Subtitulo,
+                        style = EcoTextStyles.Subtitle,
                         color = EcoPrimary,
                         textAlign = TextAlign.Center,
                     )
@@ -273,8 +273,8 @@ fun ResetPasswordScreen(
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 EcoIconBadge(iconRes = R.drawable.ic_shield_check)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.reset_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-                    Text(stringResource(R.string.reset_subtitle), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.reset_title), style = EcoTextStyles.Title, color = EcoTitle)
+                    Text(stringResource(R.string.reset_subtitle), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
             }
 
@@ -362,8 +362,8 @@ fun PasswordUpdatedScreen(
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 EcoIconBadge(iconRes = R.drawable.ic_shield_check)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.password_updated_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-                    Text(stringResource(R.string.password_updated_message), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.password_updated_title), style = EcoTextStyles.Title, color = EcoTitle)
+                    Text(stringResource(R.string.password_updated_message), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
             }
             EcoPrimaryButton(text = stringResource(R.string.recovery_back_to_login), onClick = onBackToLogin)

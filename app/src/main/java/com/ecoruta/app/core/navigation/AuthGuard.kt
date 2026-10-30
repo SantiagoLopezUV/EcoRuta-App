@@ -12,31 +12,31 @@ object AuthGuard {
     // Conjunto de rutas que pueden ser visitadas libremente en modo visitante
     val publicDestinations: Set<String> = setOf(
         EcoRutaDestination.SPLASH,
-        EcoRutaDestination.INICIO_PUBLICO,
-        EcoRutaDestination.INICIAR_SESION,
-        EcoRutaDestination.REGISTRO,
-        EcoRutaDestination.SELECCION_TIPO_REGISTRO,
-        EcoRutaDestination.REGISTRO_CIUDADANO_CUENTA,
-        EcoRutaDestination.REGISTRO_CIUDADANO_PERFIL,
-        EcoRutaDestination.REGISTRO_CIUDADANO_CONFIRMACION,
-        EcoRutaDestination.REGISTRO_CIUDADANO_LISTO,
-        EcoRutaDestination.RECUPERACION,
-        EcoRutaDestination.RECUPERAR_CORREO,
-        EcoRutaDestination.RECUPERAR_CODIGO,
-        EcoRutaDestination.RESTABLECER_CONTRASENA,
-        EcoRutaDestination.CONTRASENA_ACTUALIZADA,
-        EcoRutaDestination.SELECCION_BARRIO_SIN_SESION,
-        EcoRutaDestination.RUTAS_BARRIO_SIN_SESION,
-        EcoRutaDestination.NOTIFICACIONES_SIN_SESION,
-        EcoRutaDestination.RESIDUOS_ESPECIALES_SIN_SESION,
-        EcoRutaDestination.REPORTES_SIN_SESION,
-        EcoRutaDestination.RECICLAJE_SIN_SESION,
-        EcoRutaDestination.BENEFICIOS_SIN_SESION,
-        EcoRutaDestination.CUPONES_SIN_SESION,
-        EcoRutaDestination.EDUCACION_SIN_SESION,
-        EcoRutaDestination.GUIA_SEPARACION_SIN_SESION,
-        EcoRutaDestination.PERFIL_SIN_SESION,
-        EcoRutaDestination.ACCESO_NO_DISPONIBLE,
+        EcoRutaDestination.GUEST_USER,
+        EcoRutaDestination.LOGIN,
+        EcoRutaDestination.RECORD,
+        EcoRutaDestination.RECORD_TYPE_SELECTION,
+        EcoRutaDestination.CITIZEN_REGISTRATION_ACCOUNT,
+        EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE,
+        EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION,
+        EcoRutaDestination.CITIZEN_REGISTRATION_DONE,
+        EcoRutaDestination.RECOVERY,
+        EcoRutaDestination.RECOVER_EMAIL,
+        EcoRutaDestination.RETRIEVE_CODE,
+        EcoRutaDestination.RESET_PASSWORD,
+        EcoRutaDestination.PASSWORD_UPDATED,
+        EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION,
+        EcoRutaDestination.GUEST_NEIGHBORHOOD_ROUTES,
+        EcoRutaDestination.GUEST_NOTIFICATIONS,
+        EcoRutaDestination.GUEST_SPECIAL_WASTE,
+        EcoRutaDestination.GUEST_REPORTS,
+        EcoRutaDestination.GUEST_RECYCLING,
+        EcoRutaDestination.GUEST_BENEFITS,
+        EcoRutaDestination.GUEST_MY_COUPONS,
+        EcoRutaDestination.GUEST_EDUCATION,
+        EcoRutaDestination.GUEST_SEPARATION_GUIDE,
+        EcoRutaDestination.GUEST_PROFILE,
+        EcoRutaDestination.WEB_ONLY_ACCESS,
     )
 
     // Evalúa si una ruta solicitada requiere obligatoriamente una sesión iniciada
@@ -51,15 +51,15 @@ object AuthGuard {
 
     // Devuelve la ruta pública equivalente si existe una versión informativa para visitantes
     fun publicAlternativeFor(route: String?): String? = when (route) {
-        EcoRutaDestination.SOLICITAR_RETIRO, EcoRutaDestination.MIS_SOLICITUDES_ESCOMBROS -> EcoRutaDestination.RESIDUOS_ESPECIALES_SIN_SESION
-        EcoRutaDestination.NUEVO_REPORTE, EcoRutaDestination.MIS_REPORTES -> EcoRutaDestination.REPORTES_SIN_SESION
-        EcoRutaDestination.SELECCION_BARRIO -> EcoRutaDestination.SELECCION_BARRIO_SIN_SESION
-        EcoRutaDestination.RECICLAJE, EcoRutaDestination.PUBLICAR_MATERIAL -> EcoRutaDestination.RECICLAJE_SIN_SESION
-        EcoRutaDestination.BENEFICIOS -> EcoRutaDestination.BENEFICIOS_SIN_SESION
-        EcoRutaDestination.MIS_CUPONES -> EcoRutaDestination.CUPONES_SIN_SESION
-        EcoRutaDestination.EDUCACION, EcoRutaDestination.GUIA_SEPARACION -> EcoRutaDestination.EDUCACION_SIN_SESION
-        EcoRutaDestination.MI_PERFIL -> EcoRutaDestination.PERFIL_SIN_SESION
-        EcoRutaDestination.NOTIFICACIONES -> EcoRutaDestination.NOTIFICACIONES_SIN_SESION
+        EcoRutaDestination.REQUEST_DEBRIS_PICKUP, EcoRutaDestination.MY_DEBRIS_REQUESTS -> EcoRutaDestination.GUEST_SPECIAL_WASTE
+        EcoRutaDestination.NEW_REPORT, EcoRutaDestination.MY_REPORTS -> EcoRutaDestination.GUEST_REPORTS
+        EcoRutaDestination.NEIGHBORHOOD_SELECTION -> EcoRutaDestination.GUEST_NEIGHBORHOOD_SELECTION
+        EcoRutaDestination.RECYCLING, EcoRutaDestination.PUBLISH_MATERIAL -> EcoRutaDestination.GUEST_RECYCLING
+        EcoRutaDestination.BENEFITS -> EcoRutaDestination.GUEST_BENEFITS
+        EcoRutaDestination.MY_COUPONS -> EcoRutaDestination.GUEST_MY_COUPONS
+        EcoRutaDestination.EDUCATION, EcoRutaDestination.SEPARATION_GUIDE -> EcoRutaDestination.GUEST_EDUCATION
+        EcoRutaDestination.MY_PROFILE -> EcoRutaDestination.GUEST_PROFILE
+        EcoRutaDestination.NOTIFICATIONS -> EcoRutaDestination.GUEST_NOTIFICATIONS
         else -> null
     }
 }
@@ -69,7 +69,7 @@ fun NavHostController.navigateGuarded(
     route: String,
     isSignedIn: Boolean,
     onAuthRequired: () -> Unit = {
-        navigate(EcoRutaDestination.INICIAR_SESION) { launchSingleTop = true }
+        navigate(EcoRutaDestination.LOGIN) { launchSingleTop = true }
     },
 ) {
     if (AuthGuard.isProtected(route) && !isSignedIn) {

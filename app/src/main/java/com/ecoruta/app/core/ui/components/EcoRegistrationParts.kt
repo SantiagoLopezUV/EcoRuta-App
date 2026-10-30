@@ -86,14 +86,14 @@ fun EcoStepHeader(
                 )
                 Text(
                     text = stringResource(R.string.app_name),
-                    style = EcoTextStyles.Titulo.copy(fontSize = 18.sp),
+                    style = EcoTextStyles.Title.copy(fontSize = 18.sp),
                     color = EcoPrimary,
                 )
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(stepLabel, style = EcoTextStyles.Enlace, color = EcoTitle)
-            Text(stageLabel, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(stepLabel, style = EcoTextStyles.LinkText, color = EcoTitle)
+            Text(stageLabel, style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
         Box(
             modifier = Modifier
@@ -172,7 +172,7 @@ fun EcoSelectionCard(
                     modifier = Modifier.size(iconSize),
                 )
             }
-            Text(title, style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(title, style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             Icon(
                 painter = painterResource(if (selected) R.drawable.ic_circle_check else R.drawable.ic_circle_empty),
                 contentDescription = null,
@@ -180,7 +180,7 @@ fun EcoSelectionCard(
                 modifier = Modifier.size(24.dp),
             )
         }
-        Text(description, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(description, style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
@@ -227,7 +227,7 @@ fun EcoCheckboxRow(
                     }
                 }
             }
-            Text(text, style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(text, style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
         if (linkText != null) {
             EcoTextLink(text = linkText, onClick = onLinkClick)

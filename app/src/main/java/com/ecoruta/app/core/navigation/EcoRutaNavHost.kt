@@ -64,7 +64,7 @@ fun EcoRutaNavHost(
             ) {
                 SplashScreen(
                     onSplashFinished = {
-                        navController.navigate(EcoRutaDestination.INICIO_PUBLICO) {
+                        navController.navigate(EcoRutaDestination.GUEST_USER) {
                             popUpTo(EcoRutaDestination.SPLASH) { inclusive = true }
                         }
                     },

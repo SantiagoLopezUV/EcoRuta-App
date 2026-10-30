@@ -68,17 +68,17 @@ fun NavGraphBuilder.profileGraph(
 ) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
-    composable(EcoRutaDestination.PERFIL_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_PROFILE) {
         GuestProfileScreen(
             actions = GuestProfileActions(
                 onBack = { navController.popBackStack() },
-                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.MI_PERFIL) {
+    composable(EcoRutaDestination.MY_PROFILE) {
         val context = LocalContext.current
         var localPhoto by remember { mutableStateOf<Uri?>(null) }
         ProfileScreen(
@@ -86,15 +86,15 @@ fun NavGraphBuilder.profileGraph(
             isSigningOut = false,
             isUpdatingPhoto = false,
             actions = ProfileActions(
-                onBack = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onBack = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                 onPhotoSelected = { uri -> localPhoto = uri },
                 onRemovePhoto = { localPhoto = null },
                 onCameraUnavailable = { showNotice(context.getString(R.string.profile_camera_unavailable)) },
-                onMyReports = { open(EcoRutaDestination.MIS_REPORTES) },
-                onMyDebrisRequests = { open(EcoRutaDestination.MIS_SOLICITUDES_ESCOMBROS) },
-                onMyCoupons = { open(EcoRutaDestination.MIS_CUPONES_PERFIL) },
-                onChangeProfile = { open(EcoRutaDestination.CAMBIAR_PERFIL) },
-                onChangePassword = { open(EcoRutaDestination.cambiarContrasena(ChangePasswordMode.PERFIL, SampleUserProfile.role)) },
+                onMyReports = { open(EcoRutaDestination.MY_REPORTS) },
+                onMyDebrisRequests = { open(EcoRutaDestination.MY_DEBRIS_REQUESTS) },
+                onMyCoupons = { open(EcoRutaDestination.PROFILE_MY_COUPONS) },
+                onChangeProfile = { open(EcoRutaDestination.SWITCH_PROFILE) },
+                onChangePassword = { open(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, SampleUserProfile.role)) },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
@@ -102,22 +102,22 @@ fun NavGraphBuilder.profileGraph(
         )
     }
 
-    composable(EcoRutaDestination.CAMBIAR_PERFIL) {
+    composable(EcoRutaDestination.SWITCH_PROFILE) {
         ChangeProfileScreen(
             state = ProfileUiState.Loaded(profile = SampleUserProfile),
             actions = ChangeProfileActions(
                 onBack = { navController.popBackStack() },
                 onSwitchRole = { role ->
-                    navController.navigate(EcoRutaDestination.inicioDelRol(role)) {
+                    navController.navigate(EcoRutaDestination.homeForRole(role)) {
                         popUpTo(navController.graph.id) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
                 onRequestRole = { role ->
                     if (role == UserRole.COMERCIO) {
-                        open(EcoRutaDestination.SOLICITUD_COMERCIO)
+                        open(EcoRutaDestination.STORE_REQUEST)
                     } else {
-                        open(EcoRutaDestination.POSTULACION_RECICLADOR)
+                        open(EcoRutaDestination.RECYCLER_APPLICATION)
                     }
                 },
                 onRetry = {},
@@ -131,12 +131,12 @@ fun NavGraphBuilder.profileGraph(
 
 private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostController) {
     fun backToProfile() {
-        if (!navController.popBackStack(EcoRutaDestination.MI_PERFIL, inclusive = false)) {
-            navController.navigateToCitizenTab(CitizenTab.PERFIL)
+        if (!navController.popBackStack(EcoRutaDestination.MY_PROFILE, inclusive = false)) {
+            navController.navigateToCitizenTab(CitizenTab.PROFILE)
         }
     }
 
-    composable(EcoRutaDestination.SOLICITUD_COMERCIO) {
+    composable(EcoRutaDestination.STORE_REQUEST) {
         var state by remember { mutableStateOf(StoreApplicationUiState()) }
         StoreApplicationScreen(
             state = state,
@@ -151,8 +151,8 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
                 onRutPicked = { doc -> state = state.copy(rut = doc, rutError = null) },
                 onRutRemoved = { state = state.copy(rut = null) },
                 onSubmit = {
-                    navController.navigate(EcoRutaDestination.solicitudComercioRevision(true)) {
-                        popUpTo(EcoRutaDestination.SOLICITUD_COMERCIO) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.storeRequestReview(true)) {
+                        popUpTo(EcoRutaDestination.STORE_REQUEST) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -161,35 +161,35 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
     }
 
     composable(
-        EcoRutaDestination.SOLICITUD_COMERCIO_REVISION,
+        EcoRutaDestination.STORE_REQUEST_REVIEW,
         arguments = listOf(
-            navArgument(EcoRutaDestination.ARG_SIN_BACKEND) {
+            navArgument(EcoRutaDestination.ARG_WITHOUT_BACKEND) {
                 type = NavType.BoolType
                 defaultValue = false
             },
         ),
     ) { entry ->
-        val withoutBackend = entry.arguments?.getBoolean(EcoRutaDestination.ARG_SIN_BACKEND) ?: false
+        val withoutBackend = entry.arguments?.getBoolean(EcoRutaDestination.ARG_WITHOUT_BACKEND) ?: false
         BackHandler { backToProfile() }
         StoreRequestInReviewScreen(
             withoutBackend = withoutBackend,
             onBack = ::backToProfile,
-            onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+            onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
         )
     }
 
     navigation(
-        startDestination = EcoRutaDestination.POSTULACION_FORMULARIO,
-        route = EcoRutaDestination.POSTULACION_RECICLADOR,
+        startDestination = EcoRutaDestination.RECYCLER_APPLICATION_FORM,
+        route = EcoRutaDestination.RECYCLER_APPLICATION,
     ) {
-        composable(EcoRutaDestination.POSTULACION_FORMULARIO) {
+        composable(EcoRutaDestination.RECYCLER_APPLICATION_FORM) {
             var state by remember {
                 mutableStateOf(
                     RecyclerApplicationUiState(
                         fullName = SampleUserProfile.fullName,
                         documentNumber = SampleUserProfile.documentNumber,
-                        modality = RecyclerModality.INDEPENDIENTE,
+                        modality = RecyclerModality.INDEPENDENT,
                         results = SampleCompanies,
                     ),
                 )
@@ -197,17 +197,17 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
             RecyclerApplicationScreen(
                 state = state,
                 actions = RecyclerApplicationActions(
-                    onBack = { navController.popBackStack(EcoRutaDestination.POSTULACION_RECICLADOR, inclusive = true) },
+                    onBack = { navController.popBackStack(EcoRutaDestination.RECYCLER_APPLICATION, inclusive = true) },
                     onModalitySelected = { state = state.copy(modality = it) },
                     onPhoneChange = { state = state.copy(phone = it, phoneError = null) },
                     onDocumentPicked = { doc -> state = state.copy(idDocument = doc, documentError = null) },
                     onDocumentRemoved = { state = state.copy(idDocument = null) },
                     onContinue = {
-                        if (state.modality == RecyclerModality.VINCULADO) {
-                            navController.navigate(EcoRutaDestination.POSTULACION_BUSCAR_EMPRESA) { launchSingleTop = true }
+                        if (state.modality == RecyclerModality.COMPANY_LINKED) {
+                            navController.navigate(EcoRutaDestination.RECYCLER_APPLICATION_COMPANY_SEARCH) { launchSingleTop = true }
                         } else {
-                            navController.navigate(EcoRutaDestination.POSTULACION_ENVIADA) {
-                                popUpTo(EcoRutaDestination.POSTULACION_FORMULARIO) { inclusive = true }
+                            navController.navigate(EcoRutaDestination.RECYCLER_APPLICATION_SENT) {
+                                popUpTo(EcoRutaDestination.RECYCLER_APPLICATION_FORM) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
@@ -216,11 +216,11 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
             )
         }
 
-        composable(EcoRutaDestination.POSTULACION_BUSCAR_EMPRESA) {
+        composable(EcoRutaDestination.RECYCLER_APPLICATION_COMPANY_SEARCH) {
             var state by remember {
                 mutableStateOf(
                     RecyclerApplicationUiState(
-                        modality = RecyclerModality.VINCULADO,
+                        modality = RecyclerModality.COMPANY_LINKED,
                         results = SampleCompanies,
                     ),
                 )
@@ -230,23 +230,23 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
                 onQueryChange = { state = state.copy(query = it) },
                 onCompanySelected = { company ->
                     state = state.copy(company = company)
-                    navController.navigate(EcoRutaDestination.POSTULACION_EMPRESA_SELECCIONADA) { launchSingleTop = true }
+                    navController.navigate(EcoRutaDestination.RECYCLER_APPLICATION_SELECTED_COMPANY) { launchSingleTop = true }
                 },
                 onBack = { navController.popBackStack() },
             )
         }
 
-        composable(EcoRutaDestination.POSTULACION_EMPRESA_SELECCIONADA) {
+        composable(EcoRutaDestination.RECYCLER_APPLICATION_SELECTED_COMPANY) {
             val state = RecyclerApplicationUiState(
-                modality = RecyclerModality.VINCULADO,
+                modality = RecyclerModality.COMPANY_LINKED,
                 company = SampleCompanies.first(),
             )
             SelectedCompanyScreen(
                 state = state,
                 onChangeCompany = { navController.popBackStack() },
                 onComplete = {
-                    navController.navigate(EcoRutaDestination.POSTULACION_EMPRESA_ENVIADA) {
-                        popUpTo(EcoRutaDestination.POSTULACION_FORMULARIO) { inclusive = true }
+                    navController.navigate(EcoRutaDestination.RECYCLER_APPLICATION_COMPANY_SENT) {
+                        popUpTo(EcoRutaDestination.RECYCLER_APPLICATION_FORM) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -254,20 +254,20 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
             )
         }
 
-        composable(EcoRutaDestination.POSTULACION_ENVIADA) {
+        composable(EcoRutaDestination.RECYCLER_APPLICATION_SENT) {
             BackHandler { backToProfile() }
             RecyclerApplicationSentScreen(
                 state = RecyclerApplicationUiState(submittedWithoutBackend = true),
                 onBack = ::backToProfile,
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             )
         }
 
-        composable(EcoRutaDestination.POSTULACION_EMPRESA_ENVIADA) {
+        composable(EcoRutaDestination.RECYCLER_APPLICATION_COMPANY_SENT) {
             BackHandler { backToProfile() }
             CompanyRequestSentScreen(
                 state = RecyclerApplicationUiState(company = SampleCompanies.first(), submittedWithoutBackend = true),
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
             )
         }
     }

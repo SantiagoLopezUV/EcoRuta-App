@@ -86,7 +86,7 @@ fun EcoTopBar(
                     modifier = Modifier.size(18.dp),
                 )
             }
-            Text(stringResource(R.string.app_name), style = EcoTextStyles.Boton, color = EcoPrimary)
+            Text(stringResource(R.string.app_name), style = EcoTextStyles.ButtonText, color = EcoPrimary)
         }
     }
 }
@@ -125,7 +125,7 @@ fun EcoAccountOption(
                 modifier = Modifier.size(20.dp),
             )
         }
-        Text(text, style = EcoTextStyles.Enlace, color = EcoPrimary, modifier = Modifier.weight(1f))
+        Text(text, style = EcoTextStyles.LinkText, color = EcoPrimary, modifier = Modifier.weight(1f))
         Icon(
             painter = painterResource(if (locked) R.drawable.ic_lock else R.drawable.ic_chevron_right),
             contentDescription = if (locked) stringResource(R.string.profile_requires_login_short) else null,

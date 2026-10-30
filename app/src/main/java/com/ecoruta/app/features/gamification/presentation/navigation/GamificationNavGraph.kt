@@ -17,7 +17,6 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
-import com.ecoruta.app.core.ui.components.GuestServiceScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsUiState
@@ -47,7 +46,7 @@ private val SampleCoupons = listOf(
         businessName = "Café del Río",
         title = "20 % de descuento en bebidas calientes",
         subtitle = "Válido de lunes a viernes",
-        category = CouponCategory.GASTRONOMIA,
+        category = CouponCategory.FOOD,
         pointsCost = 450,
         availableQuantity = 18,
         validUntilMillis = 1_795_996_800_000L,
@@ -69,24 +68,24 @@ private val SampleRedeemedCoupons = listOf(
 fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
     fun backToBenefits() {
-        if (!navController.popBackStack(EcoRutaDestination.BENEFICIOS, inclusive = false)) {
-            navController.navigateToCitizenTab(CitizenTab.BENEFICIOS)
+        if (!navController.popBackStack(EcoRutaDestination.BENEFITS, inclusive = false)) {
+            navController.navigateToCitizenTab(CitizenTab.BENEFITS)
         }
     }
     val tabClick: (CitizenTab) -> Unit = { tab -> navController.navigateToCitizenTab(tab) }
 
-    composable(EcoRutaDestination.CUPONES_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_MY_COUPONS) {
         // Pendiente Cambiar de Reports por MyCoupons y crear la pantalla de MyCoupons con Resources
         ReportsGuestScreen(
             actions = ReportsGuestActions(
                 onBack = { navController.popBackStack() },
-                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )
     }
 
-    composable(EcoRutaDestination.BENEFICIOS) {
+    composable(EcoRutaDestination.BENEFITS) {
         var state by remember {
             mutableStateOf(
                 BenefitsUiState(
@@ -101,10 +100,10 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
             state = state,
             actions = BenefitsActions(
                 onBack = { navController.popBackStack() },
-                onCouponClick = { open(EcoRutaDestination.canjeCupon(it.id)) },
+                onCouponClick = { open(EcoRutaDestination.couponRedemption(it.id)) },
                 onCategorySelected = { state = state.copy(category = it) },
-                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.CUPONES) },
-                onHistory = { open(EcoRutaDestination.HISTORIAL_ECOPUNTOS) },
+                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
+                onHistory = { open(EcoRutaDestination.ECOPOINTS_HISTORY) },
                 onRetry = {},
                 onTabClick = tabClick,
             ),
@@ -112,7 +111,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     }
 
     composable(
-        EcoRutaDestination.CANJE_CUPON,
+        EcoRutaDestination.COUPON_REDEMPTION,
         arguments = listOf(navArgument(EcoRutaDestination.ARG_ID) { type = NavType.StringType }),
     ) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
@@ -152,7 +151,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
                     )
                 },
                 onBackToDetail = { state = state.copy(step = RedemptionStep.DETAIL) },
-                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.CUPONES) },
+                onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
                 onBackToBenefits = ::backToBenefits,
                 onRetry = {},
                 onTabClick = tabClick,
@@ -160,7 +159,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         )
     }
 
-    composable(EcoRutaDestination.HISTORIAL_ECOPUNTOS) {
+    composable(EcoRutaDestination.ECOPOINTS_HISTORY) {
         val movements = listOf(
             PointsMovement("MOV-01", "Entrega de material reciclable", 1_760_100_000_000L, 80),
             PointsMovement("MOV-02", "Canje en Café del Río", 1_760_050_000_000L, -450),
@@ -173,7 +172,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         )
     }
 
-    listOf(EcoRutaDestination.MIS_CUPONES to false, EcoRutaDestination.MIS_CUPONES_PERFIL to true).forEach { (route, fromProfile) ->
+    listOf(EcoRutaDestination.MY_COUPONS to false, EcoRutaDestination.PROFILE_MY_COUPONS to true).forEach { (route, fromProfile) ->
         composable(route) {
             var state by remember {
                 mutableStateOf(
@@ -187,13 +186,13 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
             }
             MyCouponsScreen(
                 state = state,
-                selectedTab = if (fromProfile) CitizenTab.PERFIL else CitizenTab.CUPONES,
+                selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
                 actions = MyCouponsActions(
                     onBack = { navController.popBackStack() },
                     onCategorySelected = { state = state.copy(category = it) },
                     onToggleExpanded = { id -> state = state.copy(expandedId = if (state.expandedId == id) null else id) },
-                    onShowQr = { open(EcoRutaDestination.detalleMiCupon(it.id, fromProfile)) },
-                    onGoToBenefits = { navController.navigateToCitizenTab(CitizenTab.BENEFICIOS) },
+                    onShowQr = { open(EcoRutaDestination.myCouponDetail(it.id, fromProfile)) },
+                    onGoToBenefits = { navController.navigateToCitizenTab(CitizenTab.BENEFITS) },
                     onRetry = {},
                     onTabClick = tabClick,
                 ),
@@ -202,19 +201,19 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     }
 
     composable(
-        EcoRutaDestination.DETALLE_MI_CUPON,
+        EcoRutaDestination.MY_COUPON_DETAIL,
         arguments = listOf(
             navArgument(EcoRutaDestination.ARG_ID) { type = NavType.StringType },
-            navArgument(EcoRutaDestination.ARG_DESDE_PERFIL) {
+            navArgument(EcoRutaDestination.ARG_FROM_PROFILE) {
                 type = NavType.BoolType
                 defaultValue = false
             },
         ),
     ) { entry ->
-        val fromProfile = entry.arguments?.getBoolean(EcoRutaDestination.ARG_DESDE_PERFIL) ?: false
+        val fromProfile = entry.arguments?.getBoolean(EcoRutaDestination.ARG_FROM_PROFILE) ?: false
         MyCouponDetailScreen(
             state = MyCouponUiState.Loaded(coupon = SampleRedeemedCoupons.first(), isSample = true),
-            selectedTab = if (fromProfile) CitizenTab.PERFIL else CitizenTab.CUPONES,
+            selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
             onBack = { navController.popBackStack() },
             onBackToMyCoupons = { navController.popBackStack() },
             onBackToBenefits = ::backToBenefits,
@@ -223,7 +222,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         )
     }
 
-    composable(EcoRutaDestination.BENEFICIOS_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_BENEFITS) {
         var state by remember {
             mutableStateOf(
                 BenefitsUiState(
@@ -236,7 +235,7 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         GuestBenefitsScreen(
             state = state,
             onBack = { navController.popBackStack() },
-            onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+            onLogin = { open(EcoRutaDestination.LOGIN) },
             onCategorySelected = { state = state.copy(category = it) },
             onTabClick = { tab -> navController.navigateToPublicTab(tab) },
         )
