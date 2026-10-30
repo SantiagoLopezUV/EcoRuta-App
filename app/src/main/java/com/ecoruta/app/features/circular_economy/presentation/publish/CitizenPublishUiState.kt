@@ -8,15 +8,15 @@ import androidx.annotation.StringRes
 
 enum class MaterialType {
     PET,
-    CARTON,
-    VIDRIO,
-    OTRO,
+    CARDBOARD,
+    GLASS,
+    OTHER,
 }
 
 enum class MaterialVolume {
-    BOLSA_PEQUENA,
-    BOLSA_GRANDE,
-    VOLUMINOSO,
+    SMALL_BAG,
+    LARGE_BAG,
+    BULKY,
 }
 
 enum class PublicationStatus {

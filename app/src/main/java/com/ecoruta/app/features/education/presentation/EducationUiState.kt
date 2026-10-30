@@ -7,10 +7,10 @@ import androidx.annotation.StringRes
 import java.text.Normalizer
 
 enum class TopicIcon {
-    LISTA,
-    RECICLAJE,
-    ESCOMBROS,
-    ECOPUNTOS,
+    LIST,
+    RECYCLING,
+    DEBRIS,
+    ECOPOINTS,
 }
 
 data class EducationTopic(

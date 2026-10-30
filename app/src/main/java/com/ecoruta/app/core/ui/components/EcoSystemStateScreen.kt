@@ -68,8 +68,8 @@ fun EcoSystemStateScreen(
         ) {
             EcoTopBar()
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(subtitle, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+                Text(subtitle, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
             Column(
                 modifier = Modifier
@@ -82,8 +82,8 @@ fun EcoSystemStateScreen(
             ) {
                 Image(painterResource(illustrationRes), contentDescription = null, modifier = Modifier.size(104.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(heading, style = EcoTextStyles.Boton, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-                    Text(body, style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Text(heading, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -100,15 +100,15 @@ enum class EcoPermissionKind(
     @StringRes val actionRes: Int,
     @DrawableRes val illustrationRes: Int,
 ) {
-    UBICACION(
+    LOCATION(
         R.string.permission_location_title, R.string.permission_location_subtitle, R.string.permission_location_heading,
         R.string.permission_location_body, R.string.permission_location_action, R.drawable.ill_state_location,
     ),
-    CAMARA(
+    CAMERA(
         R.string.permission_camera_title, R.string.permission_camera_subtitle, R.string.permission_camera_heading,
         R.string.permission_camera_body, R.string.permission_camera_action, R.drawable.ill_state_camera,
     ),
-    NOTIFICACIONES(
+    NOTIFICATIONS(
         R.string.permission_notifications_title, R.string.permission_notifications_subtitle, R.string.permission_notifications_heading,
         R.string.permission_notifications_body, R.string.permission_notifications_action, R.drawable.ill_state_notifications,
     ),
@@ -163,17 +163,17 @@ fun WebOnlyAccessScreen(isSigningOut: Boolean, onSignOut: () -> Unit) {
 @Preview(name = "Permiso de ubicación", widthDp = 393, heightDp = 852)
 @Composable
 private fun LocationPermissionPreview() {
-    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.UBICACION, onAllow = {}, onBack = {}) }
+    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.LOCATION, onAllow = {}, onBack = {}) }
 }
 
 @Preview(name = "Permiso de cámara", widthDp = 393, heightDp = 852)
 @Composable
 private fun CameraPermissionPreview() {
-    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.CAMARA, onAllow = {}, onBack = {}) }
+    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.CAMERA, onAllow = {}, onBack = {}) }
 }
 
 @Preview(name = "Permiso de notificaciones", widthDp = 393, heightDp = 852)
 @Composable
 private fun NotificationsPermissionPreview() {
-    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.NOTIFICACIONES, onAllow = {}, onBack = {}) }
+    EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.NOTIFICATIONS, onAllow = {}, onBack = {}) }
 }

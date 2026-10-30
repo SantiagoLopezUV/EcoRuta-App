@@ -57,9 +57,9 @@ private val SpanishColombia: Locale = Locale.forLanguageTag("es-CO")
 
 @StringRes
 fun CouponCategory.labelRes(): Int = when (this) {
-    CouponCategory.GASTRONOMIA -> R.string.coupon_category_gastronomia
-    CouponCategory.MERCADO -> R.string.coupon_category_mercado
-    CouponCategory.PAPELERIA -> R.string.coupon_category_papeleria
+    CouponCategory.FOOD -> R.string.coupon_category_gastronomia
+    CouponCategory.GROCERIES -> R.string.coupon_category_mercado
+    CouponCategory.STATIONERY -> R.string.coupon_category_papeleria
 }
 
 // Formatea el puntaje con separador de miles colombiano
@@ -106,7 +106,7 @@ private fun FilterPill(text: String, selected: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
     Text(
         text = text,
-        style = EcoTextStyles.EtiquetaCampo,
+        style = EcoTextStyles.FieldLabel,
         color = if (selected) EcoWhite else EcoTitle,
         modifier = Modifier
             .clip(shape)
@@ -133,12 +133,12 @@ fun BalanceCard(
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text(label, style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.85f))
+        Text(label, style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.85f))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(painterResource(R.drawable.ic_ecopoints_leaf), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(24.dp))
             Text(
                 if (balance != null) stringResource(R.string.benefits_points_value, formatPoints(balance)) else stringResource(R.string.benefits_balance_unknown),
-                style = EcoTextStyles.Titulo,
+                style = EcoTextStyles.Title,
                 color = EcoWhite,
             )
         }
@@ -150,8 +150,8 @@ fun BalanceCard(
 @Composable
 fun SummaryRow(label: String, value: String, emphasized: Boolean = false, valueColor: Color = EcoTitle) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, style = if (emphasized) EcoTextStyles.Boton else EcoTextStyles.Subtitulo, color = if (emphasized) EcoTitle else EcoSubtitle, modifier = Modifier.weight(1f))
-        Text(value, style = EcoTextStyles.Boton, color = valueColor, textAlign = TextAlign.End)
+        Text(label, style = if (emphasized) EcoTextStyles.ButtonText else EcoTextStyles.Subtitle, color = if (emphasized) EcoTitle else EcoSubtitle, modifier = Modifier.weight(1f))
+        Text(value, style = EcoTextStyles.ButtonText, color = valueColor, textAlign = TextAlign.End)
     }
 }
 
@@ -167,7 +167,7 @@ fun SummaryBox(title: String? = null, content: @Composable () -> Unit) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (title != null) Text(title, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+        if (title != null) Text(title, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         content()
     }
 }
@@ -203,14 +203,14 @@ fun CouponCard(coupon: Coupon, onClick: () -> Unit, affordable: Boolean?) {
     ) {
         StoreBadge()
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(coupon.businessName, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
-            Text(coupon.title, style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(stringResource(coupon.category.labelRes()), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(coupon.businessName, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
+            Text(coupon.title, style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(stringResource(coupon.category.labelRes()), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.benefits_points_short, formatPoints(coupon.pointsCost)), style = EcoTextStyles.Boton, color = EcoPrimary)
+            Text(stringResource(R.string.benefits_points_short, formatPoints(coupon.pointsCost)), style = EcoTextStyles.ButtonText, color = EcoPrimary)
             if (affordable == false) {
-                Text(stringResource(R.string.coupon_not_enough_short), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+                Text(stringResource(R.string.coupon_not_enough_short), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             }
         }
         Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = EcoSubtitle, modifier = Modifier.size(20.dp))
@@ -227,7 +227,7 @@ fun AvailableMark() {
                 .clip(RoundedCornerShape(4.dp))
                 .background(EcoAccent),
         )
-        Text(stringResource(R.string.my_coupons_available_to_use), style = EcoTextStyles.EtiquetaCampo, color = EcoPrimary)
+        Text(stringResource(R.string.my_coupons_available_to_use), style = EcoTextStyles.FieldLabel, color = EcoPrimary)
     }
 }
 
@@ -244,15 +244,15 @@ data class BenefitsActions(
 @Composable
 private fun BenefitsHeader() {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.benefits_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-        Text(stringResource(R.string.benefits_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.benefits_title), style = EcoTextStyles.Title, color = EcoTitle)
+        Text(stringResource(R.string.benefits_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
 // Pantalla principal del catálogo de beneficios con saldo, acceso a cupones e historial
 @Composable
 fun BenefitsScreen(state: BenefitsUiState, actions: BenefitsActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFICIOS, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFITS, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         BenefitsHeader()
         when {
             state.isLoading -> BenefitsLoading()
@@ -263,10 +263,10 @@ fun BenefitsScreen(state: BenefitsUiState, actions: BenefitsActions) {
             else -> {
                 BalanceCard(label = stringResource(R.string.benefits_balance_label), balance = state.balance) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.benefits_tagline), style = EcoTextStyles.Subtitulo, color = EcoWhite.copy(alpha = 0.85f), modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.benefits_tagline), style = EcoTextStyles.Subtitle, color = EcoWhite.copy(alpha = 0.85f), modifier = Modifier.weight(1f))
                         Text(
                             stringResource(R.string.benefits_view_history),
-                            style = EcoTextStyles.Enlace,
+                            style = EcoTextStyles.LinkText,
                             color = EcoWhite,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
@@ -283,7 +283,7 @@ fun BenefitsScreen(state: BenefitsUiState, actions: BenefitsActions) {
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.benefits_sample_hint))
                 CategoryFilterRow(selected = state.category, onSelected = actions.onCategorySelected)
                 if (state.visibleCoupons.isEmpty()) {
-                    Text(stringResource(R.string.benefits_empty_category), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.benefits_empty_category), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         state.visibleCoupons.forEach { coupon ->
@@ -310,7 +310,7 @@ fun GuestBenefitsScreen(
     onTabClick: (CitizenTab) -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.BENEFICIOS,
+        selectedTab = CitizenTab.BENEFITS,
         onBack = onBack,
         onTabClick = onTabClick,
         bottomActions = {
@@ -326,8 +326,8 @@ fun GuestBenefitsScreen(
                 .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(stringResource(R.string.benefits_balance_label), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite.copy(alpha = 0.85f))
-            Text(stringResource(R.string.benefits_guest_balance), style = EcoTextStyles.Boton, color = EcoWhite)
+            Text(stringResource(R.string.benefits_balance_label), style = EcoTextStyles.FieldLabel, color = EcoWhite.copy(alpha = 0.85f))
+            Text(stringResource(R.string.benefits_guest_balance), style = EcoTextStyles.ButtonText, color = EcoWhite)
         }
         GuestLockedRow(text = stringResource(R.string.benefits_guest_my_coupons))
         if (state.isSample) EcoInfoHint(text = stringResource(R.string.benefits_sample_hint))
@@ -346,7 +346,7 @@ fun GuestBenefitsScreen(
 private fun GuestLockedRow(text: String) {
     Text(
         text,
-        style = EcoTextStyles.Subtitulo,
+        style = EcoTextStyles.Subtitle,
         color = EcoSubtitle,
         modifier = Modifier
             .fillMaxWidth()
@@ -365,10 +365,10 @@ fun PointsHistoryScreen(
     onRetry: () -> Unit,
     onTabClick: (CitizenTab) -> Unit,
 ) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFICIOS, onBack = onBack, onTabClick = onTabClick) {
+    EcoTabScreenLayout(selectedTab = CitizenTab.BENEFITS, onBack = onBack, onTabClick = onTabClick) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.points_history_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.points_history_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.points_history_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.points_history_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             PointsHistoryUiState.Loading -> BenefitsLoading()
@@ -380,7 +380,7 @@ fun PointsHistoryScreen(
                 BalanceCard(label = stringResource(R.string.benefits_balance_label), balance = state.balance)
                 if (state.isSample) EcoInfoHint(text = stringResource(R.string.points_history_sample_hint))
                 if (state.movements.isEmpty()) {
-                    Text(stringResource(R.string.points_history_empty), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.points_history_empty), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 } else {
                     Column(
                         modifier = Modifier
@@ -418,12 +418,12 @@ private fun MovementRow(movement: PointsMovement) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(movement.description, style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(formatShortCouponDate(movement.dateMillis), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(movement.description, style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(formatShortCouponDate(movement.dateMillis), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
         Text(
             formatSignedPoints(movement.points),
-            style = EcoTextStyles.Boton,
+            style = EcoTextStyles.ButtonText,
             color = if (movement.points >= 0) EcoPrimary else EcoTitle,
         )
     }
@@ -434,7 +434,7 @@ private val previewCoupon = Coupon(
     businessName = "Café del Río",
     title = "20 % de descuento en bebidas calientes",
     subtitle = "Válido de lunes a viernes",
-    category = CouponCategory.GASTRONOMIA,
+    category = CouponCategory.FOOD,
     pointsCost = 450,
     availableQuantity = 18,
     validUntilMillis = 1_795_996_800_000L,

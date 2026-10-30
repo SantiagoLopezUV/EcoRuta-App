@@ -164,7 +164,7 @@ fun ReportPhotoPlaceholder(
                 tint = EcoSubtitle,
                 modifier = Modifier.size(iconSize),
             )
-            if (caption != null) Text(caption, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            if (caption != null) Text(caption, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
     }
 }
@@ -314,13 +314,13 @@ fun ReportPhotoScreen(state: NewReportUiState, actions: ReportPhotoActions) {
         ) {
             Icon(painterResource(R.drawable.ic_image), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
             Spacer(Modifier.size(8.dp))
-            Text(stringResource(R.string.report_upload_from_gallery), style = EcoTextStyles.Enlace)
+            Text(stringResource(R.string.report_upload_from_gallery), style = EcoTextStyles.LinkText)
         }
         if (state.photos.isNotEmpty()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     stringResource(R.string.report_photo_count, state.photos.size, NewReportUiState.MAX_PHOTOS),
-                    style = EcoTextStyles.EtiquetaCampo,
+                    style = EcoTextStyles.FieldLabel,
                     color = EcoTitle,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -357,7 +357,7 @@ private fun CaptureBox(canAddPhoto: Boolean, hasPhotos: Boolean, onClick: () -> 
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(painterResource(R.drawable.ic_camera_large), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(32.dp))
-        Text(stringResource(R.string.report_capture_title), style = EcoTextStyles.Boton.copy(fontSize = 14.sp, lineHeight = 20.sp), color = EcoTitle)
+        Text(stringResource(R.string.report_capture_title), style = EcoTextStyles.ButtonText.copy(fontSize = 14.sp, lineHeight = 20.sp), color = EcoTitle)
         Text(
             text = stringResource(
                 when {
@@ -366,7 +366,7 @@ private fun CaptureBox(canAddPhoto: Boolean, hasPhotos: Boolean, onClick: () -> 
                     else -> R.string.report_take_photo
                 },
             ),
-            style = EcoTextStyles.Enlace,
+            style = EcoTextStyles.LinkText,
             color = if (canAddPhoto) EcoPrimary else EcoSubtitle,
         )
     }
@@ -463,7 +463,7 @@ fun ReportTypeScreen(state: NewReportUiState, actions: ReportTypeActions) {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(painterResource(R.drawable.ic_info), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
-                Text(stringResource(R.string.report_special_waste_hint), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+                Text(stringResource(R.string.report_special_waste_hint), style = EcoTextStyles.Subtitle, color = EcoTitle)
             }
             EcoTextLink(
                 text = stringResource(R.string.report_special_waste_link),
@@ -502,7 +502,7 @@ fun ReportLocationScreen(state: NewReportUiState, actions: ReportLocationActions
     }
     if (showLocationRationale) {
         EcoPermissionScreen(
-            kind = EcoPermissionKind.UBICACION,
+            kind = EcoPermissionKind.LOCATION,
             onAllow = {
                 showLocationRationale = false
                 permissionLauncher?.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -539,7 +539,7 @@ fun ReportLocationScreen(state: NewReportUiState, actions: ReportLocationActions
                 isLocating = state.isLocating,
                 onMyLocationClick = requestLocation,
             )
-            Text(stringResource(R.string.report_location_helper), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.report_location_helper), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             OutlinedButton(
                 onClick = requestLocation,
                 enabled = !state.isLocating && !state.isSubmitting,
@@ -558,7 +558,7 @@ fun ReportLocationScreen(state: NewReportUiState, actions: ReportLocationActions
                 Spacer(Modifier.size(8.dp))
                 Text(
                     stringResource(if (state.isLocating) R.string.report_locating else R.string.report_use_current_location),
-                    style = EcoTextStyles.Enlace,
+                    style = EcoTextStyles.LinkText,
                 )
             }
             if (state.isEditingAddress) {
@@ -601,16 +601,16 @@ private fun AddressCard(state: NewReportUiState, onEdit: () -> Unit) {
     ) {
         Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(20.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(state.address, style = EcoTextStyles.Boton, color = EcoTitle)
+            Text(state.address, style = EcoTextStyles.ButtonText, color = EcoTitle)
             Text(
                 state.area.ifBlank { stringResource(R.string.report_default_area) },
-                style = EcoTextStyles.EtiquetaCampo,
+                style = EcoTextStyles.FieldLabel,
                 color = EcoSubtitle,
             )
             if (state.latitude != null && state.longitude != null) {
                 Text(
                     stringResource(R.string.report_gps_coordinates, state.latitude, state.longitude),
-                    style = EcoTextStyles.EtiquetaCampo.copy(fontSize = 11.sp),
+                    style = EcoTextStyles.FieldLabel.copy(fontSize = 11.sp),
                     color = EcoSubtitle,
                 )
             }
@@ -654,19 +654,19 @@ private fun IllustrativeMap(hasLocation: Boolean, isLocating: Boolean, onMyLocat
         ) {
             Text(
                 stringResource(R.string.report_map_park),
-                style = EcoTextStyles.EtiquetaCampo,
+                style = EcoTextStyles.FieldLabel,
                 color = EcoWhite
             )
         }
         Text(
             stringResource(R.string.report_map_street_a),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoSubtitle,
             modifier = Modifier.offset(x = scale * 21f, y = 60.dp)
         )
         Text(
             stringResource(R.string.report_map_street_b),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoSubtitle,
             modifier = Modifier.offset(x = scale * 22f, y = 131.dp)
         )
@@ -696,7 +696,7 @@ private fun IllustrativeMap(hasLocation: Boolean, isLocating: Boolean, onMyLocat
         }
         Text(
             text = stringResource(R.string.report_map_illustrative),
-            style = EcoTextStyles.EtiquetaNavegacion,
+            style = EcoTextStyles.NavigationLabel,
             color = EcoSubtitle,
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -766,15 +766,15 @@ fun ReportSentScreen(
             ) {
                 Icon(painterResource(R.drawable.ic_check_large), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(56.dp))
             }
-            Text(stringResource(R.string.report_sent_title), style = EcoTextStyles.Titulo, color = EcoTitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.report_sent_title), style = EcoTextStyles.Title, color = EcoTitle, textAlign = TextAlign.Center)
             Text(
                 stringResource(R.string.report_sent_description),
-                style = EcoTextStyles.Subtitulo,
+                style = EcoTextStyles.Subtitle,
                 color = EcoSubtitle,
                 textAlign = TextAlign.Center,
             )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.report_current_status), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+                Text(stringResource(R.string.report_current_status), style = EcoTextStyles.FieldLabel, color = EcoTitle)
                 ReportStatusChip(ReportStatus.PENDIENTE)
             }
             if (sentWithoutBackend) {

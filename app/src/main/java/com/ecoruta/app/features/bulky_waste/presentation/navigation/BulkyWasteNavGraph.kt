@@ -41,7 +41,7 @@ private val SampleDayMillis = DayMillis.startOfDay(1_760_500_000_000L)
 
 private val SampleDebrisRequest = DebrisRequest(
     id = "RCD-201",
-    type = DebrisType.ESCOMBROS_REMODELACION,
+    type = DebrisType.RENOVATION_DEBRIS,
     description = "4 lonas de escombros de remodelación",
     address = "Calle 14 #8-20",
     status = DebrisStatus.PENDIENTE,
@@ -54,41 +54,41 @@ private val SampleDebrisRequest = DebrisRequest(
 fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
-    composable(EcoRutaDestination.RESIDUOS_ESPECIALES_SIN_SESION) {
+    composable(EcoRutaDestination.GUEST_SPECIAL_WASTE) {
         DebrisGuestScreen(
             actions = GuestServiceActions(
                 onBack = { navController.popBackStack() },
-                onLogin = { open(EcoRutaDestination.INICIAR_SESION) },
+                onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
             ),
         )
     }
 
     navigation(
-        startDestination = EcoRutaDestination.RETIRO_SOLICITUD,
-        route = EcoRutaDestination.SOLICITAR_RETIRO,
+        startDestination = EcoRutaDestination.DEBRIS_REQUEST_FORM,
+        route = EcoRutaDestination.REQUEST_DEBRIS_PICKUP,
     ) {
-        composable(EcoRutaDestination.RETIRO_SOLICITUD) {
-            var state by remember { mutableStateOf(DebrisRequestUiState(type = DebrisType.ESCOMBROS_REMODELACION)) }
+        composable(EcoRutaDestination.DEBRIS_REQUEST_FORM) {
+            var state by remember { mutableStateOf(DebrisRequestUiState(type = DebrisType.RENOVATION_DEBRIS)) }
             DebrisRequestScreen(
                 state = state,
                 actions = DebrisRequestActions(
                     onTypeSelected = { state = state.copy(type = it, typeError = null) },
                     onDescriptionChange = { state = state.copy(description = it, descriptionError = null) },
                     onAddressChange = { state = state.copy(address = it, addressError = null) },
-                    onContinue = { navController.navigate(EcoRutaDestination.RETIRO_GUIA) { launchSingleTop = true } },
-                    onBack = { navController.popBackStack(EcoRutaDestination.SOLICITAR_RETIRO, inclusive = true) },
+                    onContinue = { navController.navigate(EcoRutaDestination.DEBRIS_GUIDE) { launchSingleTop = true } },
+                    onBack = { navController.popBackStack(EcoRutaDestination.REQUEST_DEBRIS_PICKUP, inclusive = true) },
                 ),
             )
         }
-        composable(EcoRutaDestination.RETIRO_GUIA) {
+        composable(EcoRutaDestination.DEBRIS_GUIDE) {
             DebrisGuideScreen(
-                selectedType = DebrisType.ESCOMBROS_REMODELACION,
-                onContinue = { navController.navigate(EcoRutaDestination.RETIRO_FECHA) { launchSingleTop = true } },
+                selectedType = DebrisType.RENOVATION_DEBRIS,
+                onContinue = { navController.navigate(EcoRutaDestination.DEBRIS_DATE) { launchSingleTop = true } },
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(EcoRutaDestination.RETIRO_FECHA) {
+        composable(EcoRutaDestination.DEBRIS_DATE) {
             val weekStart = DayMillis.mondayOf(SampleDayMillis)
             var state by remember {
                 mutableStateOf(
@@ -110,8 +110,8 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
                     onDaySelected = { state = state.copy(selectedDay = it, dateError = null) },
                     onRetryDays = {},
                     onSubmit = {
-                        navController.navigate(EcoRutaDestination.RETIRO_ENVIADA) {
-                            popUpTo(EcoRutaDestination.RETIRO_SOLICITUD)
+                        navController.navigate(EcoRutaDestination.DEBRIS_REQUEST_SENT) {
+                            popUpTo(EcoRutaDestination.DEBRIS_REQUEST_FORM)
                             launchSingleTop = true
                         }
                     },
@@ -119,16 +119,16 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
                 ),
             )
         }
-        composable(EcoRutaDestination.RETIRO_ENVIADA) {
+        composable(EcoRutaDestination.DEBRIS_REQUEST_SENT) {
             DebrisSentScreen(
                 request = SampleDebrisRequest,
                 sentWithoutBackend = true,
-                onViewTracking = { open(EcoRutaDestination.RETIRO_SEGUIMIENTO_NUEVA) },
-                onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                onViewTracking = { open(EcoRutaDestination.NEW_DEBRIS_TRACKING) },
+                onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             )
         }
-        composable(EcoRutaDestination.RETIRO_SEGUIMIENTO_NUEVA) {
+        composable(EcoRutaDestination.NEW_DEBRIS_TRACKING) {
             DebrisTrackingScreen(
                 state = DebrisTrackingUiState.Loaded(SampleDebrisRequest, isSample = true),
                 isWorking = false,
@@ -138,20 +138,20 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
                     onBack = { navController.popBackStack() },
                     onCancelRequest = {},
                     onApproveQuote = {},
-                    onGoHome = { navController.navigateToCitizenTab(CitizenTab.INICIO) },
+                    onGoHome = { navController.navigateToCitizenTab(CitizenTab.HOME) },
                     onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
                 ),
             )
         }
     }
 
-    composable(EcoRutaDestination.MIS_SOLICITUDES_ESCOMBROS) {
+    composable(EcoRutaDestination.MY_DEBRIS_REQUESTS) {
         MyDebrisRequestsScreen(
             state = MyDebrisRequestsUiState.Loaded(requests = listOf(SampleDebrisRequest), isSample = true),
             actions = MyDebrisRequestsActions(
                 onBack = { navController.popBackStack() },
-                onRequestClick = { request -> request.id?.let { open(EcoRutaDestination.seguimientoRetiro(it)) } },
-                onNewRequest = { open(EcoRutaDestination.SOLICITAR_RETIRO) },
+                onRequestClick = { request -> request.id?.let { open(EcoRutaDestination.debrisTracking(it)) } },
+                onNewRequest = { open(EcoRutaDestination.REQUEST_DEBRIS_PICKUP) },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
@@ -159,7 +159,7 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
     }
 
     composable(
-        route = EcoRutaDestination.SEGUIMIENTO_RETIRO,
+        route = EcoRutaDestination.DEBRIS_TRACKING,
         arguments = listOf(navArgument(EcoRutaDestination.ARG_REPORT_ID) { type = NavType.StringType }),
     ) {
         DebrisTrackingScreen(

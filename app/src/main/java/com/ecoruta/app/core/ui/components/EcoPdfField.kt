@@ -77,7 +77,7 @@ fun EcoPdfField(
     }
     val shape = RoundedCornerShape(10.dp)
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(label, style = EcoTextStyles.FieldLabel, color = EcoTitle)
         val borderColor = if (errorMessage != null) EcoError else DashedBorderColor
         Row(
             modifier = Modifier
@@ -98,17 +98,17 @@ fun EcoPdfField(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (document == null) {
-                Text(stringResource(R.string.pdf_field_attach), style = EcoTextStyles.EtiquetaCampo.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle)
-                Text(hint, style = EcoTextStyles.Subtitulo.copy(fontSize = 12.sp), color = EcoSubtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.pdf_field_attach), style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle)
+                Text(hint, style = EcoTextStyles.Subtitle.copy(fontSize = 12.sp), color = EcoSubtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
             } else {
                 Icon(painterResource(R.drawable.ic_file_text), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(document.name, style = EcoTextStyles.EtiquetaCampo.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    document.sizeBytes?.let { Text(formatSize(it), style = EcoTextStyles.Subtitulo.copy(fontSize = 12.sp), color = EcoSubtitle) }
+                    Text(document.name, style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    document.sizeBytes?.let { Text(formatSize(it), style = EcoTextStyles.Subtitle.copy(fontSize = 12.sp), color = EcoSubtitle) }
                 }
                 Text(
                     stringResource(R.string.pdf_field_remove),
-                    style = EcoTextStyles.EtiquetaCampo,
+                    style = EcoTextStyles.FieldLabel,
                     color = EcoError,
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))

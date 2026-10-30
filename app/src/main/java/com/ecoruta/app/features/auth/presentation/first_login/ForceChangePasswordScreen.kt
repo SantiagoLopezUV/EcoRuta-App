@@ -63,7 +63,7 @@ fun ChangePasswordScreen(
         focusManager.clearFocus()
         actions.onSave()
     }
-    val isFirstLogin = mode == ChangePasswordMode.PRIMER_INGRESO
+    val isFirstLogin = mode == ChangePasswordMode.FIRST_LOGIN
 
     RegistrationLayout(
         stepLabel = stringResource(if (isFirstLogin) R.string.first_login else R.string.my_profile),
@@ -133,7 +133,7 @@ fun PasswordChangedScreen(
     if (!LocalInspectionMode.current) {
         BackHandler(onBack = onContinue)
     }
-    val isFirstLogin = mode == ChangePasswordMode.PRIMER_INGRESO
+    val isFirstLogin = mode == ChangePasswordMode.FIRST_LOGIN
     val (descriptionRes, buttonRes) = if (isFirstLogin) {
         when (role) {
             UserRole.CIUDADANO -> R.string.password_changed_citizen to R.string.password_changed_go_home
@@ -164,7 +164,7 @@ fun PasswordChangedScreen(
 @Composable
 private fun ChangePasswordFirstLoginPreview() {
     EcoRutaTheme {
-        ChangePasswordScreen(ChangePasswordMode.PRIMER_INGRESO, UserRole.RECICLADOR, ChangePasswordUiState(newPassword = "eco2026"), ChangePasswordActions())
+        ChangePasswordScreen(ChangePasswordMode.FIRST_LOGIN, UserRole.RECICLADOR, ChangePasswordUiState(newPassword = "eco2026"), ChangePasswordActions())
     }
 }
 
@@ -173,7 +173,7 @@ private fun ChangePasswordFirstLoginPreview() {
 private fun PasswordChangedPreview() {
     EcoRutaTheme {
         PasswordChangedScreen(
-            mode = ChangePasswordMode.PERFIL,
+            mode = ChangePasswordMode.PROFILE,
             role = UserRole.CIUDADANO,
             onContinue = {},
         )

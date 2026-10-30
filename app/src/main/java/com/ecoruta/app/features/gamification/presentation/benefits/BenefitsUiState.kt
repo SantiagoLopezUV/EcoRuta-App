@@ -6,9 +6,9 @@ package com.ecoruta.app.features.gamification.presentation.benefits
 import androidx.annotation.StringRes
 
 enum class CouponCategory {
-    GASTRONOMIA,
-    MERCADO,
-    PAPELERIA,
+    FOOD,
+    GROCERIES,
+    STATIONERY,
 }
 
 data class Coupon(
