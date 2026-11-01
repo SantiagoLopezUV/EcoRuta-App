@@ -75,7 +75,7 @@ fun EcoPrimaryButton(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Mantiene el texto centrado incluso cuando ocupa más de una línea
-                Text(text = text, style = EcoTextStyles.Boton, textAlign = TextAlign.Center, modifier = Modifier.weight(1f, fill = false))
+                Text(text = text, style = EcoTextStyles.ButtonText, textAlign = TextAlign.Center, modifier = Modifier.weight(1f, fill = false))
                 if (trailingIconRes != null) {
                     // El icono adopta automáticamente el color del contenido del botón
                     Icon(
@@ -117,7 +117,7 @@ fun EcoSecondaryButton(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             leadingIcon?.invoke()
-            Text(text = text, style = EcoTextStyles.Boton)
+            Text(text = text, style = EcoTextStyles.ButtonText)
         }
     }
 }

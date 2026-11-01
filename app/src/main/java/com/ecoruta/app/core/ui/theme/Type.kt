@@ -17,7 +17,7 @@ val ManropeFontFamily: FontFamily = FontFamily.Default
 object EcoTextStyles {
 
     // Estilo para títulos principales de pantalla
-    val Titulo = TextStyle(
+    val Title = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Black,
         fontStyle = FontStyle.Italic,
@@ -27,7 +27,7 @@ object EcoTextStyles {
     )
 
     // Estilo para subtítulos, párrafos descriptivos y textos de entrada
-    val Subtitulo = TextStyle(
+    val Subtitle = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
@@ -35,7 +35,7 @@ object EcoTextStyles {
     )
 
     // Estilo para etiquetas de campos de formulario e insignias pequeñas
-    val EtiquetaCampo = TextStyle(
+    val FieldLabel = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 12.sp,
@@ -44,7 +44,7 @@ object EcoTextStyles {
     )
 
     // Estilo para las etiquetas de las pestañas en la barra de navegación inferior
-    val EtiquetaNavegacion = TextStyle(
+    val NavigationLabel = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 10.sp,
@@ -53,7 +53,7 @@ object EcoTextStyles {
     )
 
     // Estilo para enlaces de texto e hipervínculos interactivos
-    val Enlace = TextStyle(
+    val LinkText = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
@@ -61,7 +61,7 @@ object EcoTextStyles {
     )
 
     // Estilo para el texto de botones principales, secundarios y encabezados de tarjeta
-    val Boton = TextStyle(
+    val ButtonText = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,
@@ -69,7 +69,7 @@ object EcoTextStyles {
     )
 
     // Estilo destacado para cifras numéricas, saldos de puntos y dígitos de verificación
-    val Numeros = TextStyle(
+    val Numbers = TextStyle(
         fontFamily = ManropeFontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 20.sp,
@@ -77,7 +77,7 @@ object EcoTextStyles {
     )
 
     // Estilo para el nombre de la marca en la pantalla de presentación inicial
-    val MarcaSplash = TextStyle(
+    val SplashBrand = TextStyle(
         fontFamily = InterFontFamily,
         fontWeight = FontWeight.Black,
         fontStyle = FontStyle.Italic,
@@ -89,9 +89,9 @@ object EcoTextStyles {
 
 // Asignación de los estilos personalizados hacia la tipografía base de Material 3
 val Typography = Typography(
-    headlineLarge = EcoTextStyles.Titulo,
-    bodyLarge = EcoTextStyles.Subtitulo,
-    bodyMedium = EcoTextStyles.Subtitulo,
-    labelLarge = EcoTextStyles.Boton,
-    labelMedium = EcoTextStyles.EtiquetaCampo,
+    headlineLarge = EcoTextStyles.Title,
+    bodyLarge = EcoTextStyles.Subtitle,
+    bodyMedium = EcoTextStyles.Subtitle,
+    labelLarge = EcoTextStyles.ButtonText,
+    labelMedium = EcoTextStyles.FieldLabel,
 )

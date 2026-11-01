@@ -72,8 +72,8 @@ fun EcoWizardLayout(
             EcoTopBar(onBackClick = onBack)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(stringResource(R.string.wizard_step, step, totalSteps), style = EcoTextStyles.Subtitulo, color = EcoPrimary)
-                    Text(stageLabel, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.wizard_step, step, totalSteps), style = EcoTextStyles.Subtitle, color = EcoPrimary)
+                    Text(stageLabel, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     repeat(totalSteps) { index ->
@@ -88,8 +88,8 @@ fun EcoWizardLayout(
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(title, style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(description, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(title, style = EcoTextStyles.Title, color = EcoTitle)
+                Text(description, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
             content()
         }
@@ -168,7 +168,7 @@ fun EcoInfoHint(text: String, modifier: Modifier = Modifier) {
             tint = Color.Unspecified,
             modifier = Modifier.size(20.dp),
         )
-        Text(text, style = EcoTextStyles.Subtitulo, color = EcoTitle, modifier = Modifier.weight(1f))
+        Text(text, style = EcoTextStyles.Subtitle, color = EcoTitle, modifier = Modifier.weight(1f))
     }
 }
 
@@ -177,7 +177,7 @@ fun EcoInfoHint(text: String, modifier: Modifier = Modifier) {
 fun EcoStatusChip(text: String, background: Color, content: Color, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        style = EcoTextStyles.EtiquetaCampo,
+        style = EcoTextStyles.FieldLabel,
         color = content,
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -189,7 +189,7 @@ fun EcoStatusChip(text: String, background: Color, content: Color, modifier: Mod
 // Etiqueta de texto secundario para encabezar valores informativos
 @Composable
 fun EcoDataLabel(text: String, modifier: Modifier = Modifier) {
-    Text(text, style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle, modifier = modifier)
+    Text(text, style = EcoTextStyles.FieldLabel, color = EcoSubtitle, modifier = modifier)
 }
 
 // Contenedor para pantallas de enfoque sin barra inferior cuyas acciones suben con el teclado

@@ -8,9 +8,9 @@ import java.util.Calendar
 import java.util.Locale
 
 enum class DebrisType {
-    MUEBLES,
-    COLCHONES,
-    ESCOMBROS_REMODELACION,
+    FURNITURE,
+    MATTRESSES,
+    RENOVATION_DEBRIS,
 }
 
 enum class DebrisStatus {

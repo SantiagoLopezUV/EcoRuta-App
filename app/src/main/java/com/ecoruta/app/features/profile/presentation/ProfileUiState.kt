@@ -29,22 +29,22 @@ data class UserProfile(
 )
 
 enum class StoreCategory {
-    TIENDA_DE_BARRIO,
-    RESTAURANTE,
+    NEIGHBORHOOD_STORE,
+    RESTAURANT,
     CAFETERIA,
-    MERCADO,
-    PAPELERIA_LIBRERIA,
-    OTRO,
+    GROCERY,
+    STATIONERY_BOOKSTORE,
+    OTHER,
 }
 
 enum class StoreIdType {
-    CEDULA,
+    NATIONAL_ID,
     NIT,
 }
 
 enum class RecyclerModality {
-    INDEPENDIENTE,
-    VINCULADO,
+    INDEPENDENT,
+    COMPANY_LINKED,
 }
 
 data class Company(
@@ -84,7 +84,7 @@ data class StoreApplicationUiState(
 data class RecyclerApplicationUiState(
     val fullName: String = "",
     val documentNumber: String = "",
-    val modality: RecyclerModality = RecyclerModality.INDEPENDIENTE,
+    val modality: RecyclerModality = RecyclerModality.INDEPENDENT,
     val phone: String = "",
     val idDocument: PickedDocument? = null,
     val company: Company? = null,

@@ -64,8 +64,8 @@ fun EcoServiceCard(
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = title, style = EcoTextStyles.Boton, color = EcoTitle)
-                Text(text = description, style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(text = title, style = EcoTextStyles.ButtonText, color = EcoTitle)
+                Text(text = description, style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
         }
         Icon(

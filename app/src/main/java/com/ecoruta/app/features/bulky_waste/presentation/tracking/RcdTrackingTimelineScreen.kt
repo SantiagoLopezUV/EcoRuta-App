@@ -116,7 +116,7 @@ fun DebrisTrackingScreen(
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, EcoTitle),
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = EcoWhite, contentColor = EcoTitle),
-                    ) { Text(stringResource(R.string.debris_cancel_request), style = EcoTextStyles.Boton) }
+                    ) { Text(stringResource(R.string.debris_cancel_request), style = EcoTextStyles.ButtonText) }
                 }
                 if (showGoHome) {
                     EcoPrimaryButton(
@@ -129,14 +129,14 @@ fun DebrisTrackingScreen(
         }
 
     EcoTabScreenLayout(
-        selectedTab = if (showGoHome) CitizenTab.INICIO else CitizenTab.PERFIL,
+        selectedTab = if (showGoHome) CitizenTab.HOME else CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = bottomActions,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.debris_tracking_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.debris_tracking_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.debris_tracking_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.debris_tracking_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             DebrisTrackingUiState.Loading -> LoadingBox()
@@ -158,17 +158,17 @@ fun DebrisTrackingScreen(
     if (confirmCancel) {
         AlertDialog(
             onDismissRequest = { confirmCancel = false },
-            title = { Text(stringResource(R.string.debris_cancel_title), style = EcoTextStyles.Boton, color = EcoTitle) },
-            text = { Text(stringResource(R.string.debris_cancel_message), style = EcoTextStyles.Subtitulo, color = EcoSubtitle) },
+            title = { Text(stringResource(R.string.debris_cancel_title), style = EcoTextStyles.ButtonText, color = EcoTitle) },
+            text = { Text(stringResource(R.string.debris_cancel_message), style = EcoTextStyles.Subtitle, color = EcoSubtitle) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmCancel = false
                     actions.onCancelRequest()
-                }) { Text(stringResource(R.string.debris_cancel_confirm), style = EcoTextStyles.Boton, color = EcoError) }
+                }) { Text(stringResource(R.string.debris_cancel_confirm), style = EcoTextStyles.ButtonText, color = EcoError) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmCancel = false }) {
-                    Text(stringResource(R.string.debris_cancel_dismiss), style = EcoTextStyles.Boton, color = EcoPrimary)
+                    Text(stringResource(R.string.debris_cancel_dismiss), style = EcoTextStyles.ButtonText, color = EcoPrimary)
                 }
             },
             containerColor = EcoWhite,
@@ -187,14 +187,14 @@ private fun TrackingHeader(request: DebrisRequest) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(request.type.labelRes()), style = EcoTextStyles.Boton, color = EcoTitle, modifier = Modifier.weight(1f))
+            Text(stringResource(request.type.labelRes()), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             DebrisStatusChip(request.status)
         }
-        Text(stringResource(R.string.debris_address_in_city, request.address), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.debris_address_in_city, request.address), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         Text(
             text = request.scheduledDateMillis?.let { stringResource(R.string.debris_scheduled_for, formatShortDate(it)) }
                 ?: stringResource(R.string.debris_preferred_for, formatShortDate(request.preferredDateMillis)),
-            style = EcoTextStyles.EtiquetaCampo,
+            style = EcoTextStyles.FieldLabel,
             color = EcoSubtitle,
         )
     }
@@ -243,10 +243,10 @@ private fun Timeline(status: DebrisStatus) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = if (isCurrent) stringResource(R.string.debris_timeline_current, stringResource(titleRes)) else stringResource(titleRes),
-                        style = EcoTextStyles.Boton,
+                        style = EcoTextStyles.ButtonText,
                         color = if (isDone || isCurrent) EcoTitle else EcoSubtitle,
                     )
-                    Text(stringResource(bodyRes), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(bodyRes), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 }
             }
         }
@@ -263,8 +263,8 @@ private fun CancelledBox() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text(stringResource(R.string.debris_cancelled_title), style = EcoTextStyles.Boton, color = EcoTitle)
-        Text(stringResource(R.string.debris_cancelled_body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.debris_cancelled_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
+        Text(stringResource(R.string.debris_cancelled_body), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
 
@@ -291,7 +291,7 @@ private fun CostCard(request: DebrisRequest) {
 private fun CostRow(label: String, value: String, emphasized: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         EcoDataLabel(label, Modifier.weight(1f))
-        Text(value, style = if (emphasized) EcoTextStyles.Boton else EcoTextStyles.Subtitulo, color = EcoTitle)
+        Text(value, style = if (emphasized) EcoTextStyles.ButtonText else EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
@@ -325,7 +325,7 @@ data class MyDebrisRequestsActions(
 @Composable
 fun MyDebrisRequestsScreen(state: MyDebrisRequestsUiState, actions: MyDebrisRequestsActions) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.PERFIL,
+        selectedTab = CitizenTab.PROFILE,
         onBack = actions.onBack,
         onTabClick = actions.onTabClick,
         bottomActions = {
@@ -333,8 +333,8 @@ fun MyDebrisRequestsScreen(state: MyDebrisRequestsUiState, actions: MyDebrisRequ
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.profile_my_debris_requests), style = EcoTextStyles.Titulo, color = EcoTitle)
-            Text(stringResource(R.string.debris_list_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(R.string.profile_my_debris_requests), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.debris_list_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
         when (state) {
             MyDebrisRequestsUiState.Loading -> LoadingBox()
@@ -379,12 +379,12 @@ private fun RequestCard(request: DebrisRequest, onClick: () -> Unit) {
             Icon(painterResource(request.type.iconRes()), contentDescription = null, tint = EcoPrimary, modifier = Modifier.size(20.dp))
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(request.type.labelRes()), style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(formatShortDate(request.createdAtMillis), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(stringResource(request.type.labelRes()), style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(formatShortDate(request.createdAtMillis), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             DebrisStatusChip(request.status)
-            Text(request.costText(), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+            Text(request.costText(), style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
     }
 }
@@ -407,8 +407,8 @@ private fun EmptyRequests() {
         ) {
             Icon(painterResource(R.drawable.ic_bricks), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(44.dp))
         }
-        Text(stringResource(R.string.debris_empty_title), style = EcoTextStyles.Boton, color = EcoTitle)
-        Text(stringResource(R.string.debris_empty_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.debris_empty_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
+        Text(stringResource(R.string.debris_empty_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
     }
 }
 
@@ -431,7 +431,7 @@ fun DebrisGuestScreen(actions: GuestServiceActions) {
 private val previewDebrisRequests = listOf(
     DebrisRequest(
         id = "rcd-1",
-        type = DebrisType.ESCOMBROS_REMODELACION,
+        type = DebrisType.RENOVATION_DEBRIS,
         description = "8 lonas de escombros de obra menor en cocina.",
         address = "Cra. 22E #6-40 · Torobajo",
         preferredDateMillis = 1_745_000_000_000L,
@@ -443,7 +443,7 @@ private val previewDebrisRequests = listOf(
     ),
     DebrisRequest(
         id = "rcd-2",
-        type = DebrisType.MUEBLES,
+        type = DebrisType.FURNITURE,
         description = "Sofá de tres puestos.",
         address = "Cra. 22E #6-40 · Torobajo",
         preferredDateMillis = 1_744_500_000_000L,

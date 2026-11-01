@@ -93,8 +93,8 @@ fun ProfilePhotoSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(R.string.profile_photo_sheet_title), style = EcoTextStyles.Boton.copy(fontSize = 20.sp), color = EcoTitle)
-                Text(stringResource(R.string.profile_photo_sheet_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.profile_photo_sheet_title), style = EcoTextStyles.ButtonText.copy(fontSize = 20.sp), color = EcoTitle)
+                Text(stringResource(R.string.profile_photo_sheet_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
             SheetOption(stringResource(R.string.profile_photo_take)) {
                 runCatching { newProfilePhotoUri(context) }
@@ -120,7 +120,7 @@ fun ProfilePhotoSheet(
             }
             Text(
                 stringResource(R.string.action_cancel),
-                style = EcoTextStyles.Boton.copy(fontSize = 14.sp),
+                style = EcoTextStyles.ButtonText.copy(fontSize = 14.sp),
                 color = EcoSubtitle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -139,7 +139,7 @@ private fun SheetOption(text: String, color: Color = EcoTitle, onClick: () -> Un
     val shape = RoundedCornerShape(12.dp)
     Text(
         text,
-        style = EcoTextStyles.Boton.copy(fontSize = 15.sp),
+        style = EcoTextStyles.ButtonText.copy(fontSize = 15.sp),
         color = color,
         modifier = Modifier
             .fillMaxWidth()

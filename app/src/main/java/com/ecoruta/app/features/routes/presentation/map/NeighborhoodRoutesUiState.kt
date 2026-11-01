@@ -26,9 +26,9 @@ data class CollectionRoute(
 )
 
 enum class NotificationKind {
-    PROXIMIDAD,
-    SOLICITUD_ESCOMBROS,
-    REPORTE,
+    PROXIMITY,
+    DEBRIS_REQUEST,
+    REPORT,
 }
 
 data class AppNotification(

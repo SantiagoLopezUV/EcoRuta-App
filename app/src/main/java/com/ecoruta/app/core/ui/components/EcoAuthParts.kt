@@ -75,7 +75,7 @@ fun EcoBrandHeader(
                 )
             }
         }
-        Text(stringResource(R.string.app_name), style = EcoTextStyles.Titulo, color = EcoPrimary)
+        Text(stringResource(R.string.app_name), style = EcoTextStyles.Title, color = EcoPrimary)
     }
 }
 
@@ -158,6 +158,6 @@ fun EcoTextLink(
                 modifier = Modifier.size(18.dp),
             )
         }
-        Text(text = text, style = EcoTextStyles.Enlace, color = EcoPrimary)
+        Text(text = text, style = EcoTextStyles.LinkText, color = EcoPrimary)
     }
 }

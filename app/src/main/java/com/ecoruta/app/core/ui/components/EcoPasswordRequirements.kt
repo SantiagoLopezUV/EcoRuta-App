@@ -38,7 +38,7 @@ fun EcoPasswordRequirements(password: String, modifier: Modifier = Modifier) {
     val metLabel = stringResource(R.string.password_requirement_met)
     val pendingLabel = stringResource(R.string.password_requirement_pending)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(stringResource(R.string.reset_requirements_title), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+        Text(stringResource(R.string.reset_requirements_title), style = EcoTextStyles.FieldLabel, color = EcoTitle)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             requirements.forEach { (textRes, met) ->
                 val color by animateColorAsState(if (met) EcoGreenSecondary else EcoSubtitle, label = "requisito")
@@ -53,7 +53,7 @@ fun EcoPasswordRequirements(password: String, modifier: Modifier = Modifier) {
                             .clip(CircleShape)
                             .background(color),
                     )
-                    Text(stringResource(textRes), style = EcoTextStyles.Subtitulo, color = color)
+                    Text(stringResource(textRes), style = EcoTextStyles.Subtitle, color = color)
                 }
             }
         }

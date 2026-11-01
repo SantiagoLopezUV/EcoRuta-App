@@ -131,8 +131,8 @@ fun LoginContent(
 
             // Bienvenida
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.login_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(stringResource(R.string.login_subtitle), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.login_title), style = EcoTextStyles.Title, color = EcoTitle)
+                Text(stringResource(R.string.login_subtitle), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
 
             // Credenciales
@@ -199,7 +199,7 @@ fun LoginContent(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = EcoBorder)
-                    Text(stringResource(R.string.login_divider_or), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                    Text(stringResource(R.string.login_divider_or), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                     HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = EcoBorder)
                 }
                 EcoSecondaryButton(
@@ -222,7 +222,7 @@ fun LoginContent(
                 horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.login_no_account), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.login_no_account), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
                 EcoTextLink(text = stringResource(R.string.login_register), onClick = actions.onRegisterClick)
             }
         }
@@ -260,8 +260,8 @@ private fun LoginHero() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.login_hero_title), style = EcoTextStyles.Titulo, color = EcoWhite)
-            Text(stringResource(R.string.login_hero_description), style = EcoTextStyles.Subtitulo, color = EcoWhite)
+            Text(stringResource(R.string.login_hero_title), style = EcoTextStyles.Title, color = EcoWhite)
+            Text(stringResource(R.string.login_hero_description), style = EcoTextStyles.Subtitle, color = EcoWhite)
             Row(
                 modifier = Modifier.padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -273,7 +273,7 @@ private fun LoginHero() {
                     tint = Color.Unspecified,
                     modifier = Modifier.size(18.dp),
                 )
-                Text(stringResource(R.string.login_hero_benefit), style = EcoTextStyles.EtiquetaCampo, color = EcoWhite)
+                Text(stringResource(R.string.login_hero_benefit), style = EcoTextStyles.FieldLabel, color = EcoWhite)
             }
         }
     }
@@ -303,10 +303,10 @@ fun DesignModeLoginSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(stringResource(R.string.design_mode_title), style = EcoTextStyles.Titulo, color = EcoTitle)
-                Text(stringResource(R.string.design_mode_description), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+                Text(stringResource(R.string.design_mode_title), style = EcoTextStyles.Title, color = EcoTitle)
+                Text(stringResource(R.string.design_mode_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
             }
-            Text(stringResource(R.string.design_mode_role_label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+            Text(stringResource(R.string.design_mode_role_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             Column(Modifier.selectableGroup()) {
                 UserRole.entries.forEach { role ->
                     Row(
@@ -322,7 +322,7 @@ fun DesignModeLoginSheet(
                             onClick = null,
                             colors = RadioButtonDefaults.colors(selectedColor = EcoAccent, unselectedColor = EcoSubtitle),
                         )
-                        Text(stringResource(role.labelRes), style = EcoTextStyles.Subtitulo, color = EcoTitle)
+                        Text(stringResource(role.labelRes), style = EcoTextStyles.Subtitle, color = EcoTitle)
                     }
                 }
             }

@@ -81,7 +81,7 @@ fun EcoCodeInput(
                     ) {
                         Text(
                             text = value.getOrNull(index)?.toString().orEmpty(),
-                            style = EcoTextStyles.Numeros,
+                            style = EcoTextStyles.Numbers,
                             color = EcoBlack,
                         )
                     }

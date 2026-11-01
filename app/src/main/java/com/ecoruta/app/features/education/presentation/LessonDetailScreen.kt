@@ -135,21 +135,21 @@ private fun GuideLayout(
     bottomAction: @Composable () -> Unit,
 ) {
     EcoTabScreenLayout(
-        selectedTab = CitizenTab.EDUCACION,
+        selectedTab = CitizenTab.EDUCATION,
         onBack = onBack,
         onTabClick = onTabClick,
         topBarAction = { FavoriteButton(favorite = favorite, onClick = onToggleFavorite, cornerRadius = 12, iconSize = 20, bordered = false) },
         bottomActions = { bottomAction() },
     ) {
-        Text(stringResource(R.string.guide_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+        Text(stringResource(R.string.guide_title), style = EcoTextStyles.Title, color = EcoTitle)
         BinsIllustration()
-        Text(stringResource(R.string.guide_intro), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+        Text(stringResource(R.string.guide_intro), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             guideSteps.forEachIndexed { index, step -> StepRow(number = index + 1, step = step) }
         }
         Text(
             stringResource(R.string.guide_notice),
-            style = EcoTextStyles.Enlace,
+            style = EcoTextStyles.LinkText,
             color = EcoPrimary,
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,7 +174,7 @@ private fun BinsIllustration() {
         guideBins.forEach { bin ->
             Column(Modifier.width(82.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Image(painterResource(bin.illustration), contentDescription = null, modifier = Modifier.size(width = 72.dp, height = 88.dp))
-                Text(stringResource(bin.label), style = EcoTextStyles.EtiquetaCampo, color = EcoTitle)
+                Text(stringResource(bin.label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             }
         }
     }
@@ -197,11 +197,11 @@ private fun StepRow(number: Int, step: GuideStep) {
                 .background(EcoWhite),
             contentAlignment = Alignment.Center,
         ) {
-            Text(number.toString(), style = EcoTextStyles.Numeros, color = EcoPrimary)
+            Text(number.toString(), style = EcoTextStyles.Numbers, color = EcoPrimary)
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(step.title), style = EcoTextStyles.Enlace, color = EcoTitle)
-            Text(stringResource(step.body), style = EcoTextStyles.Subtitulo, color = EcoSubtitle)
+            Text(stringResource(step.title), style = EcoTextStyles.LinkText, color = EcoTitle)
+            Text(stringResource(step.body), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
         }
     }
 }
@@ -226,15 +226,15 @@ private fun LessonCompletedDialog(points: Int, withoutBackend: Boolean, onViewBe
                     .padding(horizontal = 14.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("✓", style = EcoTextStyles.Boton.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold), color = EcoPrimary)
+                Text("✓", style = EcoTextStyles.ButtonText.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold), color = EcoPrimary)
             }
-            Text(stringResource(R.string.guide_reward_title), style = EcoTextStyles.Boton.copy(fontSize = 20.sp), color = EcoTitle, textAlign = TextAlign.Center)
-            Text(stringResource(R.string.guide_reward_body, points), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.guide_reward_title), style = EcoTextStyles.ButtonText.copy(fontSize = 20.sp), color = EcoTitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.guide_reward_body, points), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
             if (withoutBackend) EcoInfoHint(text = stringResource(R.string.guide_reward_design_mode))
             EcoPrimaryButton(text = stringResource(R.string.guide_reward_view_benefits), onClick = onViewBenefits)
             Text(
                 stringResource(R.string.guide_reward_close),
-                style = EcoTextStyles.Enlace.copy(fontWeight = FontWeight.Bold),
+                style = EcoTextStyles.LinkText.copy(fontWeight = FontWeight.Bold),
                 color = EcoSubtitle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier

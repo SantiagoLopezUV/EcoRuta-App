@@ -53,10 +53,10 @@ fun DeliveryCodeScreen(state: DeliveryCodeUiState, onRenew: () -> Unit, onBack: 
     val recyclerName = state.publication?.recycler?.name
     FocusLayout(onBack = onBack) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.recycling_qr_title), style = EcoTextStyles.Titulo, color = EcoTitle)
+            Text(stringResource(R.string.recycling_qr_title), style = EcoTextStyles.Title, color = EcoTitle)
             Text(
                 if (recyclerName != null) stringResource(R.string.recycling_qr_show_to, recyclerName) else stringResource(R.string.recycling_qr_show_generic),
-                style = EcoTextStyles.Subtitulo,
+                style = EcoTextStyles.Subtitle,
                 color = EcoSubtitle,
             )
         }
@@ -75,13 +75,13 @@ fun DeliveryCodeScreen(state: DeliveryCodeUiState, onRenew: () -> Unit, onBack: 
             else -> CodeCard(code = code, isSample = state.isSample, onRenew = onRenew)
         }
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.recycling_qr_single_use), style = EcoTextStyles.Boton, color = EcoTitle)
-            Text(stringResource(R.string.recycling_qr_do_not_share), style = EcoTextStyles.Subtitulo, color = EcoSubtitle, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.recycling_qr_single_use), style = EcoTextStyles.ButtonText, color = EcoTitle)
+            Text(stringResource(R.string.recycling_qr_do_not_share), style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center)
         }
         state.publication?.let { PublicationSummary(it) }
         Text(
             stringResource(R.string.recycling_qr_confirmation),
-            style = EcoTextStyles.Subtitulo,
+            style = EcoTextStyles.Subtitle,
             color = EcoSubtitle,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
@@ -126,7 +126,7 @@ private fun CodeCard(code: DeliveryCode, isSample: Boolean, onRenew: () -> Unit)
             } else {
                 Text(
                     code.token,
-                    style = EcoTextStyles.Numeros.copy(fontFamily = FontFamily.Monospace, fontSize = 22.sp),
+                    style = EcoTextStyles.Numbers.copy(fontFamily = FontFamily.Monospace, fontSize = 22.sp),
                     color = if (expired) EcoSubtitle else EcoTitle,
                     textAlign = TextAlign.Center,
                 )
@@ -134,13 +134,13 @@ private fun CodeCard(code: DeliveryCode, isSample: Boolean, onRenew: () -> Unit)
         }
         if (isSample) EcoStatusChip(stringResource(R.string.recycling_qr_sample_label), EcoTitle, EcoWhite)
         if (expired) {
-            Text(stringResource(R.string.recycling_qr_expired), style = EcoTextStyles.Boton, color = EcoError)
+            Text(stringResource(R.string.recycling_qr_expired), style = EcoTextStyles.ButtonText, color = EcoError)
             EcoTextLink(text = stringResource(R.string.recycling_qr_renew), onClick = onRenew)
         } else {
-            Text(stringResource(R.string.recycling_qr_expires_in), style = EcoTextStyles.EtiquetaCampo, color = EcoSubtitle)
+            Text(stringResource(R.string.recycling_qr_expires_in), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             Text(
                 "%02d:%02d".format(remainingSeconds / 60, remainingSeconds % 60),
-                style = EcoTextStyles.Numeros,
+                style = EcoTextStyles.Numbers,
                 color = EcoTitle,
             )
         }

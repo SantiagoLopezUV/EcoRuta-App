@@ -9,9 +9,9 @@ import com.ecoruta.app.R
 
 // Tipos de documento de identidad disponibles en el formulario de registro
 enum class DocumentType(val code: String) {
-    CEDULA_CIUDADANIA("CC"),
+    CITIZENSHIP_ID("CC"),
     TARJETA_IDENTIDAD("TI"),
-    CEDULA_EXTRANJERIA("CE"),
+    FOREIGNER_ID("CE"),
     PERMISO_PROTECCION_TEMPORAL("PPT"),
     PASAPORTE("PAS"),
 }
@@ -22,10 +22,10 @@ enum class RegistrationType(
     @StringRes val descriptionRes: Int,
     @DrawableRes val iconRes: Int,
 ) {
-    CIUDADANO(R.string.registration_type_citizen, R.string.registration_type_citizen_description, R.drawable.ic_reg_leaf),
-    RECICLADOR_INDEPENDIENTE(R.string.registration_type_independent, R.string.registration_type_independent_description, R.drawable.ic_reg_recycle),
-    RECICLADOR_EMPRESA(R.string.registration_type_company_recycler, R.string.registration_type_company_recycler_description, R.drawable.ic_reg_recycle),
-    COMERCIO(R.string.registration_type_store, R.string.registration_type_store_description, R.drawable.ic_store),
+    CITIZEN(R.string.registration_type_citizen, R.string.registration_type_citizen_description, R.drawable.ic_reg_leaf),
+    INDEPENDENT_RECYCLER(R.string.registration_type_independent, R.string.registration_type_independent_description, R.drawable.ic_reg_recycle),
+    COMPANY_RECYCLER(R.string.registration_type_company_recycler, R.string.registration_type_company_recycler_description, R.drawable.ic_reg_recycle),
+    STORE(R.string.registration_type_store, R.string.registration_type_store_description, R.drawable.ic_store),
 }
 
 // Estado compartido entre los pasos del formulario de registro para el ciudadano
@@ -37,7 +37,7 @@ data class CitizenRegistrationUiState(
     @StringRes val emailErrorRes: Int? = null,
     val isCheckingEmail: Boolean = false,
     // Datos correspondientes al segundo paso de información personal y ubicación
-    val documentType: DocumentType = DocumentType.CEDULA_CIUDADANIA,
+    val documentType: DocumentType = DocumentType.CITIZENSHIP_ID,
     val documentNumber: String = "",
     val phone: String = "",
     val neighborhood: String = "",
