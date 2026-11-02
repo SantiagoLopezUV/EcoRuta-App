@@ -48,6 +48,8 @@ object NavigationDestination {
     // Pantallas principales de otros roles del sistema
     const val DELIVERY_MAP = "reciclador/mapa_entregas"
     const val RECYCLER_SCANNER = "reciclador/escaner"
+    const val RECYCLER_CONFIRM_VOLUME = "reciclador/escaner/volumen"
+    const val RECYCLER_SCAN_RESULT = "reciclador/escaner/resultado"
     const val RECYCLER_ASSIGNED_ROUTE = "reciclador/ruta_asignada"
     const val RECYCLER_PROFILE = "reciclador/perfil"
     const val MY_ORDERS = "chofer/mis_ordenes"
@@ -188,7 +190,6 @@ object NavigationDestination {
 
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
     val pendingScreens: Map<String, String> = mapOf(
-        RECYCLER_SCANNER to "Reciclador · Escáner QR",
         RECYCLER_ASSIGNED_ROUTE to "Reciclador · Ruta asignada",
         RECYCLER_PROFILE to "Reciclador · Perfil",
         MY_ORDERS to "Chofer · Mis órdenes",

@@ -9,18 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTitle
 
 // Dibuja un patrón visual de ejemplo con forma de código QR basado en el texto recibido
 @Composable
-fun EcoSampleQrCode(seed: String, modifier: Modifier = Modifier, faded: Boolean = false) {
+fun EcoSampleQrCode(seed: String, modifier: Modifier = Modifier, faded: Boolean = false, color: Color? = null) {
     val modules = 25
     val hash = seed.hashCode()
-    val color = if (faded) EcoSubtitle.copy(alpha = 0.4f) else EcoTitle
+    val moduleColor = color ?: if (faded) EcoSubtitle.copy(alpha = 0.4f) else EcoTitle
     Canvas(modifier.fillMaxSize()) {
         val cell = size.minDimension / modules
-        fun module(row: Int, col: Int) = drawRect(color, Offset(col * cell, row * cell), Size(cell, cell))
+        fun module(row: Int, col: Int) = drawRect(moduleColor, Offset(col * cell, row * cell), Size(cell, cell))
         fun finder(row: Int, col: Int) {
             for (r in 0 until 7) for (c in 0 until 7) {
                 val ring = r == 0 || r == 6 || c == 0 || c == 6
