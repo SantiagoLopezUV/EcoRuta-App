@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,22 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.room)
 }
+// tabla clave-valor para parsear archivos .properties
+val localProperties = Properties()  // Ruta física al archivo local.properties en la raíz del proyecto
+val localPropertiesFile = rootProject.file("local.properties")
+//validar si el archivo existe antes de intentar leerlo
+if(localPropertiesFile.exists()) { localProperties.load(localPropertiesFile.inputStream()) }
+
+// lectura con ?: para tolerar los fallos
+// busca la clave en local.properties, Si es nula, busca en las variables de entorno del sistema operativo con System.getenv
+// Si tampoco existe, asigna una cadena vacía "" para que Gradle no lance NullPointerException
+val rawSupabaseUrl: String = localProperties.getProperty("SUPABASE_URL")
+    ?: System.getenv("SUPABASE_URL") ?: ""
+val rawSupabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY")
+    ?: System.getenv("SUPABASE_ANON_KEY") ?: ""
+
+val supabaseUrl: String = rawSupabaseUrl.trim().removeSurrounding("\"")
+val supabaseAnonKey: String = rawSupabaseAnonKey.trim().removeSurrounding("\"")
 
 android {
     namespace = "com.ecoruta.app"
@@ -14,12 +32,16 @@ android {
 
     defaultConfig {
         applicationId = "com.ecoruta.app"
-        minSdk = 24 //a fully functional version of Android
+        minSdk = 24 //minima version funcional en android
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inyección de variables seguras para el cliente Supabase
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
     buildTypes {
@@ -40,10 +62,11 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true //habilitar BuildConfig
     }
 }
 
-// exporting the Room schema for Database migrations
+// exportación del esquema de Room para las migraciones de la base de datos
 room {
     schemaDirectory("$projectDir/schemas")
 }
@@ -75,6 +98,7 @@ dependencies {
     implementation(libs.supabase.storage)
     implementation(libs.ktor.client.cio)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.supabase.functions)
 
     //Maps & GPS: Real-Time location tracking for drivers
     implementation(libs.google.maps.compose)
