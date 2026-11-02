@@ -119,4 +119,13 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    // Solicita a Supabase el envío del correo de recuperación de contraseña
+    override suspend fun sendPasswordResetEmail(
+        email: String
+    ): Result<Unit>  = runCatching{
+        // dispara la peticion al servidor con el correo
+        auth.resetPasswordForEmail(email = email)
+    }
+
 }

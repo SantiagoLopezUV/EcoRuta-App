@@ -18,5 +18,7 @@ interface AuthRepository {
     suspend fun getCurrentUser(): UserAccount?
     // Emite los cambios en el estado de autenticación
     fun observeAuthState(): Flow<AuthSession>
+    // envía un correo electronico con el enlace para reestablecer la contraseña
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit>
 
 }
