@@ -3,6 +3,10 @@ package com.ecoruta.app.core.network.supabase
 import com.ecoruta.app.BuildConfig
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.FlowType
+import io.github.jan.supabase.auth.MemoryCodeVerifierCache
+import io.github.jan.supabase.auth.MemorySessionManager
+import io.github.jan.supabase.auth.SettingsCodeVerifierCache
+import io.github.jan.supabase.auth.SettingsSessionManager
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
@@ -29,6 +33,20 @@ val supabase = createSupabaseClient(
         // sheme y host para que android sepa que app debe abrir el correo de recuperación o el callback de google
         scheme = "ecoruta"
         host = "auth"
+
+        // Usa SharedPreferences en Android y memoria volátil en pruebas unitarias de la JVM
+        sessionManager = try {
+            SettingsSessionManager()
+        } catch (e: Throwable) {
+            MemorySessionManager()
+        }
+        codeVerifierCache = try {
+            SettingsCodeVerifierCache()
+        } catch (e: Throwable) {
+            MemoryCodeVerifierCache()
+        }
+        // Deshabilita callbacks de ciclo de vida del proceso para compatibilidad con pruebas unitarias en la JVM
+        enableLifecycleCallbacks = false
 
         //valores po defecto del sdk
         /*

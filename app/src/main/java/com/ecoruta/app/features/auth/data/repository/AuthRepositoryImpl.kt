@@ -9,12 +9,15 @@ import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val auth: Auth //se trae dese NetworkModule
+    //se trae dese NetworkModule
+    private val auth: Auth, // llamamos a la funcion provideSupabaseAuth()
+    private val postgrest: Postgrest  // llamado la funcion provideSupabasePostgrest()
 ) : AuthRepository
 {
     override suspend fun signUpWithEmail(
@@ -128,4 +131,25 @@ class AuthRepositoryImpl @Inject constructor(
         auth.resetPasswordForEmail(email = email)
     }
 
+    override suspend fun updateFirstLoginPassword(
+        newPassword: String
+    ): Result<Unit> = runCatching {
+        // obtener el id del usuario en la sesion actual
+        val userId = auth.currentUserOrNull()
+            ?.id
+            ?: error("No existe una sesión activa para actualizar la contraseña")
+        auth.updateUser {
+            password = newPassword
+        }
+        // actualiza el registro del perfil en la BD para desactivar la bandera
+        postgrest.from("profiles").update(
+            {
+                set("must_change_password", false)
+            }
+        ) {
+            filter {
+                eq("id",userId)
+            }
+        }
+    }
 }
