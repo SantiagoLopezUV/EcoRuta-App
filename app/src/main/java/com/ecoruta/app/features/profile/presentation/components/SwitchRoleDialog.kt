@@ -117,7 +117,7 @@ fun ChangeProfileScreen(state: ProfileUiState, actions: ChangeProfileActions) {
 }
 
 @Composable
-private fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileActions) {
+internal fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileActions) {
     val roles = listOf(profile.role) + UserRole.entries.filter { it != profile.role && it in profile.approvedRoles }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         roles.forEach { role ->

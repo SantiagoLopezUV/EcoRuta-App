@@ -49,6 +49,7 @@ fun <T : EcoBottomBarItem> EcoRoleTabScreenLayout(
     onTabClick: (T) -> Unit,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
+    compactHeader: Boolean = false,
     contentSpacing: Dp = 16.dp,
     bottomActions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -68,7 +69,7 @@ fun <T : EcoBottomBarItem> EcoRoleTabScreenLayout(
                 .padding(top = 20.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(contentSpacing),
         ) {
-            EcoRoleBrandHeader(onBack = onBack)
+            if (compactHeader) EcoTopBar(onBackClick = onBack) else EcoRoleBrandHeader(onBack = onBack)
             content()
         }
         if (bottomActions != null) {

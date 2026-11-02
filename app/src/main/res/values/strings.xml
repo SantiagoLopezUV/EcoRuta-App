@@ -948,6 +948,21 @@
     <string name="recycler_result_location_body">Acércate al punto de entrega y vuelve a escanear.</string>
     <string name="recycler_result_failed_note">En caso de error, no se registra la entrega.</string>
     <string name="recycler_result_back_to_map">Volver al mapa</string>
+    <!-- Módulo reciclador · Perfil y ruta asignada (sección 17) -->
+    <string name="recycler_profile_title">Perfil del reciclador</string>
+    <string name="recycler_profile_description">Consulta tus datos y gestiona tu perfil.</string>
+    <string name="recycler_profile_illustrative">Datos ilustrativos · No son datos personales</string>
+    <string name="recycler_profile_modality">Modalidad</string>
+    <string name="recycler_profile_status">Estado del perfil</string>
+    <string name="recycler_profile_approved">Aprobado</string>
+    <string name="recycler_route_title">Ruta asignada</string>
+    <string name="recycler_route_subtitle">%1$s · Reciclaje · %2$s</string>
+    <string name="recycler_route_summary">%1$s · %2$d puntos · %3$s</string>
+    <string name="recycler_route_assigned">Asignada</string>
+    <string name="recycler_route_location_title">Tu ubicación, solo durante la ruta</string>
+    <string name="recycler_route_location_body">Al iniciar, permite compartir tu ubicación con la empresa que te asignó la ruta.</string>
+    <string name="recycler_route_location_consent">Autorizo compartir mi ubicación</string>
+    <string name="recycler_route_view_on_map">Ver puntos en el mapa</string>
     <!-- Estados transversales (sección 20) -->
     <string name="permission_location_title">Permiso de ubicación</string>
     <string name="permission_location_subtitle">Ubica el residuo con precisión.</string>
