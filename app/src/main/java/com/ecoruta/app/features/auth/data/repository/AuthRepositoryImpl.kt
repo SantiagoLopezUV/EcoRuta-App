@@ -7,11 +7,15 @@ import com.ecoruta.app.features.auth.domain.model.AuthSession
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -64,6 +68,42 @@ class AuthRepositoryImpl @Inject constructor(
             id = userInfo.id,
             email = userInfo.email ?: email,
             fullName = null, // inicia vacío y se completa despues al consultar la tabla de perfiles
+            isEmailConfirmed = userInfo.emailConfirmedAt != null,
+            mustChangePassword = false
+        )
+    }
+
+    // Autentica al usuario mediante el token id de Google en Supabase
+    override suspend fun signInWithGoogle(
+        idToken: String,
+        rawNonce: String?
+    ): Result<UserAccount> = authenticateWithGoogle(idToken, rawNonce)
+
+    // Registra al usuario asociado
+    override suspend fun signUpWithGoogle(
+        idToken: String,
+        rawNonce: String?
+    ): Result<UserAccount> = authenticateWithGoogle(idToken, rawNonce)
+
+    // Ejecuta la autenticación o registro asociado con Google utilizando el SDK de Supabase
+    private suspend fun authenticateWithGoogle(
+        idToken: String,
+        rawNonce: String?
+    ): Result<UserAccount> = runCatching {
+        auth.signInWith(IDToken)
+        {
+            this.idToken = idToken
+            this.provider = Google
+            this.nonce = rawNonce
+        }
+        val userInfo = auth.currentUserOrNull()
+            ?: error("No se encontró la sesión del usuario tras autenticar con Google")
+        val fullName = userInfo.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull
+            ?: userInfo.userMetadata?.get("name")?.jsonPrimitive?.contentOrNull
+        UserAccount(
+            id = userInfo.id,
+            email = userInfo.email.orEmpty(),
+            fullName = fullName,
             isEmailConfirmed = userInfo.emailConfirmedAt != null,
             mustChangePassword = false
         )

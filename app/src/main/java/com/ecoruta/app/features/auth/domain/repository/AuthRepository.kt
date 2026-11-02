@@ -14,18 +14,28 @@ import kotlinx.coroutines.flow.Flow
 interface AuthRepository {
     // Registra un nuevo ciudadano con correo y contraseña
     suspend fun signUpWithEmail(email: String, password: String): Result<UserAccount>
+
     // Inicio de sesión de un usuario registrado con correo y contraseña
     suspend fun signInWithEmail(email: String, password: String): Result<UserAccount>
-    // Cierra la sesión activa y elimina las credenciales del dispositivo
 
+    // Autentica un usuario mediante Google OAuth con el ID Token obtenido del dispositivo
+    suspend fun signInWithGoogle(idToken: String, rawNonce: String? = null): Result<UserAccount>
+
+    // Registra a un nuevo usuario mediante Google OAuth utilizando el ID Token del proveedor
+    suspend fun signUpWithGoogle(idToken: String, rawNonce: String? = null): Result<UserAccount>
+
+    // Cierra la sesión activa y elimina las credenciales del dispositivo
     suspend fun signOut(): Result<Unit>
 
     // Obtiene el usuario autenticado actual o nulo si está en modo visitante
     suspend fun getCurrentUser(): UserAccount?
+
     // Emite los cambios en el estado de autenticación
     fun observeAuthState(): Flow<AuthSession>
+
     // envía un correo electronico con el enlace para reestablecer la contraseña
     suspend fun sendPasswordResetEmail(email: String): Result<Unit>
+
     // actualiza la contraseña en el primer inicio de sesion y desacativa la bandera
     suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit>
 
