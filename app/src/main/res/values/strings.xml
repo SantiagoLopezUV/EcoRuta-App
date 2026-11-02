@@ -26,6 +26,8 @@
     <string name="tab_mapa">Mapa</string>
     <string name="tab_educacion">Educación</string>
     <string name="tab_perfil">Perfil</string>
+    <string name="tab_routes">Rutas</string>
+    <string name="tab_scanner">Escáner</string>
 
     <!-- Seguridad y autenticación requerida (AuthGuard) -->
     <string name="auth_required_title">Inicio de sesión requerido</string>
@@ -891,6 +893,27 @@
     <string name="recycler_registration_done_body">Cuando la empresa active tu registro, recibirás un correo con tu usuario, una contraseña temporal y un enlace para acceder a la app. Deberás cambiar la contraseña en tu primer ingreso.</string>
     <string name="recycler_registration_go_home">Ir a inicio</string>
     <string name="recycler_registration_error_pdf">Adjunta tu cédula en PDF para continuar.</string>
+    <!-- Módulo reciclador · Mapa de entregas (sección 17) -->
+    <string name="recycler_map_title">Mapa de entregas</string>
+    <string name="recycler_map_subtitle">Tuluá, Valle del Cauca · Publicaciones cercanas</string>
+    <string name="recycler_map_subtitle_list">Tuluá · Entregas cercanas</string>
+    <string name="recycler_map_description">Mapa ilustrativo de Tuluá con las entregas cercanas</string>
+    <string name="recycler_map_my_location">Mi ubicación</string>
+    <string name="recycler_map_empty">No hay entregas con estos filtros.</string>
+    <string name="recycler_map_label_carrera_26">Cra. 26</string>
+    <string name="recycler_map_label_calle_25">Calle 25</string>
+    <string name="recycler_map_label_calle_27">Calle 27</string>
+    <string name="recycler_map_label_boyaca">Parque Boyacá</string>
+    <string name="recycler_map_label_cespedes">Parque Céspedes</string>
+    <string name="recycler_map_label_center">Centro</string>
+    <string name="recycler_map_label_river">Río Tuluá</string>
+    <string name="recycler_delivery_summary">%1$s · %2$s · a %3$s</string>
+    <string name="recycler_delivery_view_detail">Ver detalle de entrega</string>
+    <string name="recycler_delivery_take">Tomar entrega</string>
+    <string name="recycler_delivery_volume">Volumen estimado</string>
+    <string name="recycler_delivery_distance">Distancia</string>
+    <string name="recycler_delivery_illustrative">Datos ilustrativos · Tuluá</string>
+    <string name="recycler_delivery_collapse">Ocultar detalle de la entrega</string>
     <!-- Estados transversales (sección 20) -->
     <string name="permission_location_title">Permiso de ubicación</string>
     <string name="permission_location_subtitle">Ubica el residuo con precisión.</string>
