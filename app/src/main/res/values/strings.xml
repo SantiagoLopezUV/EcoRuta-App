@@ -869,6 +869,28 @@
     <string name="recycler_sent_operator_title">Un operador validará tu solicitud</string>
     <string name="recycler_sent_operator_body">Revisará la información enviada antes de aprobar tu perfil de reciclador.</string>
     <string name="recycler_sent_notification">Recibirás una notificación cuando tu solicitud sea aprobada.</string>
+    <!-- Registro de reciclador independiente y vinculado a empresa (secciones 06 y 07) -->
+    <string name="recycler_registration_form_title">Completa tu registro</string>
+    <string name="recycler_registration_account_title">Crea tu cuenta</string>
+    <string name="recycler_registration_account_description">Completa tus datos de cuenta. Después, seleccionarás la empresa vinculada.</string>
+    <string name="recycler_registration_stage_form">Registro</string>
+    <string name="recycler_registration_id_pdf">Cédula (PDF)</string>
+    <string name="recycler_registration_back_to_selection">Volver a selección</string>
+    <string name="recycler_registration_confirm_title">Confirma tu registro</string>
+    <string name="recycler_registration_confirm_independent">A tu correo llegará un mensaje de confirmación. Ábrelo y sigue los pasos para continuar con tu cuenta: allí encontrarás tu usuario y una contraseña provisional, que deberás cambiar en tu primer ingreso.</string>
+    <string name="recycler_registration_confirm_company">Abre tu correo y usa el enlace de confirmación para confirmar tu correo registrado.</string>
+    <string name="recycler_registration_resend_link">Reenviar enlace</string>
+    <string name="recycler_registration_confirmed_title">Registro confirmado</string>
+    <string name="recycler_registration_confirmed_independent">Tu cuenta de reciclador independiente está lista.</string>
+    <string name="recycler_registration_confirmed_company">Tu correo electrónico ha sido validado con éxito.</string>
+    <string name="recycler_registration_email_confirmed">Correo confirmado</string>
+    <string name="recycler_registration_enter_module">Acceder al módulo reciclador</string>
+    <string name="recycler_registration_continue">Continuar con el registro</string>
+    <string name="recycler_registration_done_title">Registro realizado</string>
+    <string name="recycler_registration_done_description">Espera la activación de la empresa seleccionada.</string>
+    <string name="recycler_registration_done_body">Cuando la empresa active tu registro, recibirás un correo con tu usuario, una contraseña temporal y un enlace para acceder a la app. Deberás cambiar la contraseña en tu primer ingreso.</string>
+    <string name="recycler_registration_go_home">Ir a inicio</string>
+    <string name="recycler_registration_error_pdf">Adjunta tu cédula en PDF para continuar.</string>
     <!-- Estados transversales (sección 20) -->
     <string name="permission_location_title">Permiso de ubicación</string>
     <string name="permission_location_subtitle">Ubica el residuo con precisión.</string>

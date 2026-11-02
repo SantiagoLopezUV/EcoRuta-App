@@ -728,7 +728,7 @@ private fun StageTitle(title: String, description: String) {
 }
 
 @Composable
-private fun CompanyCard(company: Company, selected: Boolean, onClick: (() -> Unit)?) {
+internal fun CompanyCard(company: Company, selected: Boolean, onClick: (() -> Unit)?) {
     val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = Modifier

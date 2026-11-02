@@ -79,6 +79,7 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
 
     passwordRecoveryGraph(navController = navController)
     registrationGraph(navController = navController)
+    recyclerRegistrationGraph(navController = navController)
     changePasswordDestinations(navController = navController)
 }
 
