@@ -3,7 +3,14 @@ package com.ecoruta.app.features.auth.data.repository
 // Implementación concreta del repositorio de autenticación
 // Conecta con el SDK de Supabase Auth para registro, login, tokens y logout
 
+import com.ecoruta.app.features.auth.data.remote.dto.BusinessDto
+import com.ecoruta.app.features.auth.data.remote.dto.CitizenDto
+import com.ecoruta.app.features.auth.data.remote.dto.ProfileDto
+import com.ecoruta.app.features.auth.data.remote.dto.RecyclerDto
 import com.ecoruta.app.features.auth.domain.model.AuthSession
+import com.ecoruta.app.features.auth.domain.model.BusinessRegistration
+import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
+import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import io.github.jan.supabase.auth.Auth
@@ -37,7 +44,6 @@ class AuthRepositoryImpl @Inject constructor(
         auth.currentUserOrNull() // si supabase no devuelve el usuario, salta y busca si ya se guardo en la sesión local con auth.currentUserOrNull()
           ?:
         error("No se pudo obtener la información de la cuenta tras el registro") // Si la sesión local tambien es null, salta y ejecuta error, con una excepción para que runCatching atrape el fallo limpiamente
-
 
         // Transforma la respuesta del SDK al modelo de dominio
         UserAccount(
@@ -191,5 +197,148 @@ class AuthRepositoryImpl @Inject constructor(
                 eq("id",userId)
             }
         }
+    }
+
+    // Función privada para el registro en Supabase Auth y la inserción del perfil
+    // abarca el registro de todos los perfiles
+    private suspend fun registerProfile(
+        email: String,
+        password: String,
+        fullName: String,
+        documentNumber: String,
+        roleCode: String,
+        insertRoleData: suspend (userId: String) -> Unit
+    ): Result<UserAccount> = runCatching {
+        //Registra credenciales en Supabase Auth reutilizando la función signUpWithEmail
+        val account = signUpWithEmail(email, password).getOrThrow()
+
+        // Inserta el registro base en la tabla profiles
+        postgrest.from("profiles")
+            .insert(
+            ProfileDto(
+                id = account.id,
+                documentId = documentNumber,
+                roleCode = roleCode,
+                fullName = fullName,
+                email = email,
+                mustChangePassword = false
+            )
+        )
+        //Inserta los datos complementarios de cada rol
+        insertRoleData(account.id)
+        //Retorna la cuenta autenticada con su nombre completo
+        account.copy(fullName = fullName)
+    }
+
+    // Registro de ciudadano creando cuenta en Supabase Auth, perfil y fila en tabla citizens
+    override suspend fun signUpCitizen(
+        registration: CitizenRegistration
+    ): Result<UserAccount> = registerProfile(
+        email = registration.email,
+        password = registration.password,
+        fullName = registration.fullName,
+        documentNumber = registration.documentNumber,
+        roleCode = "citizen"
+    ) { userId ->
+        postgrest.from("citizens")
+            .insert(
+            CitizenDto(
+                profileId = userId,
+                phone = registration.phone,
+                neighborhood = registration.neighborhood
+            )
+        )
+    }
+
+    // Registra a un reciclador de oficio con perfil y estado inicial pendiente de aprobación
+    override suspend fun signUpRecycler(
+        registration: RecyclerRegistration
+    ): Result<UserAccount> = registerProfile(
+        email = registration.email,
+        password = registration.password,
+        fullName = registration.fullName,
+        documentNumber = registration.documentNumber,
+        roleCode = "recycler"
+    ) { userId ->
+        postgrest.from("recyclers")
+            .insert(
+            RecyclerDto(
+                profileId = userId,
+                phone = registration.phone,
+                associationName = registration.associationName,
+                companyId = registration.companyId,
+                idDocumentPdfUrl = registration.idDocumentPdfUrl,
+                status = "pendiente"
+            )
+        )
+    }
+
+    // Registra a un comercio aliado con perfil y estado inicial pendiente de verificación
+    override suspend fun signUpBusiness(
+        registration: BusinessRegistration
+    ): Result<UserAccount> = registerProfile(
+        email = registration.email,
+        password = registration.password,
+        fullName = registration.fullName,
+        documentNumber = registration.documentNumber,
+        roleCode = "business"
+    ) { userId ->
+        postgrest.from("businesses")
+            .insert(
+            BusinessDto(
+                profileId = userId,
+                businessName = registration.businessName,
+                category = registration.category,
+                address = registration.address,
+                rutPdfUrl = registration.rutPdfUrl,
+                status = "pendiente"
+            )
+        )
+    }
+
+    // Registra la postulación al rol de reciclador para un usuario autenticado con estado pendiente
+    override suspend fun submitRecyclerRoleRequest(
+        phone: String,
+        associationName: String?,
+        companyId: String?,
+        idDocumentPdfUrl: String?
+    ): Result<Unit> = runCatching {
+        val userId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para radicar la postulación")
+
+        postgrest.from("recyclers")
+            .insert(
+            RecyclerDto(
+                profileId = userId,
+                phone = phone,
+                associationName = associationName,
+                companyId = companyId,
+                idDocumentPdfUrl = idDocumentPdfUrl,
+                status = "pendiente"
+            )
+        )
+    }
+
+    // Registra la postulación al rol de comercio aliado para un usuario autenticado con estado pendiente
+    override suspend fun submitBusinessRoleRequest(
+        businessName: String,
+        category: String,
+        address: String,
+        rutPdfUrl: String?
+    ): Result<Unit> = runCatching {
+        val userId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para radicar la postulación")
+        // insertar el comercio a la tabla
+        postgrest.from("businesses")
+            .insert(
+            BusinessDto(
+                profileId = userId,
+                businessName = businessName,
+                category = category,
+                address = address,
+                rutPdfUrl = rutPdfUrl,
+                status = "pendiente"
+            )
+        )
     }
 }

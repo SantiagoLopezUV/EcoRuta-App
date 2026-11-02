@@ -1,6 +1,9 @@
 package com.ecoruta.app.features.auth.domain.repository
 
 import com.ecoruta.app.features.auth.domain.model.AuthSession
+import com.ecoruta.app.features.auth.domain.model.BusinessRegistration
+import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
+import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import kotlinx.coroutines.flow.Flow
 
@@ -38,5 +41,30 @@ interface AuthRepository {
 
     // actualiza la contraseña en el primer inicio de sesion y desacativa la bandera
     suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit>
+
+    // Registro de ciudadano creando cuenta en autenticación, perfil y entidad cuidadna
+    suspend fun signUpCitizen(registration: CitizenRegistration): Result<UserAccount>
+
+    // Registra a un reciclador de oficio con perfil y estado inicial pendiente de aprobación
+    suspend fun signUpRecycler(registration: RecyclerRegistration): Result<UserAccount>
+
+    // Registra a un comercio aliado con perfil y estado inicial pendiente de verificación
+    suspend fun signUpBusiness(registration: BusinessRegistration): Result<UserAccount>
+
+    // Registra la postulación al rol de reciclador para un usuario autenticado con estado pendiente
+    suspend fun submitRecyclerRoleRequest(
+        phone: String,
+        associationName: String? = null,
+        companyId: String? = null,
+        idDocumentPdfUrl: String? = null
+    ): Result<Unit>
+
+    // Registra la postulación al rol de comercio aliado para un usuario autenticado con estado pendiente
+    suspend fun submitBusinessRoleRequest(
+        businessName: String,
+        category: String,
+        address: String,
+        rutPdfUrl: String? = null
+    ): Result<Unit>
 
 }
