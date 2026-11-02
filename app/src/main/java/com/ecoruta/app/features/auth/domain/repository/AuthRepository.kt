@@ -1,10 +1,22 @@
 package com.ecoruta.app.features.auth.domain.repository
 
+import com.ecoruta.app.features.auth.domain.model.AuthSession
 import com.ecoruta.app.features.auth.domain.model.UserAccount
+import kotlinx.coroutines.flow.Flow
 
 // Contrato de dominio para operaciones de autenticación
 // Define métodos abstractos de inicio de sesión, registro y gestión de credenciales
 
 interface AuthRepository {
+    // Registra un nuevo ciudadano con correo y contraseña
     suspend fun signUpWithEmail(email: String, password: String): Result<UserAccount>
+    // Inicio de sesión de un usuario registrado con correo y contraseña
+    suspend fun signInWithEmail(email: String, password: String): Result<UserAccount>
+    // Cierra la sesión activa y elimina las credenciales del dispositivo
+    suspend fun signOut(): Result<Unit>
+    // Obtiene el usuario autenticado actual o nulo si está en modo visitante
+    suspend fun getCurrentUser(): UserAccount?
+    // Emite los cambios en el estado de autenticación
+    fun observeAuthState(): Flow<AuthSession>
+
 }
