@@ -425,7 +425,7 @@ fun StoreApplicationScreen(state: StoreApplicationUiState, actions: StoreApplica
 }
 
 @Composable
-private fun IdTypeSelector(selected: StoreIdType, onSelected: (StoreIdType) -> Unit) {
+internal fun IdTypeSelector(selected: StoreIdType, onSelected: (StoreIdType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Box {
@@ -519,7 +519,7 @@ fun StoreRequestInReviewScreen(
     }
 }
 
-private fun StoreCategory.labelRes(): Int = when (this) {
+internal fun StoreCategory.labelRes(): Int = when (this) {
     StoreCategory.NEIGHBORHOOD_STORE -> R.string.store_category_neighborhood
     StoreCategory.RESTAURANT -> R.string.store_category_restaurant
     StoreCategory.CAFETERIA -> R.string.store_category_cafe
