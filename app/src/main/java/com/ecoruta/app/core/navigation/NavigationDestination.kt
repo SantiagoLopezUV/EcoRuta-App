@@ -3,6 +3,7 @@ package com.ecoruta.app.core.navigation
 // Catálogo oficial de destinos y rutas tipadas de la aplicación
 // Define argumentos de navegación y clasifica pantallas públicas y protegidas
 
+import android.net.Uri
 import androidx.navigation.NavHostController
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
@@ -186,14 +187,24 @@ object NavigationDestination {
     const val COMPANY_RECYCLER_SELECTED_COMPANY = "registro_reciclador_empresa/empresa"
     const val COMPANY_RECYCLER_PENDING_ACTIVATION = "registro_reciclador_empresa/activacion"
 
+    // Rutas del registro del comercio aliado desde la cuenta del gerente hasta la solicitud en revisión
     const val STORE_REGISTRATION = "registro_comercio"
+    const val STORE_REGISTRATION_ACCOUNT = "registro_comercio/cuenta"
+    const val ARG_EMAIL = "correo"
+    const val STORE_REGISTRATION_CONFIRMATION = "registro_comercio/confirmacion?correo={correo}"
+    const val STORE_REGISTRATION_EMAIL_VALIDATED = "registro_comercio/correo_validado?correo={correo}"
+    const val STORE_REGISTRATION_DETAILS = "registro_comercio/datos"
+    const val STORE_REGISTRATION_IN_REVIEW = "registro_comercio/revision"
+
+    fun storeRegistrationConfirmation(email: String) = "registro_comercio/confirmacion?correo=${Uri.encode(email)}"
+    fun storeRegistrationEmailValidated(email: String) = "registro_comercio/correo_validado?correo=${Uri.encode(email)}"
+
     const val GUEST_PROFILE = "perfil_sin_sesion"
 
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
     val pendingScreens: Map<String, String> = mapOf(
         MY_ORDERS to "Chofer · Mis órdenes",
         STORE_DASHBOARD to "Comercio · Panel del comercio",
-        STORE_REGISTRATION to "Registro · Comercios aliados",
     )
 }
 
