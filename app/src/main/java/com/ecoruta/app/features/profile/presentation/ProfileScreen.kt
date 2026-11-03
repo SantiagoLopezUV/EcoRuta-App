@@ -178,7 +178,13 @@ fun ProfileScreen(
 
 // Tarjeta con los datos principales del usuario y su foto de perfil
 @Composable
-private fun UserCard(profile: UserProfile, localPhoto: Uri?, isUpdatingPhoto: Boolean, onChangePhoto: () -> Unit) {
+internal fun UserCard(
+    profile: UserProfile,
+    localPhoto: Uri?,
+    isUpdatingPhoto: Boolean,
+    onChangePhoto: () -> Unit,
+    footer: String = profile.email,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -232,7 +238,7 @@ private fun UserCard(profile: UserProfile, localPhoto: Uri?, isUpdatingPhoto: Bo
                 )
             }
         }
-        Text(profile.email, style = EcoTextStyles.Subtitle, color = EcoWhite)
+        Text(footer, style = EcoTextStyles.Subtitle, color = EcoWhite)
     }
 }
 

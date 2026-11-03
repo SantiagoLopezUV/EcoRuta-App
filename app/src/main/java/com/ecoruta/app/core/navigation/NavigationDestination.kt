@@ -47,6 +47,12 @@ object NavigationDestination {
 
     // Pantallas principales de otros roles del sistema
     const val DELIVERY_MAP = "reciclador/mapa_entregas"
+    const val RECYCLER_SCANNER = "reciclador/escaner"
+    const val RECYCLER_CONFIRM_VOLUME = "reciclador/escaner/volumen"
+    const val RECYCLER_SCAN_RESULT = "reciclador/escaner/resultado"
+    const val RECYCLER_ASSIGNED_ROUTE = "reciclador/ruta_asignada"
+    const val RECYCLER_PROFILE = "reciclador/perfil"
+    const val RECYCLER_CHANGE_PROFILE = "reciclador/perfil/cambiar"
     const val MY_ORDERS = "chofer/mis_ordenes"
     const val STORE_DASHBOARD = "comercio/panel"
 
@@ -168,16 +174,25 @@ object NavigationDestination {
     // Rutas correspondientes a módulos pendientes de otros roles
     const val INDEPENDENT_RECYCLER_REGISTRATION = "registro_reciclador_independiente"
     const val COMPANY_RECYCLER_REGISTRATION = "registro_reciclador_empresa"
+
+    // Rutas del registro del reciclador independiente: confirmación por correo y registro confirmado
+    const val INDEPENDENT_RECYCLER_CONFIRMATION = "registro_reciclador_independiente/confirmacion"
+    const val INDEPENDENT_RECYCLER_CONFIRMED = "registro_reciclador_independiente/confirmado"
+
+    // Rutas del registro del reciclador vinculado: correo, búsqueda de empresa y activación pendiente
+    const val COMPANY_RECYCLER_CONFIRMATION = "registro_reciclador_empresa/confirmacion"
+    const val COMPANY_RECYCLER_EMAIL_VALIDATED = "registro_reciclador_empresa/correo_validado"
+    const val COMPANY_RECYCLER_COMPANY_SEARCH = "registro_reciclador_empresa/buscar_empresa"
+    const val COMPANY_RECYCLER_SELECTED_COMPANY = "registro_reciclador_empresa/empresa"
+    const val COMPANY_RECYCLER_PENDING_ACTIVATION = "registro_reciclador_empresa/activacion"
+
     const val STORE_REGISTRATION = "registro_comercio"
     const val GUEST_PROFILE = "perfil_sin_sesion"
 
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
     val pendingScreens: Map<String, String> = mapOf(
-        DELIVERY_MAP to "Reciclador · Mapa de entregas",
         MY_ORDERS to "Chofer · Mis órdenes",
         STORE_DASHBOARD to "Comercio · Panel del comercio",
-        INDEPENDENT_RECYCLER_REGISTRATION to "Registro · Reciclador independiente",
-        COMPANY_RECYCLER_REGISTRATION to "Registro · Reciclador vinculado a empresa",
         STORE_REGISTRATION to "Registro · Comercios aliados",
     )
 }

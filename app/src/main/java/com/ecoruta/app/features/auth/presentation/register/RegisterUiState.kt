@@ -6,6 +6,7 @@ package com.ecoruta.app.features.auth.presentation.register
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.components.PickedDocument
 
 // Tipos de documento de identidad disponibles en el formulario de registro
 enum class DocumentType(val code: String) {
@@ -48,6 +49,22 @@ data class CitizenRegistrationUiState(
     val isCreatingAccount: Boolean = false,
     // Estado de envío en la pantalla de confirmación por correo
     val isResendingEmail: Boolean = false,
+)
+
+// Estado del formulario de registro del reciclador independiente o vinculado a una empresa
+data class RecyclerRegistrationUiState(
+    val fullName: String = "",
+    val email: String = "",
+    val documentType: DocumentType = DocumentType.CITIZENSHIP_ID,
+    val documentNumber: String = "",
+    val idDocument: PickedDocument? = null,
+    val phone: String = "",
+    @StringRes val fullNameErrorRes: Int? = null,
+    @StringRes val emailErrorRes: Int? = null,
+    @StringRes val documentErrorRes: Int? = null,
+    @StringRes val idDocumentErrorRes: Int? = null,
+    @StringRes val phoneErrorRes: Int? = null,
+    val isCreatingAccount: Boolean = false,
 )
 
 typealias RegisterUiState = CitizenRegistrationUiState

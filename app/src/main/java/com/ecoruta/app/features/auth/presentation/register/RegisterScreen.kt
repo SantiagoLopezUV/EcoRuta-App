@@ -78,6 +78,7 @@ fun RegistrationLayout(
     modifier: Modifier = Modifier,
     contentSpacing: androidx.compose.ui.unit.Dp = 16.dp,
     onBackClick: (() -> Unit)? = null,
+    showBrand: Boolean = true,
     bottomActions: @Composable ColumnScope.() -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -89,7 +90,7 @@ fun RegistrationLayout(
             .navigationBarsPadding()
             .imePadding(),
     ) {
-        EcoStepHeader(stepLabel = stepLabel, stageLabel = stageLabel, progress = progress, onBackClick = onBackClick)
+        EcoStepHeader(stepLabel = stepLabel, stageLabel = stageLabel, progress = progress, showBrand = showBrand, onBackClick = onBackClick)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -379,7 +380,7 @@ fun CitizenProfileScreen(
 }
 
 @Composable
-private fun DocumentTypeSelector(
+internal fun DocumentTypeSelector(
     selected: DocumentType,
     onSelected: (DocumentType) -> Unit,
 ) {

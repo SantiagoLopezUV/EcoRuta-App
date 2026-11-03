@@ -117,7 +117,7 @@ fun ChangeProfileScreen(state: ProfileUiState, actions: ChangeProfileActions) {
 }
 
 @Composable
-private fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileActions) {
+internal fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileActions) {
     val roles = listOf(profile.role) + UserRole.entries.filter { it != profile.role && it in profile.approvedRoles }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         roles.forEach { role ->
@@ -728,7 +728,7 @@ private fun StageTitle(title: String, description: String) {
 }
 
 @Composable
-private fun CompanyCard(company: Company, selected: Boolean, onClick: (() -> Unit)?) {
+internal fun CompanyCard(company: Company, selected: Boolean, onClick: (() -> Unit)?) {
     val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = Modifier

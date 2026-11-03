@@ -28,6 +28,7 @@ import com.ecoruta.app.core.ui.components.SplashScreen
 import com.ecoruta.app.features.auth.presentation.navigation.authGraph
 import com.ecoruta.app.features.bulky_waste.presentation.navigation.debrisGraph
 import com.ecoruta.app.features.circular_economy.presentation.navigation.circularEconomyGraph
+import com.ecoruta.app.features.circular_economy.presentation.navigation.recyclerGraph
 import com.ecoruta.app.features.education.presentation.navigation.educationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.gamificationGraph
 import com.ecoruta.app.features.profile.presentation.navigation.profileGraph
@@ -81,6 +82,7 @@ fun EcoRutaNavHost(
             reportsGraph(navController = navController)
             debrisGraph(navController = navController)
             circularEconomyGraph(navController = navController, showNotice = showNotice)
+            recyclerGraph(navController = navController)
             gamificationGraph(navController = navController)
             educationGraph(navController = navController, showNotice = showNotice)
 
