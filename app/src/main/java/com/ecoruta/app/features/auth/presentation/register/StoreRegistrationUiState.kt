@@ -39,3 +39,18 @@ data class StoreDetailsUiState(
     val hasErrors: Boolean
         get() = listOf(nameErrorRes, idErrorRes, categoryErrorRes, addressErrorRes, phoneErrorRes).any { it != null }
 }
+
+// Estado de la solicitud del comercio después de enviarla a revisión
+sealed interface StoreRequestStatusUiState {
+    data object Loading : StoreRequestStatusUiState
+
+    data class InReview(val storeName: String? = null) : StoreRequestStatusUiState
+
+    data class Approved(val storeName: String? = null) : StoreRequestStatusUiState
+
+    data class Rejected(val reason: String? = null) : StoreRequestStatusUiState
+
+    data object Offline : StoreRequestStatusUiState
+
+    data object Error : StoreRequestStatusUiState
+}

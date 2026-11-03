@@ -3,27 +3,55 @@ package com.ecoruta.app.features.auth.presentation.register
 // Pantallas del registro del comercio aliado
 // Incluye la cuenta del gerente, la confirmación por correo, los datos del comercio y el estado de la solicitud
 
+import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.components.EcoCheckboxRow
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
+import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.EcoTextField
 import com.ecoruta.app.core.ui.components.EcoTextLink
 import com.ecoruta.app.core.ui.components.OfflineScreen
+import com.ecoruta.app.core.ui.theme.EcoBorder
+import com.ecoruta.app.core.ui.theme.EcoError
+import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
+import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
+import com.ecoruta.app.core.ui.theme.EcoWhite
 import com.ecoruta.app.features.profile.presentation.StoreCategory
 import com.ecoruta.app.features.profile.presentation.StoreIdType
 import com.ecoruta.app.features.profile.presentation.components.IdTypeSelector
@@ -249,6 +277,172 @@ fun StoreDetailsScreen(
     }
 }
 
+// Pantalla con el estado de la solicitud del comercio en revisión, aprobada o rechazada
+@Composable
+fun StoreRequestStatusScreen(
+    state: StoreRequestStatusUiState,
+    onLoginClick: () -> Unit,
+    onGoHome: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (!LocalInspectionMode.current) {
+        BackHandler(onBack = onGoHome)
+    }
+    when (state) {
+        StoreRequestStatusUiState.Loading -> Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(EcoWhite),
+            contentAlignment = Alignment.Center,
+        ) { CircularProgressIndicator(color = EcoPrimary) }
+        StoreRequestStatusUiState.Offline -> OfflineScreen(onRetry = onRetry)
+        StoreRequestStatusUiState.Error -> EcoSystemStateScreen(
+            title = stringResource(R.string.store_status_error_title),
+            subtitle = stringResource(R.string.store_status_error_subtitle),
+            illustrationRes = R.drawable.ill_state_offline,
+            heading = stringResource(R.string.store_status_error_heading),
+            body = stringResource(R.string.store_status_error_body),
+            actionText = stringResource(R.string.action_retry),
+            onAction = onRetry,
+            modifier = modifier,
+        )
+        is StoreRequestStatusUiState.InReview -> StoreStatusLayout(
+            stageLabel = stringResource(R.string.store_status_stage_review),
+            title = stringResource(R.string.store_review_title),
+            description = stringResource(R.string.store_status_review_description),
+            onGoHome = onGoHome,
+            modifier = modifier,
+        ) {
+            StoreStatusCard(
+                iconRes = R.drawable.ic_clock,
+                title = stringResource(R.string.store_status_review_card_title),
+                body = stringResource(R.string.store_status_review_card_body),
+                highlightColor = EcoGreenSecondary,
+            )
+            StoreStatusCard(
+                iconRes = R.drawable.ic_store,
+                title = state.storeName ?: stringResource(R.string.store_registration_name_placeholder),
+                body = stringResource(R.string.store_status_store_location),
+            )
+            Text(stringResource(R.string.store_status_review_notice), style = EcoTextStyles.Subtitle, color = EcoTitle)
+            StoreStatusCard(
+                iconRes = R.drawable.ic_lock,
+                title = stringResource(R.string.store_status_access_pending_title),
+                body = stringResource(R.string.store_status_access_pending_body),
+            )
+        }
+        is StoreRequestStatusUiState.Approved -> StoreStatusLayout(
+            stageLabel = stringResource(R.string.store_status_stage_approved),
+            title = stringResource(R.string.store_status_approved_title),
+            description = stringResource(R.string.store_status_approved_description),
+            onGoHome = onGoHome,
+            onLoginClick = onLoginClick,
+            modifier = modifier,
+        ) {
+            StoreStatusCard(
+                iconRes = R.drawable.ic_circle_check,
+                title = stringResource(R.string.store_status_approved_card_title),
+                body = stringResource(
+                    R.string.store_status_store_with_location,
+                    state.storeName ?: stringResource(R.string.store_registration_name_placeholder),
+                ),
+                highlightColor = EcoGreenSecondary,
+            )
+            StoreStatusCard(
+                iconRes = R.drawable.ic_mail,
+                title = stringResource(R.string.store_status_email_notice_title),
+                body = stringResource(R.string.store_status_approved_email_body),
+            )
+            Text(stringResource(R.string.store_status_approved_body), style = EcoTextStyles.Subtitle, color = EcoTitle)
+        }
+        is StoreRequestStatusUiState.Rejected -> StoreStatusLayout(
+            stageLabel = stringResource(R.string.store_status_stage_rejected),
+            title = stringResource(R.string.store_status_rejected_title),
+            description = stringResource(R.string.store_status_rejected_description),
+            onGoHome = onGoHome,
+            modifier = modifier,
+        ) {
+            // Si el administrador no dejó un motivo se muestra un texto por defecto
+            StoreStatusCard(
+                iconRes = null,
+                title = stringResource(R.string.store_status_rejected_card_title),
+                body = state.reason?.takeIf { it.isNotBlank() } ?: stringResource(R.string.store_status_rejected_no_reason),
+                label = stringResource(R.string.store_status_rejected_reason_label),
+                highlightColor = EcoError,
+                titleColor = EcoError,
+            )
+            StoreStatusCard(
+                iconRes = R.drawable.ic_mail,
+                title = stringResource(R.string.store_status_rejected_email_title),
+                body = stringResource(R.string.store_status_rejected_email_body),
+            )
+            Text(stringResource(R.string.store_status_rejected_body), style = EcoTextStyles.Subtitle, color = EcoTitle)
+        }
+    }
+}
+
+// Estructura común de los estados de la solicitud con cabecera sin progreso y acciones inferiores
+@Composable
+private fun StoreStatusLayout(
+    stageLabel: String,
+    title: String,
+    description: String,
+    onGoHome: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLoginClick: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    RegistrationLayout(
+        stepLabel = stringResource(R.string.store_status_flow),
+        stageLabel = stageLabel,
+        progress = 0f,
+        showProgress = false,
+        modifier = modifier,
+        bottomActions = {
+            // Solo la solicitud aprobada ofrece iniciar sesión
+            if (onLoginClick != null) {
+                EcoPrimaryButton(text = stringResource(R.string.login_submit), onClick = onLoginClick)
+            }
+            EcoTextLink(text = stringResource(R.string.store_status_go_home), onClick = onGoHome)
+        },
+    ) {
+        RegistrationTitle(title = title, description = description)
+        content()
+    }
+}
+
+// Tarjeta informativa con icono opcional, título y texto que puede resaltarse con un borde de color
+@Composable
+private fun StoreStatusCard(
+    @DrawableRes iconRes: Int?,
+    title: String,
+    body: String,
+    label: String? = null,
+    highlightColor: Color? = null,
+    titleColor: Color = EcoTitle,
+) {
+    val shape = RoundedCornerShape(16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(EcoWhite)
+            .border(if (highlightColor != null) 1.5.dp else 1.dp, highlightColor ?: EcoBorder, shape)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (iconRes != null) {
+                Icon(painterResource(iconRes), contentDescription = null, tint = highlightColor ?: EcoSubtitle, modifier = Modifier.size(20.dp))
+            }
+            Text(title, style = EcoTextStyles.ButtonText, color = titleColor)
+        }
+        if (label != null) Text(label, style = EcoTextStyles.Subtitle, color = EcoTitle)
+        Text(body, style = EcoTextStyles.Subtitle, color = if (label != null) EcoSubtitle else EcoTitle)
+    }
+}
+
 @Preview(name = "Comercio · Cuenta del dueño", widthDp = 393, heightDp = 852)
 @Composable
 private fun StoreOwnerAccountPreview() {
@@ -318,5 +512,65 @@ private fun StoreDetailsValidationPreview() {
             ),
             actions = StoreDetailsActions(),
         )
+    }
+}
+
+@Preview(name = "Comercio · Solicitud en revisión", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreRequestInReviewPreview() {
+    EcoRutaTheme {
+        StoreRequestStatusScreen(
+            state = StoreRequestStatusUiState.InReview(storeName = "Papelería El Lápiz"),
+            onLoginClick = {},
+            onGoHome = {},
+            onRetry = {},
+        )
+    }
+}
+
+@Preview(name = "Comercio · Solicitud aprobada", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreRequestApprovedPreview() {
+    EcoRutaTheme {
+        StoreRequestStatusScreen(
+            state = StoreRequestStatusUiState.Approved(storeName = "Papelería El Lápiz"),
+            onLoginClick = {},
+            onGoHome = {},
+            onRetry = {},
+        )
+    }
+}
+
+@Preview(name = "Comercio · Solicitud rechazada", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreRequestRejectedPreview() {
+    EcoRutaTheme {
+        StoreRequestStatusScreen(
+            state = StoreRequestStatusUiState.Rejected(reason = "El RUT no coincide con el nombre comercial registrado."),
+            onLoginClick = {},
+            onGoHome = {},
+            onRetry = {},
+        )
+    }
+}
+
+@Preview(name = "Comercio · Solicitud rechazada sin motivo", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreRequestRejectedEmptyPreview() {
+    EcoRutaTheme {
+        StoreRequestStatusScreen(
+            state = StoreRequestStatusUiState.Rejected(),
+            onLoginClick = {},
+            onGoHome = {},
+            onRetry = {},
+        )
+    }
+}
+
+@Preview(name = "Comercio · Estado de solicitud con error", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreRequestErrorPreview() {
+    EcoRutaTheme {
+        StoreRequestStatusScreen(state = StoreRequestStatusUiState.Error, onLoginClick = {}, onGoHome = {}, onRetry = {})
     }
 }
