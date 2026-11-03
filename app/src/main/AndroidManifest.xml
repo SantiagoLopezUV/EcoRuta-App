@@ -12,6 +12,12 @@
     <!-- Pantalla "Sin conexión": saber si hay red disponible (permiso normal, no se pide al usuario). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Reciclador: cámara para leer el código QR de la entrega (se pide al abrir el escáner). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

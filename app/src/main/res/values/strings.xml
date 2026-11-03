@@ -919,7 +919,7 @@
     <string name="recycler_scanner_description">Pide el código a quien entrega el material y colócalo dentro del marco.</string>
     <string name="recycler_scanner_camera">Cámara</string>
     <string name="recycler_scanner_hint">Mantén el código dentro del marco.</string>
-    <string name="recycler_scanner_simulate">Leer código de ejemplo</string>
+    <string name="recycler_scanner_camera_needed">Permite el acceso a la cámara para leer el código QR de la entrega.</string>
     <string name="recycler_scanner_location_title">Verificación de ubicación</string>
     <string name="recycler_scanner_location_body">Debes estar en el punto de entrega. Al leer el QR, se verificará tu ubicación antes de completar la entrega.</string>
     <string name="recycler_volume_title">Confirmar volumen entregado</string>

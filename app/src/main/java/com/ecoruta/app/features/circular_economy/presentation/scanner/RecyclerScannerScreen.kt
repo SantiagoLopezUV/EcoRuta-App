@@ -3,13 +3,17 @@ package com.ecoruta.app.features.circular_economy.presentation.scanner
 // Vista composable del escáner QR con CameraX y ML Kit Barcode Scanning
 // Superpone visor de cámara con recuadro guía y botón para confirmación de entrega
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,17 +23,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
@@ -52,7 +63,7 @@ import com.ecoruta.app.features.circular_economy.presentation.deliveries_map.Sam
 @Composable
 fun RecyclerScannerScreen(
     state: RecyclerScannerUiState,
-    onScan: () -> Unit,
+    onQrDetected: (String) -> Unit,
     onBack: () -> Unit,
     onTabClick: (RecyclerTab) -> Unit,
     modifier: Modifier = Modifier,
@@ -69,7 +80,7 @@ fun RecyclerScannerScreen(
             title = stringResource(R.string.recycler_scanner_title),
             description = stringResource(R.string.recycler_scanner_description),
         )
-        CameraViewer(onScan = onScan)
+        CameraViewer(onQrDetected = onQrDetected)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,18 +104,54 @@ fun RecyclerScannerScreen(
     }
 }
 
-// Visor ilustrativo de la cámara; tocarlo simula la lectura del código mientras no hay cámara real
+// Visor de la cámara con el marco de escaneo; pide el permiso de cámara si aún no se ha concedido
 @Composable
-private fun CameraViewer(onScan: () -> Unit) {
-    val scanLabel = stringResource(R.string.recycler_scanner_simulate)
+private fun CameraViewer(onQrDetected: (String) -> Unit) {
+    val context = LocalContext.current
+    val inPreview = LocalInspectionMode.current
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            !inPreview && ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED,
+        )
+    }
+    val permissionLauncher = if (inPreview) {
+        null
+    } else {
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> hasCameraPermission = granted }
+    }
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) permissionLauncher?.launch(Manifest.permission.CAMERA)
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(374.dp)
             .clip(RoundedCornerShape(24.dp))
-            .background(EcoBlack)
-            .clickable(role = Role.Button, onClickLabel = scanLabel, onClick = onScan),
+            .background(EcoBlack),
     ) {
+        when {
+            hasCameraPermission -> QrCameraPreview(onQrDetected = onQrDetected, modifier = Modifier.fillMaxSize())
+            inPreview -> EcoSampleQrCode(seed = "ECO-REC-QR", color = EcoWhite, modifier = Modifier.align(Alignment.Center).size(104.dp))
+            else -> Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(
+                    stringResource(R.string.recycler_scanner_camera_needed),
+                    style = EcoTextStyles.Subtitle,
+                    color = EcoWhite,
+                    textAlign = TextAlign.Center,
+                )
+                EcoPrimaryButton(
+                    text = stringResource(R.string.permission_camera_action),
+                    onClick = { permissionLauncher?.launch(Manifest.permission.CAMERA) },
+                    height = 48.dp,
+                )
+            }
+        }
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -113,8 +160,8 @@ private fun CameraViewer(onScan: () -> Unit) {
             Icon(painterResource(R.drawable.ic_camera), contentDescription = null, tint = EcoWhite, modifier = Modifier.size(20.dp))
             Text(stringResource(R.string.recycler_scanner_camera), style = EcoTextStyles.FieldLabel, color = EcoWhite)
         }
-        Box(Modifier.align(Alignment.Center).size(240.dp)) {
-            Canvas(Modifier.size(240.dp)) {
+        if (hasCameraPermission || inPreview) {
+            Canvas(Modifier.align(Alignment.Center).size(240.dp)) {
                 val corner = 48.dp.toPx()
                 val stroke = 4.dp.toPx()
                 val w = size.width
@@ -125,17 +172,16 @@ private fun CameraViewer(onScan: () -> Unit) {
                 line(Offset(0f, h), Offset(corner, h)); line(Offset(0f, h), Offset(0f, h - corner))
                 line(Offset(w, h), Offset(w - corner, h)); line(Offset(w, h), Offset(w, h - corner))
             }
-            EcoSampleQrCode(seed = "ECO-REC-QR", color = EcoWhite, modifier = Modifier.align(Alignment.Center).size(104.dp))
+            Text(
+                stringResource(R.string.recycler_scanner_hint),
+                style = EcoTextStyles.Subtitle,
+                color = EcoWhite,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp),
+            )
         }
-        Text(
-            stringResource(R.string.recycler_scanner_hint),
-            style = EcoTextStyles.Subtitle,
-            color = EcoWhite,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
-        )
     }
 }
 
@@ -246,7 +292,7 @@ private fun RecyclerScannerPreview() {
     EcoRutaTheme {
         RecyclerScannerScreen(
             state = RecyclerScannerUiState(delivery = SampleRecyclerDeliveries.first()),
-            onScan = {},
+            onQrDetected = {},
             onBack = {},
             onTabClick = {},
         )

@@ -41,6 +41,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
     // Entrega tomada en el mapa y volumen elegido, compartidos por las pantallas del escaneo
     var activeDelivery by mutableStateOf<RecyclerDelivery?>(SampleRecyclerDeliveries.first())
     var deliveredVolume by mutableStateOf(DeliveredVolume.LARGE_BAG)
+    var scannedCode by mutableStateOf<String?>(null)
 
     composable(EcoRutaDestination.DELIVERY_MAP) {
         var state by remember { mutableStateOf(RecyclerDeliveriesUiState(deliveries = SampleRecyclerDeliveries)) }
@@ -64,8 +65,11 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
     composable(EcoRutaDestination.RECYCLER_SCANNER) {
         RecyclerScannerScreen(
             state = RecyclerScannerUiState(delivery = activeDelivery),
-            // Sin cámara conectada, tocar el visor simula la lectura del código QR
-            onScan = { navController.navigate(EcoRutaDestination.RECYCLER_CONFIRM_VOLUME) { launchSingleTop = true } },
+            // Al leer un código QR con la cámara se continúa con la confirmación del volumen
+            onQrDetected = { code ->
+                scannedCode = code
+                navController.navigate(EcoRutaDestination.RECYCLER_CONFIRM_VOLUME) { launchSingleTop = true }
+            },
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
         )
@@ -73,7 +77,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
 
     composable(EcoRutaDestination.RECYCLER_CONFIRM_VOLUME) {
         ConfirmVolumeScreen(
-            state = RecyclerScannerUiState(delivery = activeDelivery, selectedVolume = deliveredVolume),
+            state = RecyclerScannerUiState(delivery = activeDelivery, scannedCode = scannedCode, selectedVolume = deliveredVolume),
             onVolumeSelected = { deliveredVolume = it },
             onConfirm = {
                 navController.navigate(EcoRutaDestination.RECYCLER_SCAN_RESULT) {
