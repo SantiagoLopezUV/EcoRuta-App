@@ -39,6 +39,9 @@ import com.ecoruta.app.core.ui.components.EcoInfoHint
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoSecondaryButton
 import com.ecoruta.app.core.ui.components.EcoTabScreenLayout
+import com.ecoruta.app.core.ui.components.GuestServiceActions
+import com.ecoruta.app.core.ui.components.GuestServiceContent
+import com.ecoruta.app.core.ui.components.GuestServiceScreen
 import com.ecoruta.app.core.ui.theme.EcoBorder
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
@@ -282,6 +285,23 @@ fun MyCouponDetailScreen(
     }
 }
 
+// Vista informativa de Mis cupones para visitantes, abierta desde la pestaña Cupones
+@Composable
+fun GuestMyCouponsScreen(actions: GuestServiceActions) {
+    GuestServiceScreen(
+        content = GuestServiceContent(
+            banner = R.string.my_coupons_guest_banner,
+            lockedSection = R.string.benefits_guest_my_coupons,
+            title = R.string.my_coupons_title,
+            description = R.string.my_coupons_description,
+            benefits = listOf(R.string.my_coupons_guest_can_1, R.string.my_coupons_guest_can_2, R.string.my_coupons_guest_can_3),
+            footnote = R.string.my_coupons_guest_footnote,
+        ),
+        actions = actions,
+        selectedTab = CitizenTab.COUPONS,
+    )
+}
+
 private val sampleRedeemedCoupon = RedeemedCoupon(
     id = "RED-01",
     coupon = Coupon(
@@ -313,6 +333,14 @@ private fun MyCouponsPreview() {
             ),
             MyCouponsActions(),
         )
+    }
+}
+
+@Preview(name = "Mis cupones sin sesión", widthDp = 393, heightDp = 844)
+@Composable
+private fun GuestMyCouponsPreview() {
+    EcoRutaTheme {
+        GuestMyCouponsScreen(actions = GuestServiceActions())
     }
 }
 
