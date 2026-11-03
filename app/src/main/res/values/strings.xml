@@ -898,6 +898,20 @@
     <string name="recycler_registration_done_body">Cuando la empresa active tu registro, recibirás un correo con tu usuario, una contraseña temporal y un enlace para acceder a la app. Deberás cambiar la contraseña en tu primer ingreso.</string>
     <string name="recycler_registration_go_home">Ir a inicio</string>
     <string name="recycler_registration_error_pdf">Adjunta tu cédula en PDF para continuar.</string>
+    <!-- Registro de comercio aliado -->
+    <string name="store_registration_stage_owner">Cuenta del dueño</string>
+    <string name="store_registration_owner_title">Registra tu comercio</string>
+    <string name="store_registration_owner_description">Crea la cuenta del gerente para solicitar el registro como comercio aliado.</string>
+    <string name="store_registration_owner_review_title">Revisa tus datos</string>
+    <string name="store_registration_owner_review_description">Corrige los campos señalados para continuar. Los datos ingresados se conservan.</string>
+    <string name="store_registration_owner_name_label">Nombre completo del gerente</string>
+    <string name="store_registration_owner_name_placeholder">Nombre y apellidos</string>
+    <string name="store_registration_email_placeholder">correo@ejemplo.com</string>
+    <string name="store_registration_email_hint">Será el correo de acceso y de contacto del responsable.</string>
+    <string name="store_registration_owner_info">Todos los campos son obligatorios. Te enviaremos un correo de verificación y luego continuarás con el registro.</string>
+    <string name="store_registration_complete_required">Completa todos los campos obligatorios.</string>
+    <string name="store_registration_error_owner_name">Ingresa el nombre completo del gerente.</string>
+    <string name="store_registration_error_email">Ingresa un correo electrónico válido.</string>
     <!-- Módulo reciclador · Mapa de entregas (sección 17) -->
     <string name="recycler_map_title">Mapa de entregas</string>
     <string name="recycler_map_subtitle">Tuluá, Valle del Cauca · Publicaciones cercanas</string>
