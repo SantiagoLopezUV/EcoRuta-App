@@ -130,7 +130,7 @@ object NavigationDestination {
     const val COUPON_REDEMPTION = "ciudadano/beneficios/cupon/{id}"
     const val ECOPOINTS_HISTORY = "ciudadano/beneficios/historial"
     const val MY_COUPONS = "ciudadano/mis_cupones"
-    const val GUEST_MY_COUPONS = "reportes_sin_sesion" // Pendiente cambiar por la ruta de cupones sin sesion
+    const val GUEST_MY_COUPONS = "cupones_sin_sesion"
     const val PROFILE_MY_COUPONS = "ciudadano/perfil/mis_cupones"
     const val ARG_FROM_PROFILE = "perfil"
     const val MY_COUPON_DETAIL = "ciudadano/mis_cupones/{id}?perfil={perfil}"

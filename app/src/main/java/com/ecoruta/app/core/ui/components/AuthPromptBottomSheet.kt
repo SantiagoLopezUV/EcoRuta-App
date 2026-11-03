@@ -144,6 +144,7 @@ data class GuestServiceContent(
     @StringRes val title: Int,
     @StringRes val description: Int,
     val benefits: List<Int>,
+    @StringRes val footnote: Int? = null,
 )
 
 data class GuestServiceActions(
@@ -153,9 +154,14 @@ data class GuestServiceActions(
 )
 
 // Plantilla compartida para pantallas de servicios consultados sin sesión iniciada
+// La pestaña activa es configurable porque algunos servicios se abren desde su propia pestaña y no desde Inicio
 @Composable
-fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceActions) {
-    EcoTabScreenLayout(selectedTab = CitizenTab.HOME, onBack = actions.onBack, onTabClick = actions.onTabClick) {
+fun GuestServiceScreen(
+    content: GuestServiceContent,
+    actions: GuestServiceActions,
+    selectedTab: CitizenTab = CitizenTab.HOME,
+) {
+    EcoTabScreenLayout(selectedTab = selectedTab, onBack = actions.onBack, onTabClick = actions.onTabClick) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -195,6 +201,8 @@ fun GuestServiceScreen(content: GuestServiceContent, actions: GuestServiceAction
                 }
             }
         }
+        // La nota final es opcional para no alterar los servicios que no la muestran
+        content.footnote?.let { Text(stringResource(it), style = EcoTextStyles.FieldLabel, color = EcoSubtitle) }
     }
 }
 
