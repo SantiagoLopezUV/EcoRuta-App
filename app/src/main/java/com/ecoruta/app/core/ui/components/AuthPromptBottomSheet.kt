@@ -144,6 +144,7 @@ data class GuestServiceContent(
     @StringRes val title: Int,
     @StringRes val description: Int,
     val benefits: List<Int>,
+    @StringRes val footnote: Int? = null,
 )
 
 data class GuestServiceActions(
@@ -200,6 +201,8 @@ fun GuestServiceScreen(
                 }
             }
         }
+        // La nota final es opcional para no alterar los servicios que no la muestran
+        content.footnote?.let { Text(stringResource(it), style = EcoTextStyles.FieldLabel, color = EcoSubtitle) }
     }
 }
 
