@@ -913,6 +913,27 @@
     <string name="store_registration_complete_required">Completa todos los campos obligatorios.</string>
     <string name="store_registration_error_owner_name">Ingresa el nombre completo del gerente.</string>
     <string name="store_registration_error_email">Ingresa un correo electrónico válido.</string>
+    <string name="store_registration_stage_details">Datos del comercio</string>
+    <string name="store_registration_details_title">Datos de tu comercio</string>
+    <string name="store_registration_details_description">Ingresa los datos del establecimiento en Tuluá. Todos los campos son obligatorios.</string>
+    <string name="store_registration_details_review_title">Revisa tu comercio</string>
+    <string name="store_registration_details_review_description">Completa los campos señalados. Conservamos los datos que ya ingresaste.</string>
+    <string name="store_registration_name_label">Nombre comercial</string>
+    <string name="store_registration_name_placeholder">Nombre del comercio</string>
+    <string name="store_registration_id_label">Tipo y número · Cédula o NIT</string>
+    <string name="store_registration_id_placeholder">Ingresa la cédula o el NIT</string>
+    <string name="store_registration_category_label">Categoría</string>
+    <string name="store_registration_category_hint">Ejemplos: Restaurante, Librería.</string>
+    <string name="store_registration_address_label">Dirección física en Tuluá</string>
+    <string name="store_registration_address_placeholder">Dirección del comercio</string>
+    <string name="store_registration_phone_label">Teléfono de contacto</string>
+    <string name="store_registration_phone_placeholder">Teléfono del responsable</string>
+    <string name="store_registration_details_info">La administración revisará la solicitud antes de habilitar el acceso al Panel de Cupones. Te notificaremos por correo.</string>
+    <string name="store_registration_details_review_info">El acceso al Panel de Cupones requiere revisión y aprobación de la administración.</string>
+    <string name="store_registration_submit">Solicitar registro</string>
+    <string name="store_registration_error_id">Ingresa la cédula o el NIT.</string>
+    <string name="store_registration_error_address">Ingresa la dirección física del comercio.</string>
+    <string name="store_registration_error_phone">Ingresa el teléfono de contacto.</string>
     <!-- Módulo reciclador · Mapa de entregas (sección 17) -->
     <string name="recycler_map_title">Mapa de entregas</string>
     <string name="recycler_map_subtitle">Tuluá, Valle del Cauca · Publicaciones cercanas</string>

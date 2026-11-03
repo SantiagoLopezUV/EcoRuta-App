@@ -15,13 +15,20 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.components.EcoCheckboxRow
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoTextField
 import com.ecoruta.app.core.ui.components.EcoTextLink
 import com.ecoruta.app.core.ui.components.OfflineScreen
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
+import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
+import com.ecoruta.app.features.profile.presentation.StoreCategory
+import com.ecoruta.app.features.profile.presentation.StoreIdType
+import com.ecoruta.app.features.profile.presentation.components.IdTypeSelector
+import com.ecoruta.app.features.profile.presentation.components.SelectField
+import com.ecoruta.app.features.profile.presentation.components.labelRes
 
 // Acciones disponibles en el paso de cuenta del gerente
 data class StoreOwnerAccountActions(
@@ -129,6 +136,119 @@ fun StoreEmailConfirmedScreen(
     )
 }
 
+// Acciones disponibles en el paso de datos del comercio
+data class StoreDetailsActions(
+    val onNameChange: (String) -> Unit = {},
+    val onIdTypeChange: (StoreIdType) -> Unit = {},
+    val onIdNumberChange: (String) -> Unit = {},
+    val onCategoryChange: (StoreCategory) -> Unit = {},
+    val onAddressChange: (String) -> Unit = {},
+    val onPhoneChange: (String) -> Unit = {},
+    val onDataPolicyChange: (Boolean) -> Unit = {},
+    val onViewPolicyClick: () -> Unit = {},
+    val onSubmit: () -> Unit = {},
+    val onBack: () -> Unit = {},
+    val onRetry: () -> Unit = {},
+)
+
+// Segundo paso del registro con los datos del establecimiento en Tuluá
+@Composable
+fun StoreDetailsScreen(
+    state: StoreDetailsUiState,
+    actions: StoreDetailsActions,
+    modifier: Modifier = Modifier,
+) {
+    if (state.isOffline) {
+        OfflineScreen(onRetry = actions.onRetry)
+        return
+    }
+    val focusManager = LocalFocusManager.current
+
+    RegistrationLayout(
+        stepLabel = stringResource(R.string.registration_step_2_of_2),
+        stageLabel = stringResource(R.string.store_registration_stage_details),
+        progress = 1f,
+        modifier = modifier,
+        bottomActions = {
+            EcoCheckboxRow(
+                checked = state.acceptedDataPolicy,
+                onCheckedChange = actions.onDataPolicyChange,
+                text = stringResource(R.string.registration_policy_consent),
+                linkText = stringResource(R.string.registration_view_policy),
+                onLinkClick = actions.onViewPolicyClick,
+            )
+            // La solicitud solo se puede enviar después de aceptar la política de datos
+            EcoPrimaryButton(
+                text = stringResource(R.string.store_registration_submit),
+                onClick = {
+                    focusManager.clearFocus()
+                    actions.onSubmit()
+                },
+                enabled = state.acceptedDataPolicy,
+                isLoading = state.isSubmitting,
+            )
+            EcoTextLink(text = stringResource(R.string.registration_back), onClick = actions.onBack)
+        },
+    ) {
+        RegistrationTitle(
+            title = stringResource(if (state.hasErrors) R.string.store_registration_details_review_title else R.string.store_registration_details_title),
+            description = stringResource(
+                if (state.hasErrors) R.string.store_registration_details_review_description else R.string.store_registration_details_description,
+            ),
+        )
+        EcoTextField(
+            value = state.name,
+            onValueChange = actions.onNameChange,
+            label = stringResource(R.string.store_registration_name_label),
+            placeholder = stringResource(R.string.store_registration_name_placeholder),
+            errorMessage = state.nameErrorRes?.let { stringResource(it) },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
+        )
+        EcoTextField(
+            value = state.idNumber,
+            onValueChange = actions.onIdNumberChange,
+            label = stringResource(R.string.store_registration_id_label),
+            placeholder = stringResource(R.string.store_registration_id_placeholder),
+            leadingIcon = { IdTypeSelector(selected = state.idType, onSelected = actions.onIdTypeChange) },
+            errorMessage = state.idErrorRes?.let { stringResource(it) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+        )
+        SelectField(
+            label = stringResource(R.string.store_registration_category_label),
+            placeholder = stringResource(R.string.store_application_category_placeholder),
+            iconRes = R.drawable.ic_tag,
+            options = StoreCategory.entries,
+            selected = state.category,
+            optionLabel = { stringResource(it.labelRes()) },
+            onSelected = actions.onCategoryChange,
+            errorMessage = state.categoryErrorRes?.let { stringResource(it) },
+        )
+        Text(stringResource(R.string.store_registration_category_hint), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+        EcoTextField(
+            value = state.address,
+            onValueChange = actions.onAddressChange,
+            label = stringResource(R.string.store_registration_address_label),
+            placeholder = stringResource(R.string.store_registration_address_placeholder),
+            errorMessage = state.addressErrorRes?.let { stringResource(it) },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next),
+        )
+        EcoTextField(
+            value = state.phone,
+            onValueChange = actions.onPhoneChange,
+            label = stringResource(R.string.store_registration_phone_label),
+            placeholder = stringResource(R.string.store_registration_phone_placeholder),
+            errorMessage = state.phoneErrorRes?.let { stringResource(it) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        )
+        Text(
+            stringResource(if (state.hasErrors) R.string.store_registration_details_review_info else R.string.store_registration_details_info),
+            style = EcoTextStyles.Subtitle,
+            color = EcoTitle,
+        )
+    }
+}
+
 @Preview(name = "Comercio · Cuenta del dueño", widthDp = 393, heightDp = 852)
 @Composable
 private fun StoreOwnerAccountPreview() {
@@ -173,5 +293,30 @@ private fun StoreEmailConfirmationPreview() {
 private fun StoreEmailConfirmedPreview() {
     EcoRutaTheme {
         StoreEmailConfirmedScreen(email = "gerente@example.com", onContinue = {})
+    }
+}
+
+@Preview(name = "Comercio · Datos del comercio", widthDp = 393, heightDp = 1000)
+@Composable
+private fun StoreDetailsPreview() {
+    EcoRutaTheme {
+        StoreDetailsScreen(state = StoreDetailsUiState(), actions = StoreDetailsActions())
+    }
+}
+
+@Preview(name = "Comercio · Datos del comercio con validación", widthDp = 393, heightDp = 1100)
+@Composable
+private fun StoreDetailsValidationPreview() {
+    EcoRutaTheme {
+        StoreDetailsScreen(
+            state = StoreDetailsUiState(
+                name = "Papelería El Lápiz",
+                category = StoreCategory.STATIONERY_BOOKSTORE,
+                idErrorRes = R.string.store_registration_error_id,
+                addressErrorRes = R.string.store_registration_error_address,
+                phoneErrorRes = R.string.store_registration_error_phone,
+            ),
+            actions = StoreDetailsActions(),
+        )
     }
 }
