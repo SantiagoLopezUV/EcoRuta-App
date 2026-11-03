@@ -79,6 +79,7 @@ fun RegistrationLayout(
     contentSpacing: androidx.compose.ui.unit.Dp = 16.dp,
     onBackClick: (() -> Unit)? = null,
     showBrand: Boolean = true,
+    showProgress: Boolean = true,
     bottomActions: @Composable ColumnScope.() -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -90,7 +91,14 @@ fun RegistrationLayout(
             .navigationBarsPadding()
             .imePadding(),
     ) {
-        EcoStepHeader(stepLabel = stepLabel, stageLabel = stageLabel, progress = progress, showBrand = showBrand, onBackClick = onBackClick)
+        EcoStepHeader(
+            stepLabel = stepLabel,
+            stageLabel = stageLabel,
+            progress = progress,
+            showBrand = showBrand,
+            onBackClick = onBackClick,
+            showProgress = showProgress,
+        )
         Column(
             modifier = Modifier
                 .weight(1f)
