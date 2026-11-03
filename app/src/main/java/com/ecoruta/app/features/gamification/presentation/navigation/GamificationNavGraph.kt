@@ -17,6 +17,7 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.core.ui.components.GuestServiceActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsUiState
@@ -34,11 +35,10 @@ import com.ecoruta.app.features.gamification.presentation.benefits.RedemptionRec
 import com.ecoruta.app.features.gamification.presentation.benefits.RedemptionStep
 import com.ecoruta.app.features.gamification.presentation.my_coupons.CouponRedemptionActions
 import com.ecoruta.app.features.gamification.presentation.my_coupons.CouponRedemptionScreen
+import com.ecoruta.app.features.gamification.presentation.my_coupons.GuestMyCouponsScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponDetailScreen
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsActions
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsScreen
-import com.ecoruta.app.features.reports.presentation.list.ReportsGuestActions
-import com.ecoruta.app.features.reports.presentation.list.ReportsGuestScreen
 
 private val SampleCoupons = listOf(
     Coupon(
@@ -75,9 +75,8 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     val tabClick: (CitizenTab) -> Unit = { tab -> navController.navigateToCitizenTab(tab) }
 
     composable(EcoRutaDestination.GUEST_MY_COUPONS) {
-        // Pendiente Cambiar de Reports por MyCoupons y crear la pantalla de MyCoupons con Resources
-        ReportsGuestScreen(
-            actions = ReportsGuestActions(
+        GuestMyCouponsScreen(
+            actions = GuestServiceActions(
                 onBack = { navController.popBackStack() },
                 onLogin = { open(EcoRutaDestination.LOGIN) },
                 onTabClick = { tab -> navController.navigateToPublicTab(tab) },
