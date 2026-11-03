@@ -899,6 +899,7 @@
     <string name="recycler_registration_go_home">Ir a inicio</string>
     <string name="recycler_registration_error_pdf">Adjunta tu cédula en PDF para continuar.</string>
     <!-- Registro de comercio aliado -->
+    <string name="store_flow_registration">Registro de comercio</string>
     <string name="store_registration_stage_owner">Cuenta del dueño</string>
     <string name="store_registration_owner_title">Registra tu comercio</string>
     <string name="store_registration_owner_description">Crea la cuenta del gerente para solicitar el registro como comercio aliado.</string>

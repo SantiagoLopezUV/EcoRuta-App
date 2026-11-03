@@ -249,7 +249,8 @@ fun RecyclerEmailConfirmedScreen(
     }
     val isIndependent = type == RegistrationType.INDEPENDENT_RECYCLER
     RegistrationLayout(
-        stepLabel = stringResource(R.string.recycler_flow_registration),
+        // El comercio reutiliza esta pantalla y muestra su propio nombre de flujo en la cabecera
+        stepLabel = stringResource(if (type == RegistrationType.STORE) R.string.store_flow_registration else R.string.recycler_flow_registration),
         stageLabel = stringResource(R.string.registration_stage_finished),
         progress = 1f,
         contentSpacing = 20.dp,

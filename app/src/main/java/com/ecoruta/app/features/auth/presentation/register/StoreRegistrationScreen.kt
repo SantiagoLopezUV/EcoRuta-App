@@ -97,6 +97,38 @@ fun StoreOwnerAccountScreen(
     }
 }
 
+// Pantalla que pide al gerente abrir el enlace enviado a su correo
+@Composable
+fun StoreEmailConfirmationScreen(
+    email: String,
+    onResendClick: () -> Unit,
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    RecyclerEmailConfirmationScreen(
+        type = RegistrationType.STORE,
+        email = email,
+        onResendClick = onResendClick,
+        onExit = onExit,
+        modifier = modifier,
+    )
+}
+
+// Pantalla que confirma el correo del gerente y lo lleva a los datos del comercio
+@Composable
+fun StoreEmailConfirmedScreen(
+    email: String,
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    RecyclerEmailConfirmedScreen(
+        type = RegistrationType.STORE,
+        email = email,
+        onContinue = onContinue,
+        modifier = modifier,
+    )
+}
+
 @Preview(name = "Comercio · Cuenta del dueño", widthDp = 393, heightDp = 852)
 @Composable
 private fun StoreOwnerAccountPreview() {
@@ -125,5 +157,21 @@ private fun StoreOwnerAccountValidationPreview() {
 private fun StoreOwnerAccountOfflinePreview() {
     EcoRutaTheme {
         StoreOwnerAccountScreen(state = StoreOwnerAccountUiState(isOffline = true), actions = StoreOwnerAccountActions())
+    }
+}
+
+@Preview(name = "Comercio · Confirmación de correo pendiente", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreEmailConfirmationPreview() {
+    EcoRutaTheme {
+        StoreEmailConfirmationScreen(email = "gerente@example.com", onResendClick = {}, onExit = {})
+    }
+}
+
+@Preview(name = "Comercio · Correo validado", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreEmailConfirmedPreview() {
+    EcoRutaTheme {
+        StoreEmailConfirmedScreen(email = "gerente@example.com", onContinue = {})
     }
 }
