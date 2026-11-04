@@ -781,6 +781,13 @@
     <string name="driver_orders_view_route">Ver detalle de ruta</string>
     <string name="driver_orders_empty_title">No tienes órdenes asignadas</string>
     <string name="driver_orders_empty_body">Cuando tengas una orden de recolección asignada, la encontrarás aquí.</string>
+    <string name="driver_point_full_container">Contenedor lleno</string>
+    <string name="driver_point_illegal_dump">Botadero clandestino</string>
+    <string name="driver_route_detail_title">Detalle de ruta</string>
+    <string name="driver_route_header">%1$s · %2$s · %3$s</string>
+    <string name="driver_route_map_description">Mapa ilustrativo de Tuluá con el recorrido y los puntos de la ruta</string>
+    <string name="driver_route_location_body">Al iniciar, permite compartir tu ubicación con tu empresa para guiarte y registrar visitas. Se detiene al finalizar.</string>
+    <string name="driver_route_start">Iniciar ruta</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
