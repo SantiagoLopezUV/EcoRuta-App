@@ -1000,4 +1000,26 @@
     <string name="merchant_tab_create">Crear cupón</string>
     <string name="merchant_tab_validate">Validar</string>
     <string name="merchant_tab_coupons">Mis cupones</string>
+    <string name="merchant_location">Comercio aliado · Tuluá</string>
+    <string name="merchant_store_icon_description">Icono del comercio</string>
+    <string name="merchant_dashboard_title">Panel del comercio</string>
+    <plurals name="merchant_dashboard_active_count">
+        <item quantity="one">Cupón activo</item>
+        <item quantity="other">Cupones activos</item>
+    </plurals>
+    <string name="merchant_dashboard_redemptions_today">Canjes hoy</string>
+    <string name="merchant_dashboard_active_coupons">Cupones activos</string>
+    <string name="merchant_dashboard_recent_redemptions">Canjes recientes</string>
+    <string name="merchant_dashboard_redemption_detail">%1$d%% aplicado · %2$s</string>
+    <string name="merchant_dashboard_validated">Validado</string>
+    <string name="merchant_dashboard_no_redemptions">Aún no hay canjes registrados hoy.</string>
+    <string name="merchant_dashboard_empty_heading">Aún no tienes cupones publicados</string>
+    <string name="merchant_dashboard_empty_body">Crea tu primer cupón para premiar el reciclaje en Tuluá.</string>
+    <string name="merchant_dashboard_error_heading">No pudimos cargar tu panel</string>
+    <string name="merchant_dashboard_error_body">Revisa tu conexión e inténtalo de nuevo. Tus cupones siguen guardados.</string>
+    <string name="merchant_coupon_points">%1$d puntos</string>
+    <string name="merchant_coupon_available">%1$d disponibles</string>
+    <string name="merchant_coupon_active">Activo</string>
+    <string name="merchant_coupon_inactive">Inactivo</string>
+    <string name="merchant_coupon_toggle_description">Activar o desactivar cupón</string>
 </resources>
