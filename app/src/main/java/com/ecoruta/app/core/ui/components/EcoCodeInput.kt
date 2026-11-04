@@ -1,7 +1,7 @@
 package com.ecoruta.app.core.ui.components
 
 // Campo de entrada segmentado para códigos de verificación numéricos o alfanuméricos
-// Renderiza casillas individuales para cada dígito y resalta la posición activa
+// Renderiza casillas individuales para cada carácter y resalta la posición activa
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,7 +35,7 @@ import com.ecoruta.app.core.ui.theme.EcoError
 import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 
-// Entrada única de texto que muestra cada dígito del código dentro de su propia casilla visual
+// Entrada única de texto que muestra cada carácter del código dentro de su propia casilla visual
 @Composable
 fun EcoCodeInput(
     value: String,
