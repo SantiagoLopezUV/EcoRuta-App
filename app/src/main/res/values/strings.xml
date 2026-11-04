@@ -995,4 +995,9 @@
     <string name="web_only_heading">Tu perfil de despachador usa el panel web</string>
     <string name="web_only_body">La gestión de rutas y la asignación de camiones se realizan desde el panel web de EcoRuta, no desde esta app.</string>
     <string name="design_mode_web_only">Simular cuenta de despachador (solo web)</string>
+    <!-- Comercio aliado · Panel, cupones, validación en caja y perfil (sección 18) -->
+    <string name="merchant_tab_dashboard">Panel</string>
+    <string name="merchant_tab_create">Crear cupón</string>
+    <string name="merchant_tab_validate">Validar</string>
+    <string name="merchant_tab_coupons">Mis cupones</string>
 </resources>

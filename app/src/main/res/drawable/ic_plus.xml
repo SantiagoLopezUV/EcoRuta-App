@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono de suma para la pestaña de crear cupón del comercio. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF1D293D"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M10 4.1667V15.8333M4.1667 10H15.8333" />
+</vector>
