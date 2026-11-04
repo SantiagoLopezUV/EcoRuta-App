@@ -1082,4 +1082,15 @@
     <string name="merchant_cashier_error_expired">Este cupón está vencido.</string>
     <string name="merchant_cashier_error_other_store">Este cupón pertenece a otro comercio.</string>
     <string name="merchant_cashier_error_server">No pudimos verificar el cupón. Inténtalo de nuevo.</string>
+    <string name="merchant_validated_title">Cupón validado</string>
+    <string name="merchant_validated_description">El descuento se aplicó correctamente a la compra del cliente.</string>
+    <string name="merchant_validated_purchase">Valor de la compra</string>
+    <string name="merchant_validated_discount">Descuento aplicado · %1$d%%</string>
+    <string name="merchant_validated_total">Total a pagar</string>
+    <string name="merchant_money_value">$%1$s</string>
+    <string name="merchant_money_discount">−$%1$s</string>
+    <string name="merchant_validated_registered">Canje registrado</string>
+    <string name="merchant_validated_used">Este cupón ya fue utilizado y no podrá canjearse de nuevo.</string>
+    <string name="merchant_validated_missing_heading">No hay un cupón validado</string>
+    <string name="merchant_validated_missing_body">Verifica un código en caja para ver aquí el detalle del descuento.</string>
 </resources>
