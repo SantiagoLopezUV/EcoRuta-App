@@ -1047,4 +1047,14 @@
     <string name="merchant_back_to_dashboard">Volver al panel</string>
     <string name="merchant_published_missing_heading">No encontramos el cupón publicado</string>
     <string name="merchant_published_missing_body">Revisa tus cupones para confirmar que la promoción quedó disponible.</string>
+    <string name="merchant_coupons_description">Administra las promociones de %1$s en Tuluá.</string>
+    <string name="merchant_coupons_description_generic">Administra las promociones de tu comercio en Tuluá.</string>
+    <plurals name="merchant_coupons_count">
+        <item quantity="one">%1$d cupón</item>
+        <item quantity="other">%1$d cupones</item>
+    </plurals>
+    <string name="merchant_coupons_deactivate">Desactivar</string>
+    <string name="merchant_coupons_hidden">No visible para ciudadanos</string>
+    <string name="merchant_coupons_empty_body">Crea un cupón y aparecerá aquí para que lo administres.</string>
+    <string name="merchant_coupons_error_heading">No pudimos cargar tus cupones</string>
 </resources>
