@@ -168,7 +168,7 @@ fun RecyclerProfileScreen(
 
 // Dato del perfil con icono, etiqueta y valor
 @Composable
-private fun ProfileDetailRow(@DrawableRes iconRes: Int, label: String, value: String) {
+internal fun ProfileDetailRow(@DrawableRes iconRes: Int, label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Icon(painterResource(iconRes), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -180,7 +180,7 @@ private fun ProfileDetailRow(@DrawableRes iconRes: Int, label: String, value: St
 
 // Botón de acción de cuenta con icono a la izquierda del texto
 @Composable
-private fun AccountButton(text: String, @DrawableRes iconRes: Int, background: Color, content: Color, onClick: () -> Unit) {
+internal fun AccountButton(text: String, @DrawableRes iconRes: Int, background: Color, content: Color, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
