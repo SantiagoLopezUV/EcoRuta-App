@@ -92,6 +92,7 @@ private fun MerchantDashboardContent(state: MerchantDashboardUiState, actions: M
         items = MerchantTab.entries,
         selectedTab = MerchantTab.DASHBOARD,
         onTabClick = actions.onTabClick,
+        showBrandHeader = false,
         contentSpacing = 18.dp,
     ) {
         MerchantHeaderCard(storeName = state.storeName)
@@ -150,7 +151,7 @@ private fun DashboardSections(state: MerchantDashboardUiState, actions: Merchant
     }
 }
 
-// Cabecera verde con el icono del comercio, el rol y el nombre del establecimiento
+// Cabecera verde con el icono del comercio, la marca, el rol y el nombre del establecimiento
 @Composable
 private fun MerchantHeaderCard(storeName: String) {
     Column(
@@ -176,7 +177,10 @@ private fun MerchantHeaderCard(storeName: String) {
                     modifier = Modifier.size(EcoDimens.InputIconSize),
                 )
             }
-            Text(stringResource(R.string.merchant_location), style = EcoTextStyles.FieldLabel, color = EcoWhite)
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(stringResource(R.string.app_name), style = EcoTextStyles.ButtonText, color = EcoWhite)
+                Text(stringResource(R.string.merchant_location), style = EcoTextStyles.FieldLabel, color = EcoWhite)
+            }
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.merchant_dashboard_title), style = EcoTextStyles.Title, color = EcoWhite)
