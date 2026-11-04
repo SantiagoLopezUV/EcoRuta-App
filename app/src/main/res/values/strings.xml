@@ -816,6 +816,16 @@
     <string name="driver_route_finished_traveled">%1$s · %2$s recorridos</string>
     <string name="driver_location_stopped">Ya no estás compartiendo tu ubicación.</string>
     <string name="driver_back_to_orders">Volver a mis órdenes</string>
+    <string name="driver_debris_order_title">Orden de escombros</string>
+    <string name="driver_debris_order_subtitle">%1$s · %2$s · %3$s</string>
+    <string name="driver_debris_address_label">DIRECCIÓN DEL DOMICILIO</string>
+    <string name="driver_debris_type_label">TIPO DE ESCOMBRO</string>
+    <string name="driver_debris_volume">Volumen estimado: %1$s · %2$s</string>
+    <string name="driver_debris_not_hazardous">Sin residuos peligrosos.</string>
+    <string name="driver_debris_hazardous">Con residuos peligrosos.</string>
+    <string name="driver_debris_photo_description">Foto de referencia de los escombros por recoger</string>
+    <string name="driver_debris_confirm_hint">Confirma solo después de retirar los escombros del domicilio.</string>
+    <string name="driver_debris_mark_collected">Marcar como recolectado</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
