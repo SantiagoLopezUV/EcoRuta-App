@@ -3,6 +3,7 @@ package com.ecoruta.app.features.driver.presentation.active_route
 // Vista composable de ruta en ejecución con mapa y secuencia de puntos
 // Trazado de ruta en curso, indicador de ubicación compartida y botón para marcar el punto como visitado
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
@@ -32,7 +34,6 @@ import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoRouteMap
 import com.ecoruta.app.core.ui.components.EcoRouteMapPoint
-import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
@@ -58,7 +59,7 @@ data class ActiveRouteActions(
 fun ActiveRouteTrackingScreen(state: ActiveRouteUiState, actions: ActiveRouteActions) {
     val route = state.route
     if (route == null) {
-        NoActiveRouteScreen(onGoToOrders = actions.onGoToOrders)
+        NoActiveRouteScreen(onGoToOrders = actions.onGoToOrders, onTabClick = actions.onTabClick)
         return
     }
     EcoRoleTabScreenLayout(
@@ -141,18 +142,48 @@ fun ActiveRouteTrackingScreen(state: ActiveRouteUiState, actions: ActiveRouteAct
     }
 }
 
-// Aviso cuando el chofer abre el mapa sin haber iniciado ninguna ruta
+// Aviso cuando el chofer abre el mapa sin haber iniciado ninguna ruta, conservando sus pestañas
 @Composable
-private fun NoActiveRouteScreen(onGoToOrders: () -> Unit) {
-    EcoSystemStateScreen(
-        title = stringResource(R.string.driver_active_route_title),
-        subtitle = stringResource(R.string.driver_no_active_route_subtitle),
-        illustrationRes = R.drawable.ill_state_location,
-        heading = stringResource(R.string.driver_no_active_route_heading),
-        body = stringResource(R.string.driver_no_active_route_body),
-        actionText = stringResource(R.string.driver_go_to_orders),
-        onAction = onGoToOrders,
-    )
+private fun NoActiveRouteScreen(onGoToOrders: () -> Unit, onTabClick: (DriverTab) -> Unit) {
+    EcoRoleTabScreenLayout(
+        items = DriverTab.entries,
+        selectedTab = DriverTab.MAP,
+        onTabClick = onTabClick,
+        contentSpacing = 24.dp,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.driver_active_route_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.driver_no_active_route_subtitle), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(EcoFieldBackground)
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            Image(painterResource(R.drawable.ill_state_location), contentDescription = null, modifier = Modifier.size(104.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    stringResource(R.string.driver_no_active_route_heading),
+                    style = EcoTextStyles.ButtonText,
+                    color = EcoTitle,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    stringResource(R.string.driver_no_active_route_body),
+                    style = EcoTextStyles.Subtitle,
+                    color = EcoSubtitle,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+        EcoPrimaryButton(text = stringResource(R.string.driver_go_to_orders), onClick = onGoToOrders)
+    }
 }
 
 @Preview(name = "Ruta en curso · Ruta de limpieza", widthDp = 390, heightDp = 844)
