@@ -44,6 +44,8 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
+import com.ecoruta.app.features.profile.presentation.components.ChangeProfileContent
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
 
 // Datos del establecimiento que se muestran en el perfil del comercio
@@ -201,6 +203,29 @@ private fun MerchantDetails(details: MerchantProfileDetails) {
     }
 }
 
+// Cambio de perfil dentro del módulo comercio, con la barra inferior del comercio
+@Composable
+fun MerchantChangeProfileScreen(
+    profile: UserProfile,
+    actions: ChangeProfileActions,
+    onTabClick: (MerchantTab) -> Unit,
+) {
+    EcoRoleTabScreenLayout(
+        items = MerchantTab.entries,
+        selectedTab = MerchantTab.PROFILE,
+        onTabClick = onTabClick,
+        onBack = actions.onBack,
+        compactHeader = true,
+        contentSpacing = 20.dp,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.change_profile_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.change_profile_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+        }
+        ChangeProfileContent(profile = profile, actions = actions)
+    }
+}
+
 // Perfil ilustrativo del comercio usado solo en las vistas previas
 internal val PreviewMerchantProfile = UserProfile(
     fullName = "Tienda Semilla de Ejemplo",
@@ -249,4 +274,22 @@ private fun MerchantProfileErrorPreview() {
 @Composable
 private fun MerchantProfileOfflinePreview() {
     EcoRutaTheme { MerchantProfileScreen(state = MerchantProfileUiState(isOffline = true), actions = MerchantProfileActions()) }
+}
+
+@Preview(name = "Cambiar perfil · Comercio", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantChangeProfilePreview() {
+    EcoRutaTheme { MerchantChangeProfileScreen(profile = PreviewMerchantProfile, actions = ChangeProfileActions(), onTabClick = {}) }
+}
+
+@Preview(name = "Cambiar perfil · Comercio con solicitud disponible", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantChangeProfileWithRequestPreview() {
+    EcoRutaTheme {
+        MerchantChangeProfileScreen(
+            profile = PreviewMerchantProfile.copy(approvedRoles = setOf(UserRole.COMERCIO, UserRole.CIUDADANO)),
+            actions = ChangeProfileActions(),
+            onTabClick = {},
+        )
+    }
 }
