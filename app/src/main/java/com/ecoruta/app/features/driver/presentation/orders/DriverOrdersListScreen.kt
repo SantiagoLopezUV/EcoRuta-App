@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -156,15 +157,17 @@ private fun SyncFailedNotice(lastSyncTime: String?, onRetry: () -> Unit) {
                 Text(stringResource(R.string.driver_orders_saved_at, lastSyncTime), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
             }
         }
-        Text(
-            stringResource(R.string.action_retry),
-            style = EcoTextStyles.LinkText,
-            color = EcoTitle,
+        // Área táctil mínima de 48 dp aunque el texto sea más pequeño
+        Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(role = Role.Button, onClick = onRetry)
-                .padding(8.dp),
-        )
+                .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.action_retry), style = EcoTextStyles.LinkText, color = EcoTitle)
+        }
     }
 }
 
