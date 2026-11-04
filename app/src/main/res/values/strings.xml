@@ -826,6 +826,12 @@
     <string name="driver_debris_photo_description">Foto de referencia de los escombros por recoger</string>
     <string name="driver_debris_confirm_hint">Confirma solo después de retirar los escombros del domicilio.</string>
     <string name="driver_debris_mark_collected">Marcar como recolectado</string>
+    <string name="driver_debris_collected_title">Escombros recolectados</string>
+    <string name="driver_debris_collected_subtitle">%1$s · Recolección registrada</string>
+    <string name="driver_debris_collected_heading">La orden quedó cerrada</string>
+    <string name="driver_debris_collected_confirmed">Recolección confirmada</string>
+    <string name="driver_debris_collected_body">Escombros retirados. %1$s figura como %2$s en mis órdenes.</string>
+    <string name="driver_debris_collected_saved">El registro se guardó correctamente.</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
