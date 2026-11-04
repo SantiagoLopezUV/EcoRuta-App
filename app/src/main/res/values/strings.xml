@@ -752,6 +752,8 @@
     <string name="guide_reward_design_mode">Modo diseño: vista previa. La lección no se registró y no se sumaron EcoPuntos.</string>
     <string name="guide_reward_view_benefits">Ver mis beneficios</string>
     <string name="guide_reward_close">Cerrar</string>
+    <!-- Módulo chofer · Órdenes, rutas, escombros y perfil -->
+    <string name="driver_tab_orders">Órdenes</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
