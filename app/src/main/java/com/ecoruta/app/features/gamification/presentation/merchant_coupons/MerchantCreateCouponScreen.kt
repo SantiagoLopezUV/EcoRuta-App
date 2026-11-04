@@ -76,7 +76,11 @@ fun MerchantCreateCouponScreen(
 
 // Campos del cupón con sus mensajes de error, compartidos por la creación y la edición
 @Composable
-internal fun MerchantCouponFormFields(state: MerchantCouponFormUiState, actions: MerchantCouponFormActions) {
+internal fun MerchantCouponFormFields(
+    state: MerchantCouponFormUiState,
+    actions: MerchantCouponFormActions,
+    pointsHint: String? = null,
+) {
     // Devuelve el texto de error solo cuando el campo fue marcado como inválido
     @Composable
     fun errorFor(field: MerchantCouponField, message: Int): String? =
@@ -99,23 +103,27 @@ internal fun MerchantCouponFormFields(state: MerchantCouponFormUiState, actions:
             errorMessage = errorFor(MerchantCouponField.DESCRIPTION, R.string.merchant_coupon_error_description),
             singleLine = false,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            EcoTextField(
-                value = state.pointsCost,
-                onValueChange = { actions.onPointsChange(it.filter(Char::isDigit)) },
-                label = stringResource(R.string.merchant_coupon_points_label),
-                errorMessage = errorFor(MerchantCouponField.POINTS, R.string.merchant_coupon_error_points),
-                keyboardOptions = numberKeyboard,
-                modifier = Modifier.weight(1f),
-            )
-            EcoTextField(
-                value = state.quantity,
-                onValueChange = { actions.onQuantityChange(it.filter(Char::isDigit)) },
-                label = stringResource(R.string.merchant_coupon_quantity_label),
-                errorMessage = errorFor(MerchantCouponField.QUANTITY, R.string.merchant_coupon_error_quantity),
-                keyboardOptions = numberKeyboard,
-                modifier = Modifier.weight(1f),
-            )
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                EcoTextField(
+                    value = state.pointsCost,
+                    onValueChange = { actions.onPointsChange(it.filter(Char::isDigit)) },
+                    label = stringResource(R.string.merchant_coupon_points_label),
+                    errorMessage = errorFor(MerchantCouponField.POINTS, R.string.merchant_coupon_error_points),
+                    keyboardOptions = numberKeyboard,
+                    modifier = Modifier.weight(1f),
+                )
+                EcoTextField(
+                    value = state.quantity,
+                    onValueChange = { actions.onQuantityChange(it.filter(Char::isDigit)) },
+                    label = stringResource(R.string.merchant_coupon_quantity_label),
+                    errorMessage = errorFor(MerchantCouponField.QUANTITY, R.string.merchant_coupon_error_quantity),
+                    keyboardOptions = numberKeyboard,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            // La edición explica debajo del costo quién paga los puntos del cupón
+            if (pointsHint != null) Text(pointsHint, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
         EcoTextField(
             value = state.validUntil,

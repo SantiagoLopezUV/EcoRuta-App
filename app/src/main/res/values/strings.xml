@@ -1057,4 +1057,12 @@
     <string name="merchant_coupons_hidden">No visible para ciudadanos</string>
     <string name="merchant_coupons_empty_body">Crea un cupón y aparecerá aquí para que lo administres.</string>
     <string name="merchant_coupons_error_heading">No pudimos cargar tus cupones</string>
+    <string name="merchant_edit_description">Edita el cupón seleccionado.</string>
+    <string name="merchant_edit_selected">Cupón seleccionado</string>
+    <string name="merchant_coupon_points_hint">Puntos que paga el ciudadano por el cupón.</string>
+    <string name="merchant_edit_activation">Activación del cupón</string>
+    <string name="merchant_edit_save">Guardar cambios</string>
+    <string name="merchant_edit_error">No pudimos guardar los cambios. Inténtalo de nuevo.</string>
+    <string name="merchant_edit_missing_heading">No encontramos este cupón</string>
+    <string name="merchant_edit_missing_body">Vuelve a tus cupones y elige el que quieres editar.</string>
 </resources>

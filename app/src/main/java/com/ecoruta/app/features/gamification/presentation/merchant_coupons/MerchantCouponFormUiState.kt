@@ -25,6 +25,8 @@ data class MerchantCouponFormUiState(
     val isSaving: Boolean = false,
     val hasError: Boolean = false,
     val isOffline: Boolean = false,
+    // Solo aplica en la edición cuando el cupón elegido ya no existe
+    val isCouponMissing: Boolean = false,
 )
 
 // Acciones del formulario de cupón para crear o editar
