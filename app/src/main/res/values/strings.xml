@@ -796,6 +796,7 @@
     <string name="driver_sharing_location">Compartiendo ubicación</string>
     <string name="driver_next_point">SIGUIENTE PUNTO · %1$d DE %2$d</string>
     <string name="driver_point_address_city">%1$s · %2$s</string>
+    <string name="driver_point_address_reason">%1$s · %2$s</string>
     <string name="driver_point_trip">%1$s · A %2$s · %3$s</string>
     <string name="driver_mark_visited">Marcar como visitado</string>
     <string name="driver_no_active_route_subtitle">Aún no has iniciado una ruta</string>

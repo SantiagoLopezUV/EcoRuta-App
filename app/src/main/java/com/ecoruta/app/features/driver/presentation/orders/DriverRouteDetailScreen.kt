@@ -27,6 +27,7 @@ import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoRouteMap
 import com.ecoruta.app.core.ui.components.EcoRouteMapPoint
+import com.ecoruta.app.core.ui.theme.EcoDimens
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
@@ -92,7 +93,7 @@ fun DriverRouteDetailScreen(state: ActiveRouteUiState, actions: DriverRouteDetai
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(EcoDimens.ControlCornerRadius))
                 .background(EcoFieldBackground)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),

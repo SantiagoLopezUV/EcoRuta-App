@@ -140,7 +140,7 @@ fun EcoRouteMap(
     }
 }
 
-// Etiqueta del mapa ubicada en coordenadas del diseño de 350 dp de ancho por 140 dp de alto
+// Etiqueta del mapa ubicada en coordenadas de referencia de 350 dp de ancho por 140 dp de alto que se escalan al tamaño real del mapa
 @Composable
 private fun RouteMapLabel(labelRes: Int, x: Float, y: Float, mapWidth: Float, mapHeight: Float) {
     val scale = mapWidth / 350f

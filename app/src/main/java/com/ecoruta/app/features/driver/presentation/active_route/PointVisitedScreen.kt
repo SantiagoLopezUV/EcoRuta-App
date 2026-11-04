@@ -89,7 +89,7 @@ fun PointVisitedScreen(state: ActiveRouteUiState, actions: PointVisitedActions) 
                 DriverStatusLabel(DriverOrderStatus.ATTENDED)
             }
             Text(
-                stringResource(R.string.driver_point_address_city, visited.address, stringResource(route.pointLabelRes(visited))),
+                stringResource(R.string.driver_point_address_reason, visited.address, stringResource(route.pointLabelRes(visited))),
                 style = EcoTextStyles.Subtitle,
                 color = EcoSubtitle,
             )

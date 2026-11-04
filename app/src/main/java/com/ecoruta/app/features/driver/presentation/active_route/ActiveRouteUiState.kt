@@ -7,7 +7,7 @@ import androidx.annotation.StringRes
 import com.ecoruta.app.R
 import com.ecoruta.app.features.driver.presentation.orders.DriverOrderStatus
 
-// Tipo de ruta asignada: la ordinaria sigue un recorrido fijo y la dinámica atiende reportes aprobados
+// Tipo de ruta asignada, la ordinaria sigue un recorrido fijo y la dinámica atiende reportes aprobados
 enum class DriverRouteType(@StringRes val labelRes: Int) {
     ORDINARY(R.string.driver_order_kind_ordinary),
     DYNAMIC(R.string.driver_order_kind_cleanup),
@@ -60,7 +60,7 @@ data class ActiveRouteUiState(
     val lastVisitedPoint: DriverRoutePoint? get() = route?.points?.getOrNull(visitedCount - 1)
 }
 
-// Texto que acompaña a cada punto: el motivo del reporte en rutas dinámicas o el tipo de ruta en las ordinarias
+// Texto que acompaña a cada punto, el motivo del reporte en rutas dinámicas o el tipo de ruta en las ordinarias
 @StringRes
 fun DriverRoute.pointLabelRes(point: DriverRoutePoint): Int = point.reason?.labelRes ?: type.labelRes
 
