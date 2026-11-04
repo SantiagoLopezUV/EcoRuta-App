@@ -235,7 +235,7 @@ internal val PreviewMerchantProfile = UserProfile(
     fullName = "Tienda Semilla de Ejemplo",
     role = UserRole.COMERCIO,
     city = "Tuluá",
-    email = "comercio@ecoruta.co",
+    email = "comercio@example.com",
     approvedRoles = setOf(UserRole.COMERCIO, UserRole.CIUDADANO, UserRole.RECICLADOR),
 )
 
