@@ -802,6 +802,11 @@
     <string name="driver_no_active_route_heading">No tienes una ruta en curso</string>
     <string name="driver_no_active_route_body">Inicia una ruta desde Mis órdenes para ver el recorrido en el mapa.</string>
     <string name="driver_go_to_orders">Ir a mis órdenes</string>
+    <string name="driver_point_visited_title">Punto visitado</string>
+    <string name="driver_point_visited_heading">La visita quedó registrada</string>
+    <string name="driver_point_visited_at">Visita registrada hoy a las %1$s</string>
+    <string name="driver_continue_next_point">Continuar al siguiente punto</string>
+    <string name="driver_finish_route">Finalizar ruta</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
