@@ -13,15 +13,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.MerchantTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
-import com.ecoruta.app.core.ui.components.EcoPermissionKind
-import com.ecoruta.app.core.ui.components.EcoPermissionScreen
+import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.COUPON_CODE_LENGTH
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.MerchantCashierActions
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.MerchantCashierScreen
@@ -134,9 +135,15 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
             if (granted) state = state.copy(isScanning = true)
         }
         if (showCameraPermission) {
-            EcoPermissionScreen(
-                kind = EcoPermissionKind.CAMERA,
-                onAllow = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+            // Explica el uso de la cámara en caja antes de pedir el permiso al sistema
+            EcoSystemStateScreen(
+                title = stringResource(R.string.permission_camera_title),
+                subtitle = stringResource(R.string.merchant_cashier_camera_subtitle),
+                illustrationRes = R.drawable.ill_state_camera,
+                heading = stringResource(R.string.merchant_cashier_camera_heading),
+                body = stringResource(R.string.merchant_cashier_camera_body),
+                actionText = stringResource(R.string.permission_camera_action),
+                onAction = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                 onBack = { showCameraPermission = false },
             )
         } else {
