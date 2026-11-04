@@ -1093,4 +1093,10 @@
     <string name="merchant_validated_used">Este cupón ya fue utilizado y no podrá canjearse de nuevo.</string>
     <string name="merchant_validated_missing_heading">No hay un cupón validado</string>
     <string name="merchant_validated_missing_body">Verifica un código en caja para ver aquí el detalle del descuento.</string>
+    <string name="merchant_profile_title">Perfil del comercio</string>
+    <string name="merchant_profile_category">Categoría</string>
+    <string name="merchant_profile_address">Dirección</string>
+    <string name="merchant_profile_error_heading">No pudimos cargar el perfil del comercio</string>
+    <string name="merchant_profile_empty_heading">Aún no hay datos del comercio</string>
+    <string name="merchant_profile_empty_body">Los datos de tu comercio aparecerán aquí cuando la administración los confirme.</string>
 </resources>
