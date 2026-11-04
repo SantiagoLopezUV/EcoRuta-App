@@ -754,6 +754,33 @@
     <string name="guide_reward_close">Cerrar</string>
     <!-- Módulo chofer · Órdenes, rutas, escombros y perfil -->
     <string name="driver_tab_orders">Órdenes</string>
+    <string name="driver_orders_title">Mis órdenes</string>
+    <string name="driver_orders_subtitle">%1$s · %2$s</string>
+    <plurals name="driver_orders_count">
+        <item quantity="one">%d orden del día</item>
+        <item quantity="other">%d órdenes del día</item>
+    </plurals>
+    <plurals name="driver_orders_attended">
+        <item quantity="one">%d atendida</item>
+        <item quantity="other">%d atendidas</item>
+    </plurals>
+    <plurals name="driver_points_count">
+        <item quantity="one">%d punto</item>
+        <item quantity="other">%d puntos</item>
+    </plurals>
+    <string name="driver_order_kind_ordinary">Ruta ordinaria</string>
+    <string name="driver_order_kind_cleanup">Ruta de limpieza</string>
+    <string name="driver_order_kind_debris">Escombros</string>
+    <string name="driver_status_pending">Pendiente</string>
+    <string name="driver_status_scheduled">Programado</string>
+    <string name="driver_status_in_progress">En curso</string>
+    <string name="driver_status_attended">Atendido</string>
+    <string name="driver_status_collected">Recolectado</string>
+    <string name="driver_orders_sync_failed">No se pudo actualizar</string>
+    <string name="driver_orders_saved_at">Órdenes guardadas a las %1$s.</string>
+    <string name="driver_orders_view_route">Ver detalle de ruta</string>
+    <string name="driver_orders_empty_title">No tienes órdenes asignadas</string>
+    <string name="driver_orders_empty_body">Cuando tengas una orden de recolección asignada, la encontrarás aquí.</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
