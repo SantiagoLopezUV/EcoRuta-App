@@ -1065,4 +1065,21 @@
     <string name="merchant_edit_error">No pudimos guardar los cambios. Inténtalo de nuevo.</string>
     <string name="merchant_edit_missing_heading">No encontramos este cupón</string>
     <string name="merchant_edit_missing_body">Vuelve a tus cupones y elige el que quieres editar.</string>
+    <string name="merchant_cashier_title">Validar cupón en caja</string>
+    <string name="merchant_cashier_description">Comprueba el cupón del cliente antes de aplicar el descuento.</string>
+    <string name="merchant_cashier_scan_title">Escanear QR del cupón</string>
+    <string name="merchant_cashier_scan_body">Coloca el código frente a la cámara.</string>
+    <string name="merchant_cashier_manual">O ingresa el código del cupón</string>
+    <string name="merchant_cashier_code_label">Código del cupón</string>
+    <string name="merchant_cashier_code_prefix" translatable="false">ECO-</string>
+    <string name="merchant_cashier_code_accessibility">Código del cupón de ocho caracteres</string>
+    <string name="merchant_cashier_verify">Verificar</string>
+    <string name="merchant_cashier_hint">El código debe pertenecer a un cupón de %1$s y no haber sido utilizado.</string>
+    <string name="merchant_cashier_hint_generic">El código debe pertenecer a un cupón de tu comercio y no haber sido utilizado.</string>
+    <string name="merchant_cashier_error_incomplete">Escribe los ocho caracteres que siguen a ECO-.</string>
+    <string name="merchant_cashier_error_not_found">No encontramos un cupón con este código.</string>
+    <string name="merchant_cashier_error_redeemed">Este cupón ya fue canjeado.</string>
+    <string name="merchant_cashier_error_expired">Este cupón está vencido.</string>
+    <string name="merchant_cashier_error_other_store">Este cupón pertenece a otro comercio.</string>
+    <string name="merchant_cashier_error_server">No pudimos verificar el cupón. Inténtalo de nuevo.</string>
 </resources>
