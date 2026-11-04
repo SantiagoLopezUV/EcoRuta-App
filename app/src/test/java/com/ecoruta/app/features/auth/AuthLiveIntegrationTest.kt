@@ -57,7 +57,7 @@ class AuthLiveIntegrationTest {
     @Test
     fun testSendPasswordResetEmailReal() = runBlocking {
         // Usamos el usuario que SÍ existe en tu lista de Supabase
-        val targetEmail = "alejoyeison9+ciudadano9186@gmail.com"
+        val targetEmail = "alejoyeison9+ciudadano7915@gmail.com"
         println("ENVIANDO CORREO DE RECUPERACIÓN DE CONTRASEÑA")
         println("Destinatario: $targetEmail")
 
