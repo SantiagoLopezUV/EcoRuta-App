@@ -56,6 +56,18 @@ object NavigationDestination {
     const val MY_ORDERS = "chofer/mis_ordenes"
     const val STORE_DASHBOARD = "comercio/panel"
 
+    // Rutas del comercio aliado para crear, administrar y validar cupones y para su perfil
+    const val MERCHANT_CREATE_COUPON = "comercio/crear_cupon"
+    const val MERCHANT_COUPON_PUBLISHED = "comercio/crear_cupon/publicado"
+    const val MERCHANT_COUPONS = "comercio/mis_cupones"
+    const val MERCHANT_EDIT_COUPON = "comercio/mis_cupones/{id}/editar"
+    const val MERCHANT_VALIDATE = "comercio/validar"
+    const val MERCHANT_COUPON_VALIDATED = "comercio/validar/validado"
+    const val MERCHANT_PROFILE = "comercio/perfil"
+    const val MERCHANT_CHANGE_PROFILE = "comercio/perfil/cambiar"
+
+    fun merchantEditCoupon(id: String) = "comercio/mis_cupones/$id/editar"
+
     // Devuelve la ruta inicial correspondiente al rol activo tras iniciar sesión
     fun homeForRole(role: UserRole): String = when (role) {
         UserRole.CIUDADANO -> CITIZEN_HOME
