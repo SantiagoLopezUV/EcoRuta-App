@@ -6,6 +6,7 @@ package com.ecoruta.app.core.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,8 +30,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoPrimary
@@ -50,11 +53,15 @@ fun EcoRouteMap(
     points: List<EcoRouteMapPoint>,
     modifier: Modifier = Modifier,
     description: String = stringResource(R.string.recycler_map_description),
+    mapHeight: Dp = 140.dp,
+    // Marca el vehículo con un punto verde cuando se comparte la ubicación en vivo
+    showLiveLocation: Boolean = false,
+    overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(mapHeight)
             .clip(RoundedCornerShape(16.dp))
             .background(EcoFieldBackground)
             .semantics { contentDescription = description },
@@ -92,6 +99,11 @@ fun EcoRouteMap(
                 size = Size(w * 0.1286f, h * 0.14f),
                 cornerRadius = CornerRadius(8.dp.toPx()),
             )
+            if (showLiveLocation) {
+                val dot = Offset(w * (0.1571f + 0.1286f), h * 0.42f)
+                drawCircle(color = EcoWhite, radius = 6.dp.toPx(), center = dot)
+                drawCircle(color = EcoAccent, radius = 4.dp.toPx(), center = dot)
+            }
             // Trazado ortogonal que une las paradas en el orden asignado
             if (points.size > 1) {
                 val path = Path()
@@ -108,10 +120,10 @@ fun EcoRouteMap(
                 drawPath(path, color = EcoPrimary, style = Stroke(width = 3.dp.toPx(), join = StrokeJoin.Round))
             }
         }
-        RouteMapLabel(R.string.recycler_map_label_carrera_26, 108f, 5f, maxWidth.value)
-        RouteMapLabel(R.string.recycler_map_label_calle_25, 112f, 22f, maxWidth.value)
-        RouteMapLabel(R.string.recycler_map_label_river, 250f, 74f, maxWidth.value)
-        RouteMapLabel(R.string.recycler_map_label_calle_27, 20f, 118f, maxWidth.value)
+        RouteMapLabel(R.string.recycler_map_label_carrera_26, 108f, 5f, maxWidth.value, maxHeight.value)
+        RouteMapLabel(R.string.recycler_map_label_calle_25, 112f, 22f, maxWidth.value, maxHeight.value)
+        RouteMapLabel(R.string.recycler_map_label_river, 250f, 74f, maxWidth.value, maxHeight.value)
+        RouteMapLabel(R.string.recycler_map_label_calle_27, 20f, 118f, maxWidth.value, maxHeight.value)
         points.forEachIndexed { index, point ->
             Box(
                 modifier = Modifier
@@ -124,17 +136,19 @@ fun EcoRouteMap(
                 Text((index + 1).toString(), style = EcoTextStyles.FieldLabel, color = EcoWhite)
             }
         }
+        overlay()
     }
 }
 
-// Etiqueta del mapa ubicada en coordenadas del diseño de 350 dp de ancho
+// Etiqueta del mapa ubicada en coordenadas del diseño de 350 dp de ancho por 140 dp de alto
 @Composable
-private fun RouteMapLabel(labelRes: Int, x: Float, y: Float, mapWidth: Float) {
+private fun RouteMapLabel(labelRes: Int, x: Float, y: Float, mapWidth: Float, mapHeight: Float) {
     val scale = mapWidth / 350f
+    val verticalScale = mapHeight / 140f
     Text(
         stringResource(labelRes),
         style = EcoTextStyles.FieldLabel,
         color = EcoSubtitle,
-        modifier = Modifier.offset(x = (x * scale).dp, y = y.dp),
+        modifier = Modifier.offset(x = (x * scale).dp, y = (y * verticalScale).dp),
     )
 }

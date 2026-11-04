@@ -788,6 +788,20 @@
     <string name="driver_route_map_description">Mapa ilustrativo de Tuluá con el recorrido y los puntos de la ruta</string>
     <string name="driver_route_location_body">Al iniciar, permite compartir tu ubicación con tu empresa para guiarte y registrar visitas. Se detiene al finalizar.</string>
     <string name="driver_route_start">Iniciar ruta</string>
+    <string name="driver_active_route_title">Ruta en curso</string>
+    <plurals name="driver_route_progress">
+        <item quantity="one">%1$d de %2$d punto visitado</item>
+        <item quantity="other">%1$d de %2$d puntos visitados</item>
+    </plurals>
+    <string name="driver_sharing_location">Compartiendo ubicación</string>
+    <string name="driver_next_point">SIGUIENTE PUNTO · %1$d DE %2$d</string>
+    <string name="driver_point_address_city">%1$s · %2$s</string>
+    <string name="driver_point_trip">%1$s · A %2$s · %3$s</string>
+    <string name="driver_mark_visited">Marcar como visitado</string>
+    <string name="driver_no_active_route_subtitle">Aún no has iniciado una ruta</string>
+    <string name="driver_no_active_route_heading">No tienes una ruta en curso</string>
+    <string name="driver_no_active_route_body">Inicia una ruta desde Mis órdenes para ver el recorrido en el mapa.</string>
+    <string name="driver_go_to_orders">Ir a mis órdenes</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>

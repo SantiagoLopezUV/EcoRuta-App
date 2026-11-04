@@ -46,6 +46,7 @@ data class DriverRoute(
 // Estado compartido por el detalle, la ruta en curso, el punto visitado y la ruta finalizada
 data class ActiveRouteUiState(
     val route: DriverRoute? = null,
+    val city: String = "",
     val visitedCount: Int = 0,
     val locationConsent: Boolean = false,
     val isSharingLocation: Boolean = false,
