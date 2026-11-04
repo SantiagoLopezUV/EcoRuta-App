@@ -807,6 +807,15 @@
     <string name="driver_point_visited_at">Visita registrada hoy a las %1$s</string>
     <string name="driver_continue_next_point">Continuar al siguiente punto</string>
     <string name="driver_finish_route">Finalizar ruta</string>
+    <string name="driver_route_finished_title">Ruta finalizada</string>
+    <string name="driver_route_finished_heading">Todos los puntos fueron atendidos</string>
+    <string name="driver_route_finished_points">Puntos visitados</string>
+    <string name="driver_points_ratio">%1$d de %2$d</string>
+    <string name="driver_route_finished_duration">Duración</string>
+    <string name="driver_route_finished_trip">Recorrido completo</string>
+    <string name="driver_route_finished_traveled">%1$s · %2$s recorridos</string>
+    <string name="driver_location_stopped">Ya no estás compartiendo tu ubicación.</string>
+    <string name="driver_back_to_orders">Volver a mis órdenes</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
