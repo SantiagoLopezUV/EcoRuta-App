@@ -1,6 +1,6 @@
 package com.ecoruta.app.core.ui.components
 
-// Campo de entrada segmentado para códigos numéricos de verificación
+// Campo de entrada segmentado para códigos de verificación numéricos o alfanuméricos
 // Renderiza casillas individuales para cada dígito y resalta la posición activa
 
 import androidx.compose.foundation.border
@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.core.ui.theme.EcoBlack
@@ -44,17 +45,32 @@ fun EcoCodeInput(
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     onDone: () -> Unit = {},
+    // Permite letras además de dígitos y las convierte a mayúscula, útil para códigos alfanuméricos
+    allowLetters: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
+    val keyboardOptions = if (allowLetters) {
+        KeyboardOptions(
+            capitalization = KeyboardCapitalization.Characters,
+            autoCorrectEnabled = false,
+            keyboardType = KeyboardType.Ascii,
+            imeAction = ImeAction.Done,
+        )
+    } else {
+        KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done)
+    }
 
     BasicTextField(
         value = value,
-        onValueChange = { onValueChange(it.filter(Char::isDigit).take(length)) },
+        onValueChange = { input ->
+            val cleaned = if (allowLetters) input.filter(Char::isLetterOrDigit).uppercase() else input.filter(Char::isDigit)
+            onValueChange(cleaned.take(length))
+        },
         singleLine = true,
         interactionSource = interactionSource,
         cursorBrush = SolidColor(Color.Transparent),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
+        keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = { onDone() }),
         modifier = modifier
             .fillMaxWidth()
