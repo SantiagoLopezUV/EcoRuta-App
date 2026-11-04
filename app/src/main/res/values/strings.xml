@@ -1040,4 +1040,11 @@
     <string name="merchant_coupon_error_points">Ingresa un costo en puntos mayor a cero.</string>
     <string name="merchant_coupon_error_quantity">Ingresa una cantidad mayor a cero.</string>
     <string name="merchant_coupon_error_valid_until">Ingresa una fecha válida con el formato dd/mm/aaaa.</string>
+    <string name="merchant_published_title">Cupón publicado</string>
+    <string name="merchant_published_description">Tu promoción ya está disponible para los ciudadanos en Tuluá.</string>
+    <string name="merchant_store_in_city">%1$s · Tuluá</string>
+    <string name="merchant_coupon_valid_until_value">Vigencia %1$s</string>
+    <string name="merchant_back_to_dashboard">Volver al panel</string>
+    <string name="merchant_published_missing_heading">No encontramos el cupón publicado</string>
+    <string name="merchant_published_missing_body">Revisa tus cupones para confirmar que la promoción quedó disponible.</string>
 </resources>
