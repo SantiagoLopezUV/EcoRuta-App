@@ -105,7 +105,12 @@ fun DriverRouteDetailScreen(state: ActiveRouteUiState, actions: DriverRouteDetai
                 text = stringResource(R.string.recycler_route_location_consent),
             )
         }
-        EcoPrimaryButton(text = stringResource(R.string.driver_route_start), onClick = actions.onStartRoute)
+        // La ruta solo puede iniciar cuando el chofer autoriza compartir su ubicación
+        EcoPrimaryButton(
+            text = stringResource(R.string.driver_route_start),
+            onClick = actions.onStartRoute,
+            enabled = state.locationConsent,
+        )
     }
 }
 
