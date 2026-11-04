@@ -122,6 +122,7 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
         items = MerchantTab.entries,
         selectedTab = MerchantTab.PROFILE,
         onTabClick = actions.onTabClick,
+        showBrandHeader = false,
         bottomActions = {
             AccountButton(
                 text = stringResource(R.string.profile_change_profile),
@@ -148,11 +149,14 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator(color = EcoPrimary) }
         } else {
+            // La marca va dentro de la tarjeta y el nombre comercial queda al pie
             UserCard(
                 profile = profile,
                 localPhoto = state.localPhoto,
                 isUpdatingPhoto = false,
                 onChangePhoto = { showPhotoSheet = true },
+                footer = profile.fullName,
+                headline = stringResource(R.string.app_name),
             )
             state.details?.let { MerchantDetails(it) }
         }
