@@ -175,6 +175,12 @@ private fun MerchantCreateCouponErrorPreview() {
     EcoRutaTheme { MerchantCreateCouponScreen(state = PreviewCouponForm.copy(hasError = true), actions = MerchantCouponFormActions(), onTabClick = {}) }
 }
 
+@Preview(name = "Crear cupón · Publicando", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantCreateCouponSavingPreview() {
+    EcoRutaTheme { MerchantCreateCouponScreen(state = PreviewCouponForm.copy(isSaving = true), actions = MerchantCouponFormActions(), onTabClick = {}) }
+}
+
 @Preview(name = "Crear cupón · Sin conexión", widthDp = 393, heightDp = 852)
 @Composable
 private fun MerchantCreateCouponOfflinePreview() {

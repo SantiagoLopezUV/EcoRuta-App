@@ -252,6 +252,17 @@ private fun MerchantProfilePreview() {
     }
 }
 
+@Preview(name = "Perfil del comercio · Cerrando sesión", widthDp = 393, heightDp = 900)
+@Composable
+private fun MerchantProfileSigningOutPreview() {
+    EcoRutaTheme {
+        MerchantProfileScreen(
+            state = MerchantProfileUiState(profile = PreviewMerchantProfile, details = PreviewMerchantDetails, isSigningOut = true),
+            actions = MerchantProfileActions(),
+        )
+    }
+}
+
 @Preview(name = "Perfil del comercio · Cargando", widthDp = 393, heightDp = 852)
 @Composable
 private fun MerchantProfileLoadingPreview() {

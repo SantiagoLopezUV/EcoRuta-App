@@ -132,6 +132,19 @@ private fun MerchantEditCouponErrorPreview() {
     }
 }
 
+@Preview(name = "Editar cupón · Guardando", widthDp = 393, heightDp = 1000)
+@Composable
+private fun MerchantEditCouponSavingPreview() {
+    EcoRutaTheme {
+        MerchantEditCouponScreen(
+            state = PreviewCouponForm.copy(isSaving = true),
+            actions = MerchantCouponFormActions(),
+            onBackToMyCoupons = {},
+            onTabClick = {},
+        )
+    }
+}
+
 @Preview(name = "Editar cupón · Vacío", widthDp = 393, heightDp = 852)
 @Composable
 private fun MerchantEditCouponMissingPreview() {
