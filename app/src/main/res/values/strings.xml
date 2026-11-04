@@ -1022,4 +1022,22 @@
     <string name="merchant_coupon_active">Activo</string>
     <string name="merchant_coupon_inactive">Inactivo</string>
     <string name="merchant_coupon_toggle_description">Activar o desactivar cupón</string>
+    <string name="merchant_create_description">Ofrece un descuento en %1$s y premia el reciclaje en Tuluá.</string>
+    <string name="merchant_create_description_generic">Ofrece un descuento en tu comercio y premia el reciclaje en Tuluá.</string>
+    <string name="merchant_coupon_title_label">Título del cupón</string>
+    <string name="merchant_coupon_title_placeholder">Ejemplo 10% en tu compra</string>
+    <string name="merchant_coupon_description_placeholder">Describe el beneficio y sus condiciones</string>
+    <string name="merchant_coupon_points_label">Costo en puntos</string>
+    <string name="merchant_coupon_quantity_label">Cantidad disponible</string>
+    <string name="merchant_coupon_valid_until_label">Vigencia</string>
+    <string name="merchant_coupon_valid_until_placeholder">dd/mm/aaaa</string>
+    <string name="merchant_create_publish">Publicar cupón</string>
+    <string name="merchant_create_publish_hint">Al publicar, el cupón quedará disponible para canjear por %1$s puntos.</string>
+    <string name="merchant_create_publish_hint_generic">Al publicar, el cupón quedará disponible para que los ciudadanos lo canjeen con sus puntos.</string>
+    <string name="merchant_create_error">No pudimos publicar el cupón. Inténtalo de nuevo.</string>
+    <string name="merchant_coupon_error_title">Ingresa el título del cupón.</string>
+    <string name="merchant_coupon_error_description">Ingresa la descripción del cupón.</string>
+    <string name="merchant_coupon_error_points">Ingresa un costo en puntos mayor a cero.</string>
+    <string name="merchant_coupon_error_quantity">Ingresa una cantidad mayor a cero.</string>
+    <string name="merchant_coupon_error_valid_until">Ingresa una fecha válida con el formato dd/mm/aaaa.</string>
 </resources>
