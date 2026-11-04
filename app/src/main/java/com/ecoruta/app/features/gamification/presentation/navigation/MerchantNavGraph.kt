@@ -24,6 +24,7 @@ import com.ecoruta.app.core.navigation.components.MerchantTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.COUPON_CODE_LENGTH
+import com.ecoruta.app.features.gamification.presentation.cashier_validation.COUPON_CODE_PREFIX
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.MerchantCashierActions
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.MerchantCashierScreen
 import com.ecoruta.app.features.gamification.presentation.cashier_validation.MerchantCashierUiState
@@ -48,9 +49,6 @@ import com.ecoruta.app.features.profile.presentation.MerchantProfileUiState
 import com.ecoruta.app.features.profile.presentation.UserProfile
 import com.ecoruta.app.features.profile.presentation.UserRole
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
-
-// Prefijo fijo de los códigos de canje que se quita al leer el QR
-private const val COUPON_CODE_PREFIX = "ECO-"
 
 // Registra las pantallas del comercio aliado con sesión iniciada
 fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
@@ -215,12 +213,12 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
 
 // Navega entre las pestañas del comercio conservando el panel como base de la pila
 fun NavHostController.navigateToMerchantTab(tab: MerchantTab) {
-    if (tab == MerchantTab.DASHBOARD) {
-        popBackStack(EcoRutaDestination.STORE_DASHBOARD, inclusive = false)
-        return
-    }
     val route = when (tab) {
-        MerchantTab.DASHBOARD -> EcoRutaDestination.STORE_DASHBOARD
+        // El panel ya es la base de la pila, así que basta con volver a él
+        MerchantTab.DASHBOARD -> {
+            popBackStack(EcoRutaDestination.STORE_DASHBOARD, inclusive = false)
+            return
+        }
         MerchantTab.CREATE_COUPON -> EcoRutaDestination.MERCHANT_CREATE_COUPON
         MerchantTab.VALIDATE -> EcoRutaDestination.MERCHANT_VALIDATE
         MerchantTab.MY_COUPONS -> EcoRutaDestination.MERCHANT_COUPONS

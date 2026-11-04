@@ -5,6 +5,9 @@ package com.ecoruta.app.features.gamification.presentation.cashier_validation
 
 import com.ecoruta.app.core.navigation.components.MerchantTab
 
+// Prefijo fijo de los códigos de canje, se muestra delante del campo y se quita al leer el QR
+const val COUPON_CODE_PREFIX = "ECO-"
+
 // Longitud del código que se escribe después del prefijo fijo ECO
 const val COUPON_CODE_LENGTH = 8
 

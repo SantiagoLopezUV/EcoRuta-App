@@ -141,7 +141,7 @@ private fun ManualCodeField(state: MerchantCashierUiState, actions: MerchantCash
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.merchant_cashier_code_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.merchant_cashier_code_prefix), style = EcoTextStyles.Numbers, color = EcoTitle)
+            Text(COUPON_CODE_PREFIX, style = EcoTextStyles.Numbers, color = EcoTitle)
             EcoCodeInput(
                 value = state.code,
                 onValueChange = actions.onCodeChange,
