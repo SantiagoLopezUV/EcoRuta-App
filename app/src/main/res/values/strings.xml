@@ -784,6 +784,7 @@
     <string name="pdf_field_attach">Adjuntar archivo PDF</string>
     <string name="pdf_field_pick">Elegir archivo PDF</string>
     <string name="pdf_field_remove">Quitar</string>
+    <string name="pdf_field_badge">PDF</string>
     <string name="role_request_all_required">Todos los campos son obligatorios</string>
     <string name="role_request_citizen_stays_active">Tu perfil Ciudadano seguirá activo.</string>
     <string name="role_request_error_pdf_size">El archivo supera 5 MB. Elige un PDF más liviano.</string>

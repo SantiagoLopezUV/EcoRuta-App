@@ -1,7 +1,7 @@
 package com.ecoruta.app.core.ui.components
 
 // Campo interactivo para seleccionar y adjuntar archivos PDF desde el dispositivo
-// Muestra el nombre y tamaño del documento seleccionado con opción de retirarlo
+// Muestra el nombre del documento seleccionado con opción de retirarlo
 
 import android.content.Context
 import android.net.Uri
@@ -9,15 +9,14 @@ import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,12 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,14 +36,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.theme.EcoAccentSurface
+import com.ecoruta.app.core.ui.theme.EcoDashedBorder
 import com.ecoruta.app.core.ui.theme.EcoError
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
-import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
+import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
-import java.util.Locale
+import com.ecoruta.app.core.ui.theme.EcoWhite
 
 // Representa un archivo PDF seleccionado en el dispositivo para adjuntar en formularios
 data class PickedDocument(
@@ -54,9 +53,6 @@ data class PickedDocument(
     val name: String,
     val sizeBytes: Long? = null,
 )
-
-// Color utilizado para el borde punteado del área de carga de documentos
-private val DashedBorderColor = Color(0xFFCBD5E1)
 
 // Campo que abre por su cuenta el selector de PDF para los formularios que guardan el documento completo
 @Composable
@@ -74,7 +70,6 @@ fun EcoPdfField(
         label = label,
         hint = hint,
         fileName = document?.name,
-        fileSize = document?.sizeBytes,
         onPickClick = pickPdf,
         onRemove = onRemove,
         modifier = modifier,
@@ -103,44 +98,71 @@ fun EcoPdfField(
     onPickClick: () -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
-    fileSize: Long? = null,
     errorMessage: String? = null,
 ) {
     val shape = RoundedCornerShape(10.dp)
+    val hasError = errorMessage != null
+    val isLoaded = fileName != null
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = EcoTextStyles.FieldLabel, color = EcoTitle)
-        val borderColor = if (errorMessage != null) EcoError else DashedBorderColor
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
+        // Con archivo el recuadro pasa a borde continuo verde y sin archivo usa borde punteado gris o rojo si hay error
+        val borderColor = if (hasError) EcoError else EcoDashedBorder
+        val boxModifier = if (isLoaded) {
+            Modifier
+                .clip(shape)
+                .background(EcoAccentSurface)
+                .border(1.5.dp, EcoPrimary, shape)
+        } else {
+            Modifier
                 .clip(shape)
                 .background(EcoFieldBackground)
                 .drawBehind {
-                    val stroke = 1.5.dp.toPx()
                     drawRoundRect(
                         color = borderColor,
                         cornerRadius = CornerRadius(10.dp.toPx()),
-                        style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
+                        style = Stroke(width = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
                     )
                 }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(boxModifier)
                 .clickable(role = Role.Button, onClickLabel = stringResource(R.string.pdf_field_pick), onClick = onPickClick)
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (fileName == null) {
-                Text(stringResource(R.string.pdf_field_attach), style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle)
+                Text(
+                    stringResource(R.string.pdf_field_attach),
+                    style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp),
+                    color = if (hasError) EcoError else EcoTitle,
+                )
                 Text(hint, style = EcoTextStyles.Subtitle.copy(fontSize = 12.sp), color = EcoSubtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
             } else {
-                Icon(painterResource(R.drawable.ic_file_text), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(fileName, style = EcoTextStyles.FieldLabel.copy(fontSize = 13.sp, letterSpacing = 0.sp), color = EcoTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    fileSize?.let { Text(formatSize(it), style = EcoTextStyles.Subtitle.copy(fontSize = 12.sp), color = EcoSubtitle) }
-                }
+                // Insignia que identifica el tipo de documento adjunto
+                Text(
+                    stringResource(R.string.pdf_field_badge),
+                    style = EcoTextStyles.FieldLabel.copy(fontSize = 11.sp, letterSpacing = 0.sp),
+                    color = EcoWhite,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(EcoPrimary)
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                )
+                Text(
+                    fileName,
+                    style = EcoTextStyles.Subtitle.copy(fontSize = 13.sp),
+                    color = EcoTitle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
                 Text(
                     stringResource(R.string.pdf_field_remove),
-                    style = EcoTextStyles.FieldLabel,
-                    color = EcoError,
+                    style = EcoTextStyles.FieldLabel.copy(letterSpacing = 0.sp),
+                    color = EcoPrimary,
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
                         .clickable(role = Role.Button, onClick = onRemove)
@@ -169,12 +191,6 @@ private fun readDocument(context: Context, uri: Uri): PickedDocument {
         }
     }
     return PickedDocument(uri = uri, name = name ?: uri.lastPathSegment.orEmpty(), sizeBytes = size)
-}
-
-// Formatea una cantidad de bytes en una cadena legible en kilobytes o megabytes
-private fun formatSize(bytes: Long): String {
-    val kb = bytes / 1024.0
-    return if (kb < 1024) String.format(Locale.forLanguageTag("es-CO"), "%.0f KB", kb) else String.format(Locale.forLanguageTag("es-CO"), "%.1f MB", kb / 1024)
 }
 
 @Preview(name = "Campo PDF vacío", widthDp = 354)

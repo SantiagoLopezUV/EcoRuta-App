@@ -37,3 +37,9 @@ val EcoCodeBorder = Color(0xFFDDE5E1)
 
 // Fondo verde claro para insignias y estados de confirmación
 val EcoAccentSoft = Color(0xFFDBF5E5)
+
+// Borde punteado gris para las áreas de carga de documentos sin archivo
+val EcoDashedBorder = Color(0xFFCBD5E1)
+
+// Fondo verde muy suave para las áreas de carga con un documento adjunto
+val EcoAccentSurface = Color(0xFFF0FCF5)
