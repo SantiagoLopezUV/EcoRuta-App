@@ -149,5 +149,20 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
                 onRetry = {},
             )
         }
+
+        // Con la solicitud aprobada el gerente entra con la contraseña provisional y el registro sale de la pila
+        composable(EcoRutaDestination.STORE_REGISTRATION_APPROVED) {
+            StoreRequestStatusScreen(
+                state = StoreRequestStatusUiState.Approved(),
+                onLoginClick = {
+                    navController.navigate(EcoRutaDestination.LOGIN) {
+                        popUpTo(EcoRutaDestination.STORE_REGISTRATION) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onGoHome = { navController.goToPublicHomeAfterSignOut() },
+                onRetry = {},
+            )
+        }
     }
 }

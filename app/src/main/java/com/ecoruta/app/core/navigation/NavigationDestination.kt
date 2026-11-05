@@ -199,7 +199,7 @@ object NavigationDestination {
     const val COMPANY_RECYCLER_SELECTED_COMPANY = "registro_reciclador_empresa/empresa"
     const val COMPANY_RECYCLER_PENDING_ACTIVATION = "registro_reciclador_empresa/activacion"
 
-    // Rutas del registro del comercio aliado desde la cuenta del gerente hasta la solicitud en revisión
+    // Rutas del registro del comercio aliado desde la cuenta del gerente hasta la solicitud en revisión o aprobada
     const val STORE_REGISTRATION = "registro_comercio"
     const val STORE_REGISTRATION_ACCOUNT = "registro_comercio/cuenta"
     const val ARG_EMAIL = "correo"
@@ -207,6 +207,7 @@ object NavigationDestination {
     const val STORE_REGISTRATION_EMAIL_VALIDATED = "registro_comercio/correo_validado?correo={correo}"
     const val STORE_REGISTRATION_DETAILS = "registro_comercio/datos"
     const val STORE_REGISTRATION_IN_REVIEW = "registro_comercio/revision"
+    const val STORE_REGISTRATION_APPROVED = "registro_comercio/aprobada"
 
     fun storeRegistrationConfirmation(email: String) = "registro_comercio/confirmacion?correo=${Uri.encode(email)}"
     fun storeRegistrationEmailValidated(email: String) = "registro_comercio/correo_validado?correo=${Uri.encode(email)}"
