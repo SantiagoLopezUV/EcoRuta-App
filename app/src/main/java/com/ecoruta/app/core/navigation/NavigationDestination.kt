@@ -66,6 +66,7 @@ object NavigationDestination {
     const val MERCHANT_COUPON_VALIDATED = "comercio/validar/validado"
     const val MERCHANT_PROFILE = "comercio/perfil"
     const val MERCHANT_CHANGE_PROFILE = "comercio/perfil/cambiar"
+    const val MERCHANT_EDIT_PROFILE = "comercio/perfil/editar"
 
     fun merchantEditCoupon(id: String) = "comercio/mis_cupones/$id/editar"
 

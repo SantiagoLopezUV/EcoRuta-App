@@ -43,6 +43,9 @@ import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.Mer
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantDashboardScreen
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantDashboardUiState
 import com.ecoruta.app.features.profile.presentation.MerchantChangeProfileScreen
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileActions
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.MerchantProfileActions
 import com.ecoruta.app.features.profile.presentation.MerchantProfileScreen
 import com.ecoruta.app.features.profile.presentation.MerchantProfileUiState
@@ -194,8 +197,25 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
                 onPhotoSelected = { localPhoto = it },
                 onRemovePhoto = { localPhoto = null },
                 onChangeProfile = { open(EcoRutaDestination.MERCHANT_CHANGE_PROFILE) },
+                onEditProfile = { open(EcoRutaDestination.MERCHANT_EDIT_PROFILE) },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onTabClick = tabClick,
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.MERCHANT_EDIT_PROFILE) {
+        // Sin datos del servidor el formulario arranca vacío y guardar no hace nada hasta que exista el ViewModel
+        var state by remember { mutableStateOf(MerchantEditProfileUiState()) }
+        MerchantEditProfileScreen(
+            state = state,
+            actions = MerchantEditProfileActions(
+                onNameChange = { state = state.copy(name = it, nameErrorRes = null) },
+                onCategoryChange = { state = state.copy(category = it, categoryErrorRes = null) },
+                onAddressChange = { state = state.copy(address = it, addressErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }

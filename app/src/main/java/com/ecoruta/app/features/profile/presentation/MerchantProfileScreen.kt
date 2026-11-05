@@ -5,11 +5,13 @@ package com.ecoruta.app.features.profile.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
@@ -73,6 +76,7 @@ data class MerchantProfileActions(
     val onRemovePhoto: () -> Unit = {},
     val onCameraUnavailable: () -> Unit = {},
     val onChangeProfile: () -> Unit = {},
+    val onEditProfile: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onRetry: () -> Unit = {},
     val onTabClick: (MerchantTab) -> Unit = {},
@@ -131,6 +135,7 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
                 content = EcoBlack,
                 onClick = actions.onChangeProfile,
             )
+            EditDataButton(onClick = actions.onEditProfile)
             AccountButton(
                 text = stringResource(if (state.isSigningOut) R.string.profile_signing_out else R.string.home_logout),
                 iconRes = R.drawable.ic_profile_logout,
@@ -160,6 +165,22 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
             )
             state.details?.let { MerchantDetails(it) }
         }
+    }
+}
+
+// Botón secundario para editar los datos del comercio, con el estilo de cerrar sesión pero sin icono
+@Composable
+private fun EditDataButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(EcoDimens.ControlHeight)
+            .clip(RoundedCornerShape(EcoDimens.ControlCornerRadius))
+            .background(EcoFieldBackground)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(stringResource(R.string.merchant_profile_edit_data), style = EcoTextStyles.LinkText, color = EcoPrimary)
     }
 }
 
