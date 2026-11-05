@@ -754,6 +754,7 @@
     <string name="guide_reward_close">Cerrar</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
+    <string name="action_accept">Aceptar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
     <string name="profile_photo_sheet_description">Se verá en tu perfil.</string>
     <string name="profile_photo_take">Tomar foto</string>
@@ -1098,6 +1099,7 @@
     <string name="merchant_coupon_quantity_label">Cantidad disponible</string>
     <string name="merchant_coupon_valid_until_label">Vigencia</string>
     <string name="merchant_coupon_valid_until_placeholder">dd/mm/aaaa</string>
+    <string name="merchant_coupon_date_picker_title">Selecciona la fecha de vencimiento</string>
     <string name="merchant_create_publish">Publicar cupón</string>
     <string name="merchant_create_publish_hint">Al publicar, el cupón quedará disponible para canjear por %1$s puntos.</string>
     <string name="merchant_create_publish_hint_generic">Al publicar, el cupón quedará disponible para que los ciudadanos lo canjeen con sus puntos.</string>

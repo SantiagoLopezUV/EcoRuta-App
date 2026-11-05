@@ -55,6 +55,8 @@ fun EcoTextField(
     // Texto de ayuda secundario ubicado debajo del campo cuando no hay errores
     supportingText: String? = null,
     enabled: Boolean = true,
+    // Muestra el valor sin permitir escribirlo, útil cuando otro control elige el valor
+    readOnly: Boolean = false,
     singleLine: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -74,6 +76,7 @@ fun EcoTextField(
             value = value,
             onValueChange = onValueChange,
             enabled = enabled,
+            readOnly = readOnly,
             singleLine = singleLine,
             // El texto escrito utiliza el color de título mientras que el texto de sugerencia usa el de subtítulo
             textStyle = EcoTextStyles.Subtitle.copy(color = EcoTitle),
