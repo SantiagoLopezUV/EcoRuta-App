@@ -184,6 +184,8 @@ internal fun UserCard(
     isUpdatingPhoto: Boolean,
     onChangePhoto: () -> Unit,
     footer: String = profile.email,
+    // Texto principal junto a la foto, por defecto el nombre del usuario
+    headline: String = profile.fullName,
 ) {
     Column(
         modifier = Modifier
@@ -222,7 +224,7 @@ internal fun UserCard(
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(profile.fullName, style = EcoTextStyles.ButtonText, color = EcoWhite)
+                Text(headline, style = EcoTextStyles.ButtonText, color = EcoWhite)
                 Text(
                     stringResource(R.string.profile_role_city, stringResource(profile.role.roleNameRes()), profile.city),
                     style = EcoTextStyles.Subtitle,

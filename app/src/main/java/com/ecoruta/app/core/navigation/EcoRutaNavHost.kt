@@ -31,6 +31,7 @@ import com.ecoruta.app.features.circular_economy.presentation.navigation.circula
 import com.ecoruta.app.features.circular_economy.presentation.navigation.recyclerGraph
 import com.ecoruta.app.features.education.presentation.navigation.educationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.gamificationGraph
+import com.ecoruta.app.features.gamification.presentation.navigation.merchantGraph
 import com.ecoruta.app.features.profile.presentation.navigation.profileGraph
 import com.ecoruta.app.features.reports.presentation.navigation.reportsGraph
 import com.ecoruta.app.features.routes.presentation.navigation.routesGraph
@@ -84,6 +85,7 @@ fun EcoRutaNavHost(
             circularEconomyGraph(navController = navController, showNotice = showNotice)
             recyclerGraph(navController = navController)
             gamificationGraph(navController = navController)
+            merchantGraph(navController = navController)
             educationGraph(navController = navController, showNotice = showNotice)
 
             EcoRutaDestination.pendingScreens.forEach { (route, screenName) ->
