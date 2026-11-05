@@ -35,6 +35,7 @@ import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
+import com.ecoruta.app.core.ui.components.EcoTextLink
 import com.ecoruta.app.core.ui.components.OfflineScreen
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoBlack
@@ -47,6 +48,7 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantEmptyStateCard
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileContent
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
@@ -96,15 +98,7 @@ fun MerchantProfileScreen(state: MerchantProfileUiState, actions: MerchantProfil
             actionText = stringResource(R.string.action_retry),
             onAction = actions.onRetry,
         )
-        !state.isLoading && state.profile == null -> EcoSystemStateScreen(
-            title = stringResource(R.string.merchant_profile_title),
-            subtitle = stringResource(R.string.role_store),
-            illustrationRes = R.drawable.ic_nav_ticket,
-            heading = stringResource(R.string.merchant_profile_empty_heading),
-            body = stringResource(R.string.merchant_profile_empty_body),
-            actionText = stringResource(R.string.action_retry),
-            onAction = actions.onRetry,
-        )
+        // Sin datos del perfil se usa la misma pantalla para conservar las pestañas y las acciones de la cuenta
         else -> MerchantProfileContent(state, actions)
     }
 }
@@ -146,13 +140,24 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
         },
     ) {
         Text(stringResource(R.string.merchant_profile_title), style = EcoTextStyles.Title, color = EcoTitle)
-        if (profile == null) {
+        if (profile == null && state.isLoading) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 40.dp),
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator(color = EcoPrimary) }
+        } else if (profile == null) {
+            MerchantEmptyStateCard(
+                illustrationRes = R.drawable.ic_nav_ticket,
+                heading = stringResource(R.string.merchant_profile_empty_heading),
+                body = stringResource(R.string.merchant_profile_empty_body),
+            )
+            EcoTextLink(
+                text = stringResource(R.string.action_retry),
+                onClick = actions.onRetry,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
         } else {
             // La marca va dentro de la tarjeta y el nombre comercial queda al pie
             UserCard(
