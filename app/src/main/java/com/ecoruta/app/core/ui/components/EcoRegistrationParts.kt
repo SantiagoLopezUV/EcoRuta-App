@@ -56,6 +56,7 @@ fun EcoStepHeader(
     modifier: Modifier = Modifier,
     showBrand: Boolean = true,
     onBackClick: (() -> Unit)? = null,
+    showProgress: Boolean = true,
 ) {
     val animatedProgress by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), label = "progreso")
     Column(
@@ -95,20 +96,25 @@ fun EcoStepHeader(
             Text(stepLabel, style = EcoTextStyles.LinkText, color = EcoTitle)
             Text(stageLabel, style = EcoTextStyles.Subtitle, color = EcoTitle)
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(50))
-                .background(EcoBorder),
-        ) {
+        // Sin progreso solo se dibuja una línea fina que separa la cabecera del contenido
+        if (showProgress) {
             Box(
-                Modifier
-                    .fillMaxWidth(animatedProgress)
-                    .fillMaxHeight()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
                     .clip(RoundedCornerShape(50))
-                    .background(EcoPrimary),
-            )
+                    .background(EcoBorder),
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth(animatedProgress)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(50))
+                        .background(EcoPrimary),
+                )
+            }
+        } else {
+            HorizontalDivider(thickness = 1.dp, color = EcoBorder)
         }
     }
 }
