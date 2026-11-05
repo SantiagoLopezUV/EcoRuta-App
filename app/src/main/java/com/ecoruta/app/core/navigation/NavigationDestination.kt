@@ -216,7 +216,6 @@ object NavigationDestination {
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
     val pendingScreens: Map<String, String> = mapOf(
         MY_ORDERS to "Chofer · Mis órdenes",
-        STORE_DASHBOARD to "Comercio · Panel del comercio",
     )
 }
 
