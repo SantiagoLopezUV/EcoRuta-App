@@ -13,8 +13,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.auth.presentation.register.StoreDetailsActions
 import com.ecoruta.app.features.auth.presentation.register.StoreDetailsScreen
 import com.ecoruta.app.features.auth.presentation.register.StoreDetailsUiState
@@ -87,6 +89,8 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
 
         composable(EcoRutaDestination.STORE_REGISTRATION_DETAILS) {
             var state by remember { mutableStateOf(StoreDetailsUiState()) }
+            // El selector del sistema se registra aquí para que la pantalla solo reciba el nombre del RUT
+            val pickRut = rememberPdfPicker { document -> state = state.copy(rutFileName = document.name, rutErrorRes = null) }
             StoreDetailsScreen(
                 state = state,
                 actions = StoreDetailsActions(
@@ -96,11 +100,18 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
                     onCategoryChange = { state = state.copy(category = it, categoryErrorRes = null) },
                     onAddressChange = { state = state.copy(address = it, addressErrorRes = null) },
                     onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                    onPickPdf = pickRut,
+                    onRemovePdf = { state = state.copy(rutFileName = null) },
                     onDataPolicyChange = { state = state.copy(acceptedDataPolicy = it) },
                     onViewPolicyClick = {},
                     onSubmit = {
-                        navController.navigate(EcoRutaDestination.STORE_REGISTRATION_IN_REVIEW) {
-                            popUpTo(EcoRutaDestination.RECORD) { inclusive = true }
+                        // Temporal hasta que exista el ViewModel, sin RUT adjunto se marca el campo en vez de enviar
+                        if (state.rutFileName == null) {
+                            state = state.copy(rutErrorRes = R.string.store_application_error_rut)
+                        } else {
+                            navController.navigate(EcoRutaDestination.STORE_REGISTRATION_IN_REVIEW) {
+                                popUpTo(EcoRutaDestination.RECORD) { inclusive = true }
+                            }
                         }
                     },
                     onBack = { navController.popBackStack() },
