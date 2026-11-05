@@ -56,10 +56,15 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
     composable(EcoRutaDestination.STORE_DASHBOARD) {
+        var state by remember { mutableStateOf(MerchantDashboardUiState()) }
         MerchantDashboardScreen(
-            state = MerchantDashboardUiState(),
+            state = state,
             actions = MerchantDashboardActions(
                 onEditCoupon = { open(EcoRutaDestination.merchantEditCoupon(it.id)) },
+                onDeactivateCoupon = { state = state.copy(couponToDeactivate = it) },
+                // Sin servidor la confirmación solo cierra el diálogo hasta que exista el ViewModel
+                onConfirmDeactivate = { state = state.copy(couponToDeactivate = null) },
+                onDismissDeactivate = { state = state.copy(couponToDeactivate = null) },
                 onCreateCoupon = { tabClick(MerchantTab.CREATE_COUPON) },
                 onTabClick = tabClick,
             ),
@@ -95,10 +100,15 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
     }
 
     composable(EcoRutaDestination.MERCHANT_COUPONS) {
+        var state by remember { mutableStateOf(MerchantCouponsUiState()) }
         MerchantCouponsScreen(
-            state = MerchantCouponsUiState(),
+            state = state,
             actions = MerchantCouponsActions(
                 onEditCoupon = { open(EcoRutaDestination.merchantEditCoupon(it.id)) },
+                onDeactivateCoupon = { state = state.copy(couponToDeactivate = it) },
+                // Sin servidor la confirmación solo cierra el diálogo hasta que exista el ViewModel
+                onConfirmDeactivate = { state = state.copy(couponToDeactivate = null) },
+                onDismissDeactivate = { state = state.copy(couponToDeactivate = null) },
                 onCreateCoupon = { tabClick(MerchantTab.CREATE_COUPON) },
                 onTabClick = tabClick,
             ),

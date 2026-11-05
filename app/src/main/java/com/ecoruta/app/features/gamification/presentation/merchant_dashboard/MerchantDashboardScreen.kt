@@ -49,11 +49,15 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.gamification.presentation.merchant_coupons.MerchantDeactivateCouponDialog
 
 // Acciones disponibles en el panel del comercio
 data class MerchantDashboardActions(
     val onEditCoupon: (MerchantCoupon) -> Unit = {},
-    val onToggleCoupon: (MerchantCoupon, Boolean) -> Unit = { _, _ -> },
+    // Al apagar el interruptor se pide la confirmación y la desactivación solo se aplica al confirmar
+    val onDeactivateCoupon: (MerchantCoupon) -> Unit = {},
+    val onConfirmDeactivate: () -> Unit = {},
+    val onDismissDeactivate: () -> Unit = {},
     val onCreateCoupon: () -> Unit = {},
     val onRetry: () -> Unit = {},
     val onTabClick: (MerchantTab) -> Unit = {},
@@ -107,6 +111,9 @@ private fun MerchantDashboardContent(state: MerchantDashboardUiState, actions: M
             DashboardSections(state, actions)
         }
     }
+    if (state.showDeactivateConfirm) {
+        MerchantDeactivateCouponDialog(onConfirm = actions.onConfirmDeactivate, onDismiss = actions.onDismissDeactivate)
+    }
 }
 
 // Resumen en cifras, cupones activos y canjes recientes del comercio
@@ -132,7 +139,8 @@ private fun DashboardSections(state: MerchantDashboardUiState, actions: Merchant
                 state.activeCoupons.forEach { coupon ->
                     ActiveCouponCard(
                         coupon = coupon,
-                        onToggle = { actions.onToggleCoupon(coupon, it) },
+                        // El panel solo lista cupones activos, así que el interruptor solo sirve para desactivar
+                        onToggle = { checked -> if (!checked) actions.onDeactivateCoupon(coupon) },
                         onEdit = { actions.onEditCoupon(coupon) },
                     )
                 }
@@ -333,6 +341,17 @@ private val PreviewDashboardState = MerchantDashboardUiState(
 @Composable
 private fun MerchantDashboardPreview() {
     EcoRutaTheme { MerchantDashboardScreen(state = PreviewDashboardState, actions = MerchantDashboardActions()) }
+}
+
+@Preview(name = "Panel del comercio · Confirmar desactivación", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantDashboardDeactivateConfirmPreview() {
+    EcoRutaTheme {
+        MerchantDashboardScreen(
+            state = PreviewDashboardState.copy(couponToDeactivate = PreviewMerchantCoupon),
+            actions = MerchantDashboardActions(),
+        )
+    }
 }
 
 @Preview(name = "Panel del comercio · Cargando", widthDp = 393, heightDp = 852)

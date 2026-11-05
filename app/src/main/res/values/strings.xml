@@ -1123,6 +1123,8 @@
         <item quantity="other">%1$d cupones</item>
     </plurals>
     <string name="merchant_coupons_deactivate">Desactivar</string>
+    <string name="merchant_coupons_deactivate_title">¿Desactivar este cupón?</string>
+    <string name="merchant_coupons_deactivate_message">Los clientes ya no podrán canjearlo. Puedes activarlo de nuevo cuando quieras.</string>
     <string name="merchant_coupons_hidden">No visible para ciudadanos</string>
     <string name="merchant_coupons_empty_body">Crea un cupón y aparecerá aquí para que lo administres.</string>
     <string name="merchant_coupons_error_heading">No pudimos cargar tus cupones</string>

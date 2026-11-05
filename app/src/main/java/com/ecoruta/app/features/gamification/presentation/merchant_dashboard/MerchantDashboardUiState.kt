@@ -29,10 +29,14 @@ data class MerchantDashboardUiState(
     val redemptionsToday: Int = 0,
     val recentRedemptions: List<MerchantRedemption> = emptyList(),
     val redemptionsDateLabel: String = "",
+    // Cupón que espera la confirmación del comercio antes de desactivarse
+    val couponToDeactivate: MerchantCoupon? = null,
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val isOffline: Boolean = false,
 ) {
+    val showDeactivateConfirm: Boolean get() = couponToDeactivate != null
+
     // El panel se considera vacío cuando no hay cupones ni canjes para mostrar
     val isEmpty: Boolean get() = activeCoupons.isEmpty() && recentRedemptions.isEmpty()
 }

@@ -115,6 +115,9 @@ private fun MerchantCouponsContent(state: MerchantCouponsUiState, actions: Merch
             }
         }
     }
+    if (state.showDeactivateConfirm) {
+        MerchantDeactivateCouponDialog(onConfirm = actions.onConfirmDeactivate, onDismiss = actions.onDismissDeactivate)
+    }
 }
 
 // Tarjeta de un cupón con su estado, costo, vigencia y las acciones según esté activo o no
@@ -178,6 +181,17 @@ private val PreviewCouponsState = MerchantCouponsUiState(
 @Composable
 private fun MerchantCouponsPreview() {
     EcoRutaTheme { MerchantCouponsScreen(state = PreviewCouponsState, actions = MerchantCouponsActions()) }
+}
+
+@Preview(name = "Mis cupones del comercio · Confirmar desactivación", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantCouponsDeactivateConfirmPreview() {
+    EcoRutaTheme {
+        MerchantCouponsScreen(
+            state = PreviewCouponsState.copy(couponToDeactivate = PreviewCouponsState.coupons.first()),
+            actions = MerchantCouponsActions(),
+        )
+    }
 }
 
 @Preview(name = "Mis cupones del comercio · Cargando", widthDp = 393, heightDp = 852)
