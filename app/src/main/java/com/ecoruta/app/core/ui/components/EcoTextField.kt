@@ -78,8 +78,8 @@ fun EcoTextField(
             enabled = enabled,
             readOnly = readOnly,
             singleLine = singleLine,
-            // El texto escrito utiliza el color de título mientras que el texto de sugerencia usa el de subtítulo
-            textStyle = EcoTextStyles.Subtitle.copy(color = EcoTitle),
+            // El texto escrito utiliza el color de título y se atenúa con el de subtítulo cuando el campo está deshabilitado
+            textStyle = EcoTextStyles.Subtitle.copy(color = if (enabled) EcoTitle else EcoSubtitle),
             cursorBrush = SolidColor(EcoTitle),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
