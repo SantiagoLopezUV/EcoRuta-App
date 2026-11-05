@@ -1166,6 +1166,13 @@
     <string name="merchant_profile_title">Perfil del comercio</string>
     <string name="merchant_profile_category">Categoría</string>
     <string name="merchant_profile_address">Dirección</string>
+    <string name="merchant_profile_edit_data">Editar datos</string>
+    <string name="merchant_edit_profile_title">Editar perfil</string>
+    <string name="merchant_edit_profile_description">Actualiza los datos de tu comercio. Escribimos tu dirección completa para que la puedas corregir.</string>
+    <string name="merchant_edit_profile_nit_hint">El NIT no se puede modificar. Escribe a la administración si debe corregirse.</string>
+    <string name="merchant_edit_profile_review_notice">Algunos cambios pueden requerir revisión de la administración antes de verse en tu perfil.</string>
+    <string name="merchant_edit_profile_saved">Cambios guardados. Los datos que requieren revisión aparecerán cuando la administración los apruebe.</string>
+    <string name="merchant_edit_profile_error_name">Ingresa el nombre comercial.</string>
     <string name="merchant_profile_error_heading">No pudimos cargar el perfil del comercio</string>
     <string name="merchant_profile_empty_heading">Aún no hay datos del comercio</string>
     <string name="merchant_profile_empty_body">Los datos de tu comercio aparecerán aquí cuando la administración los confirme.</string>
