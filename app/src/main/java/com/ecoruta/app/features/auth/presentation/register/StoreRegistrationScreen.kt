@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.components.EcoCheckboxRow
+import com.ecoruta.app.core.ui.components.EcoPdfField
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.EcoTextField
@@ -172,6 +173,8 @@ data class StoreDetailsActions(
     val onCategoryChange: (StoreCategory) -> Unit = {},
     val onAddressChange: (String) -> Unit = {},
     val onPhoneChange: (String) -> Unit = {},
+    val onPickPdf: () -> Unit = {},
+    val onRemovePdf: () -> Unit = {},
     val onDataPolicyChange: (Boolean) -> Unit = {},
     val onViewPolicyClick: () -> Unit = {},
     val onSubmit: () -> Unit = {},
@@ -268,6 +271,15 @@ fun StoreDetailsScreen(
             errorMessage = state.phoneErrorRes?.let { stringResource(it) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        )
+        // El selector de archivos vive en la navegación, aquí solo se muestra el RUT elegido
+        EcoPdfField(
+            label = stringResource(R.string.store_application_rut),
+            hint = stringResource(R.string.store_application_rut_hint),
+            fileName = state.rutFileName,
+            onPickClick = actions.onPickPdf,
+            onRemove = actions.onRemovePdf,
+            errorMessage = state.rutErrorRes?.let { stringResource(it) },
         )
         Text(
             stringResource(if (state.hasErrors) R.string.store_registration_details_review_info else R.string.store_registration_details_info),
@@ -510,6 +522,28 @@ private fun StoreDetailsValidationPreview() {
                 addressErrorRes = R.string.store_registration_error_address,
                 phoneErrorRes = R.string.store_registration_error_phone,
             ),
+            actions = StoreDetailsActions(),
+        )
+    }
+}
+
+@Preview(name = "Comercio · Datos con RUT cargado", widthDp = 393, heightDp = 1100)
+@Composable
+private fun StoreDetailsRutLoadedPreview() {
+    EcoRutaTheme {
+        StoreDetailsScreen(
+            state = StoreDetailsUiState(rutFileName = "rut_papeleria_el_lapiz.pdf"),
+            actions = StoreDetailsActions(),
+        )
+    }
+}
+
+@Preview(name = "Comercio · Datos con RUT pendiente", widthDp = 393, heightDp = 1100)
+@Composable
+private fun StoreDetailsRutErrorPreview() {
+    EcoRutaTheme {
+        StoreDetailsScreen(
+            state = StoreDetailsUiState(rutErrorRes = R.string.store_application_error_rut),
             actions = StoreDetailsActions(),
         )
     }

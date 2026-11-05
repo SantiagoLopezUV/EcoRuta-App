@@ -27,18 +27,31 @@ data class StoreDetailsUiState(
     val category: StoreCategory? = null,
     val address: String = "",
     val phone: String = "",
+    val rutFileName: String? = null,
     val acceptedDataPolicy: Boolean = false,
     @StringRes val nameErrorRes: Int? = null,
     @StringRes val idErrorRes: Int? = null,
     @StringRes val categoryErrorRes: Int? = null,
     @StringRes val addressErrorRes: Int? = null,
     @StringRes val phoneErrorRes: Int? = null,
+    @StringRes val rutErrorRes: Int? = null,
     val isSubmitting: Boolean = false,
     val isOffline: Boolean = false,
 ) {
     val hasErrors: Boolean
-        get() = listOf(nameErrorRes, idErrorRes, categoryErrorRes, addressErrorRes, phoneErrorRes).any { it != null }
+        get() = listOf(nameErrorRes, idErrorRes, categoryErrorRes, addressErrorRes, phoneErrorRes, rutErrorRes).any { it != null }
+
+    // El error tiene prioridad sobre el archivo para que el campo se marque en rojo al validar
+    val rutStatus: PdfUploadStatus
+        get() = when {
+            rutErrorRes != null -> PdfUploadStatus.ERROR
+            rutFileName != null -> PdfUploadStatus.LOADED
+            else -> PdfUploadStatus.EMPTY
+        }
 }
+
+// Estados posibles del campo donde se adjunta el RUT en PDF
+enum class PdfUploadStatus { EMPTY, LOADED, ERROR }
 
 // Estado de la solicitud del comercio después de enviarla a revisión
 sealed interface StoreRequestStatusUiState {
