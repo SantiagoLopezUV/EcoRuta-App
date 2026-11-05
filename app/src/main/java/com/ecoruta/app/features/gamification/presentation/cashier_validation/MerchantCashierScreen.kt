@@ -174,6 +174,14 @@ private fun MerchantCashierPreview() {
     }
 }
 
+@Preview(name = "Validar cupón en caja · Pantalla angosta", widthDp = 320, heightDp = 900)
+@Composable
+private fun MerchantCashierNarrowPreview() {
+    EcoRutaTheme {
+        MerchantCashierScreen(state = MerchantCashierUiState(storeName = "Café del Parque", code = "7K2M90AB"), actions = MerchantCashierActions())
+    }
+}
+
 @Preview(name = "Validar cupón en caja · Vacío", widthDp = 393, heightDp = 900)
 @Composable
 private fun MerchantCashierEmptyPreview() {

@@ -76,6 +76,14 @@ object EcoTextStyles {
         lineHeight = 30.sp,
     )
 
+    // Versión reducida de las cifras para casillas de código en pantallas angostas
+    val NumbersCompact = TextStyle(
+        fontFamily = ManropeFontFamily,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+    )
+
     // Estilo para el nombre de la marca en la pantalla de presentación inicial
     val SplashBrand = TextStyle(
         fontFamily = InterFontFamily,
