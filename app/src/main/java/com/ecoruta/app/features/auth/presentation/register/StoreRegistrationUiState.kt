@@ -19,6 +19,15 @@ data class StoreOwnerAccountUiState(
     val hasErrors: Boolean get() = fullNameErrorRes != null || emailErrorRes != null
 }
 
+// Estados del reenvío del enlace de confirmación al correo
+enum class ResendLinkStatus { IDLE, SENDING, SENT }
+
+// Estado de la pantalla que espera la confirmación del correo del gerente
+data class StoreEmailConfirmationUiState(
+    val email: String,
+    val resendStatus: ResendLinkStatus = ResendLinkStatus.IDLE,
+)
+
 // Estado del segundo paso con los datos del establecimiento y la aceptación de la política de datos
 data class StoreDetailsUiState(
     val name: String = "",

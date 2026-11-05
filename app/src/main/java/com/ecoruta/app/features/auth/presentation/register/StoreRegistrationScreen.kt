@@ -136,17 +136,18 @@ fun StoreOwnerAccountScreen(
 // Pantalla que pide al gerente abrir el enlace enviado a su correo
 @Composable
 fun StoreEmailConfirmationScreen(
-    email: String,
+    state: StoreEmailConfirmationUiState,
     onResendClick: () -> Unit,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     RecyclerEmailConfirmationScreen(
         type = RegistrationType.STORE,
-        email = email,
+        email = state.email,
         onResendClick = onResendClick,
         onExit = onExit,
         modifier = modifier,
+        resendStatus = state.resendStatus,
     )
 }
 
@@ -490,7 +491,31 @@ private fun StoreOwnerAccountOfflinePreview() {
 @Composable
 private fun StoreEmailConfirmationPreview() {
     EcoRutaTheme {
-        StoreEmailConfirmationScreen(email = "gerente@example.com", onResendClick = {}, onExit = {})
+        StoreEmailConfirmationScreen(state = StoreEmailConfirmationUiState(email = "gerente@example.com"), onResendClick = {}, onExit = {})
+    }
+}
+
+@Preview(name = "Comercio · Reenviando enlace", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreEmailResendingPreview() {
+    EcoRutaTheme {
+        StoreEmailConfirmationScreen(
+            state = StoreEmailConfirmationUiState(email = "gerente@example.com", resendStatus = ResendLinkStatus.SENDING),
+            onResendClick = {},
+            onExit = {},
+        )
+    }
+}
+
+@Preview(name = "Comercio · Enlace reenviado", widthDp = 393, heightDp = 852)
+@Composable
+private fun StoreEmailResentPreview() {
+    EcoRutaTheme {
+        StoreEmailConfirmationScreen(
+            state = StoreEmailConfirmationUiState(email = "gerente@example.com", resendStatus = ResendLinkStatus.SENT),
+            onResendClick = {},
+            onExit = {},
+        )
     }
 }
 
