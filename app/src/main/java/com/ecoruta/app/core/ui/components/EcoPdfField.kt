@@ -54,29 +54,6 @@ data class PickedDocument(
     val sizeBytes: Long? = null,
 )
 
-// Campo que abre por su cuenta el selector de PDF para los formularios que guardan el documento completo
-@Composable
-fun EcoPdfField(
-    label: String,
-    hint: String,
-    document: PickedDocument?,
-    onPicked: (PickedDocument) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-    errorMessage: String? = null,
-) {
-    val pickPdf = rememberPdfPicker(onPicked)
-    EcoPdfField(
-        label = label,
-        hint = hint,
-        fileName = document?.name,
-        onPickClick = pickPdf,
-        onRemove = onRemove,
-        modifier = modifier,
-        errorMessage = errorMessage,
-    )
-}
-
 // Prepara el selector de documentos del sistema filtrado a PDF y devuelve la acción que lo abre
 @Composable
 fun rememberPdfPicker(onPicked: (PickedDocument) -> Unit): () -> Unit {
