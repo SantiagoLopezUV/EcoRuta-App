@@ -231,6 +231,7 @@ internal fun <T> SelectField(
     optionLabel: @Composable (T) -> String,
     onSelected: (T) -> Unit,
     errorMessage: String? = null,
+    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(EcoDimens.ControlCornerRadius)
@@ -244,7 +245,7 @@ internal fun <T> SelectField(
                     .clip(shape)
                     .background(EcoFieldBackground)
                     .then(if (errorMessage != null) Modifier.border(1.5.dp, EcoError, shape) else Modifier)
-                    .clickable(role = Role.DropdownList, onClickLabel = label) { expanded = true }
+                    .clickable(enabled = enabled, role = Role.DropdownList, onClickLabel = label) { expanded = true }
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -253,7 +254,7 @@ internal fun <T> SelectField(
                 Text(
                     selected?.let { optionLabel(it) } ?: placeholder,
                     style = EcoTextStyles.Subtitle,
-                    color = if (selected != null) EcoTitle else EcoSubtitle,
+                    color = if (selected != null && enabled) EcoTitle else EcoSubtitle,
                     modifier = Modifier.weight(1f),
                 )
                 Icon(
