@@ -127,6 +127,47 @@ class PasswordResetViewModelTest {
         assertTrue(events.isEmpty())
     }
 
+    @Test
+    fun submit_showsLoadingUntilRequestFinishes() = runTest {
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+
+        // La corrutina sigue en cola porque el dispatcher de prueba aún no avanza
+        assertTrue(viewModel.uiState.value.isRequestingCode)
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isRequestingCode)
+    }
+
+    @Test
+    fun submitWhileLoading_isIgnored() = runTest {
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+    }
+
+    @Test
+    fun retryAfterError_succeeds() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.requestFailed)
+
+        repository.error = null
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.requestFailed)
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+        assertEquals(listOf(PasswordRecoveryEvent.CodeSent), events)
+    }
+
     // Guarda en una lista los avisos de una sola vez que emite el ViewModel durante la prueba
     private fun TestScope.collectEvents(): List<PasswordRecoveryEvent> {
         val events = mutableListOf<PasswordRecoveryEvent>()
