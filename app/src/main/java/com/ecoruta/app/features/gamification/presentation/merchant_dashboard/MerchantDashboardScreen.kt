@@ -3,6 +3,8 @@ package com.ecoruta.app.features.gamification.presentation.merchant_dashboard
 // Vista del panel principal del comercio aliado
 // Resume los cupones activos, permite activarlos o editarlos y muestra los canjes recientes
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +33,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
+import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.OfflineScreen
@@ -49,11 +53,15 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.gamification.presentation.merchant_coupons.MerchantDeactivateCouponDialog
 
 // Acciones disponibles en el panel del comercio
 data class MerchantDashboardActions(
     val onEditCoupon: (MerchantCoupon) -> Unit = {},
-    val onToggleCoupon: (MerchantCoupon, Boolean) -> Unit = { _, _ -> },
+    // Al apagar el interruptor se pide la confirmación y la desactivación solo se aplica al confirmar
+    val onDeactivateCoupon: (MerchantCoupon) -> Unit = {},
+    val onConfirmDeactivate: () -> Unit = {},
+    val onDismissDeactivate: () -> Unit = {},
     val onCreateCoupon: () -> Unit = {},
     val onRetry: () -> Unit = {},
     val onTabClick: (MerchantTab) -> Unit = {},
@@ -73,16 +81,50 @@ fun MerchantDashboardScreen(state: MerchantDashboardUiState, actions: MerchantDa
             actionText = stringResource(R.string.action_retry),
             onAction = actions.onRetry,
         )
-        !state.isLoading && state.isEmpty -> EcoSystemStateScreen(
-            title = stringResource(R.string.merchant_dashboard_title),
-            subtitle = state.storeName,
+        !state.isLoading && state.isEmpty -> MerchantDashboardEmpty(state, actions)
+        else -> MerchantDashboardContent(state, actions)
+    }
+}
+
+// Panel sin cupones ni canjes que conserva la barra del comercio para poder cambiar de pestaña
+@Composable
+private fun MerchantDashboardEmpty(state: MerchantDashboardUiState, actions: MerchantDashboardActions) {
+    EcoRoleTabScreenLayout(
+        items = MerchantTab.entries,
+        selectedTab = MerchantTab.DASHBOARD,
+        onTabClick = actions.onTabClick,
+        showBrandHeader = false,
+        contentSpacing = 18.dp,
+        bottomActions = {
+            EcoPrimaryButton(text = stringResource(R.string.merchant_tab_create), onClick = actions.onCreateCoupon)
+        },
+    ) {
+        MerchantHeaderCard(storeName = state.storeName)
+        MerchantEmptyStateCard(
             illustrationRes = R.drawable.ic_nav_ticket,
             heading = stringResource(R.string.merchant_dashboard_empty_heading),
             body = stringResource(R.string.merchant_dashboard_empty_body),
-            actionText = stringResource(R.string.merchant_tab_create),
-            onAction = actions.onCreateCoupon,
         )
-        else -> MerchantDashboardContent(state, actions)
+    }
+}
+
+// Recuadro con ilustración, título y explicación para las pestañas del comercio que aún no tienen datos
+@Composable
+internal fun MerchantEmptyStateCard(@DrawableRes illustrationRes: Int, heading: String, body: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(EcoFieldBackground)
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Image(painterResource(illustrationRes), contentDescription = null, modifier = Modifier.size(104.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(heading, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        }
     }
 }
 
@@ -106,6 +148,9 @@ private fun MerchantDashboardContent(state: MerchantDashboardUiState, actions: M
         } else {
             DashboardSections(state, actions)
         }
+    }
+    if (state.showDeactivateConfirm) {
+        MerchantDeactivateCouponDialog(onConfirm = actions.onConfirmDeactivate, onDismiss = actions.onDismissDeactivate)
     }
 }
 
@@ -132,7 +177,8 @@ private fun DashboardSections(state: MerchantDashboardUiState, actions: Merchant
                 state.activeCoupons.forEach { coupon ->
                     ActiveCouponCard(
                         coupon = coupon,
-                        onToggle = { actions.onToggleCoupon(coupon, it) },
+                        // El panel solo lista cupones activos, así que el interruptor solo sirve para desactivar
+                        onToggle = { checked -> if (!checked) actions.onDeactivateCoupon(coupon) },
                         onEdit = { actions.onEditCoupon(coupon) },
                     )
                 }
@@ -333,6 +379,17 @@ private val PreviewDashboardState = MerchantDashboardUiState(
 @Composable
 private fun MerchantDashboardPreview() {
     EcoRutaTheme { MerchantDashboardScreen(state = PreviewDashboardState, actions = MerchantDashboardActions()) }
+}
+
+@Preview(name = "Panel del comercio · Confirmar desactivación", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantDashboardDeactivateConfirmPreview() {
+    EcoRutaTheme {
+        MerchantDashboardScreen(
+            state = PreviewDashboardState.copy(couponToDeactivate = PreviewMerchantCoupon),
+            actions = MerchantDashboardActions(),
+        )
+    }
 }
 
 @Preview(name = "Panel del comercio · Cargando", widthDp = 393, heightDp = 852)

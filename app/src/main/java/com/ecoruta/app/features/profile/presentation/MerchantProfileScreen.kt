@@ -5,11 +5,13 @@ package com.ecoruta.app.features.profile.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,12 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
+import com.ecoruta.app.core.ui.components.EcoTextLink
 import com.ecoruta.app.core.ui.components.OfflineScreen
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoBlack
@@ -44,6 +48,7 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantEmptyStateCard
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileContent
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
@@ -73,6 +78,7 @@ data class MerchantProfileActions(
     val onRemovePhoto: () -> Unit = {},
     val onCameraUnavailable: () -> Unit = {},
     val onChangeProfile: () -> Unit = {},
+    val onEditProfile: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onRetry: () -> Unit = {},
     val onTabClick: (MerchantTab) -> Unit = {},
@@ -92,15 +98,7 @@ fun MerchantProfileScreen(state: MerchantProfileUiState, actions: MerchantProfil
             actionText = stringResource(R.string.action_retry),
             onAction = actions.onRetry,
         )
-        !state.isLoading && state.profile == null -> EcoSystemStateScreen(
-            title = stringResource(R.string.merchant_profile_title),
-            subtitle = stringResource(R.string.role_store),
-            illustrationRes = R.drawable.ic_nav_ticket,
-            heading = stringResource(R.string.merchant_profile_empty_heading),
-            body = stringResource(R.string.merchant_profile_empty_body),
-            actionText = stringResource(R.string.action_retry),
-            onAction = actions.onRetry,
-        )
+        // Sin datos del perfil se usa la misma pantalla para conservar las pestañas y las acciones de la cuenta
         else -> MerchantProfileContent(state, actions)
     }
 }
@@ -131,6 +129,7 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
                 content = EcoBlack,
                 onClick = actions.onChangeProfile,
             )
+            EditDataButton(onClick = actions.onEditProfile)
             AccountButton(
                 text = stringResource(if (state.isSigningOut) R.string.profile_signing_out else R.string.home_logout),
                 iconRes = R.drawable.ic_profile_logout,
@@ -141,13 +140,24 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
         },
     ) {
         Text(stringResource(R.string.merchant_profile_title), style = EcoTextStyles.Title, color = EcoTitle)
-        if (profile == null) {
+        if (profile == null && state.isLoading) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 40.dp),
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator(color = EcoPrimary) }
+        } else if (profile == null) {
+            MerchantEmptyStateCard(
+                illustrationRes = R.drawable.ic_nav_ticket,
+                heading = stringResource(R.string.merchant_profile_empty_heading),
+                body = stringResource(R.string.merchant_profile_empty_body),
+            )
+            EcoTextLink(
+                text = stringResource(R.string.action_retry),
+                onClick = actions.onRetry,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
         } else {
             // La marca va dentro de la tarjeta y el nombre comercial queda al pie
             UserCard(
@@ -160,6 +170,22 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
             )
             state.details?.let { MerchantDetails(it) }
         }
+    }
+}
+
+// Botón secundario para editar los datos del comercio, con el estilo de cerrar sesión pero sin icono
+@Composable
+private fun EditDataButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(EcoDimens.ControlHeight)
+            .clip(RoundedCornerShape(EcoDimens.ControlCornerRadius))
+            .background(EcoFieldBackground)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(stringResource(R.string.merchant_profile_edit_data), style = EcoTextStyles.LinkText, color = EcoPrimary)
     }
 }
 

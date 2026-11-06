@@ -66,6 +66,7 @@ object NavigationDestination {
     const val MERCHANT_COUPON_VALIDATED = "comercio/validar/validado"
     const val MERCHANT_PROFILE = "comercio/perfil"
     const val MERCHANT_CHANGE_PROFILE = "comercio/perfil/cambiar"
+    const val MERCHANT_EDIT_PROFILE = "comercio/perfil/editar"
 
     fun merchantEditCoupon(id: String) = "comercio/mis_cupones/$id/editar"
 
@@ -230,7 +231,6 @@ object NavigationDestination {
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
     val pendingScreens: Map<String, String> = mapOf(
         MY_ORDERS to "Chofer · Mis órdenes",
-        STORE_DASHBOARD to "Comercio · Panel del comercio",
     )
 }
 

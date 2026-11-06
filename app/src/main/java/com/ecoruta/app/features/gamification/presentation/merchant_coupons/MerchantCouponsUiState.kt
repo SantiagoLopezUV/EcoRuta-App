@@ -10,15 +10,22 @@ import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.Mer
 data class MerchantCouponsUiState(
     val storeName: String = "",
     val coupons: List<MerchantCoupon> = emptyList(),
+    // Cupón que espera la confirmación del comercio antes de desactivarse
+    val couponToDeactivate: MerchantCoupon? = null,
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val isOffline: Boolean = false,
-)
+) {
+    val showDeactivateConfirm: Boolean get() = couponToDeactivate != null
+}
 
 // Acciones disponibles en la lista de cupones del comercio
 data class MerchantCouponsActions(
     val onEditCoupon: (MerchantCoupon) -> Unit = {},
+    // Pide la confirmación para desactivar el cupón, que solo se aplica al confirmar
     val onDeactivateCoupon: (MerchantCoupon) -> Unit = {},
+    val onConfirmDeactivate: () -> Unit = {},
+    val onDismissDeactivate: () -> Unit = {},
     val onCreateCoupon: () -> Unit = {},
     val onRetry: () -> Unit = {},
     val onTabClick: (MerchantTab) -> Unit = {},

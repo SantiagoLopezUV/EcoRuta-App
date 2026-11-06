@@ -53,7 +53,7 @@ private val SampleUserProfile = UserProfile(
     email = "camila.restrepo@ecoruta.co",
     documentNumber = "1.036.948.210",
     ecoPoints = 1_250,
-    approvedRoles = setOf(UserRole.CIUDADANO),
+    approvedRoles = setOf(UserRole.CIUDADANO, UserRole.COMERCIO, UserRole.RECICLADOR, UserRole.CHOFER),
 )
 
 private val SampleCompanies = listOf(

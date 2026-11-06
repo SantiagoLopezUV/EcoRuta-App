@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.core.ui.theme.EcoBlack
 import com.ecoruta.app.core.ui.theme.EcoCodeBorder
@@ -76,33 +78,54 @@ fun EcoCodeInput(
             .fillMaxWidth()
             .semantics { contentDescription = accessibilityLabel },
         decorationBox = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(length) { index ->
-                    val isCurrent = isFocused && index == value.length.coerceAtMost(length - 1)
-                    val shape = RoundedCornerShape(11.dp)
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp)
-                            .border(
-                                width = if (isCurrent && !isError) 1.5.dp else 1.dp,
-                                color = when {
-                                    isError -> EcoError
-                                    isCurrent -> EcoPrimary
-                                    else -> EcoCodeBorder
-                                },
-                                shape = shape,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = value.getOrNull(index)?.toString().orEmpty(),
-                            style = EcoTextStyles.Numbers,
-                            color = EcoBlack,
-                        )
-                    }
-                }
+            BoxWithConstraints {
+                // En pantallas angostas se reduce el espacio entre casillas y el tamaño del texto para que todas quepan
+                val isCompact = cellWidth(maxWidth, length, RegularCellGap) < CompactCellWidth
+                val gap = if (isCompact) CompactCellGap else RegularCellGap
+                CodeCells(value = value, length = length, gap = gap, isCompact = isCompact, isFocused = isFocused, isError = isError)
             }
         },
     )
+}
+
+// Ancho por debajo del cual las casillas pasan al tamaño compacto
+private val CompactCellWidth = 36.dp
+private val RegularCellGap = 8.dp
+private val CompactCellGap = 4.dp
+
+// Calcula el ancho que le queda a cada casilla después de restar los espacios entre ellas
+private fun cellWidth(totalWidth: Dp, length: Int, gap: Dp): Dp = (totalWidth - gap * (length - 1)) / length
+
+// Fila de casillas que muestra cada carácter del código y resalta la posición activa
+@Composable
+private fun CodeCells(value: String, length: Int, gap: Dp, isCompact: Boolean, isFocused: Boolean, isError: Boolean) {
+    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+        repeat(length) { index ->
+            val isCurrent = isFocused && index == value.length.coerceAtMost(length - 1)
+            val shape = RoundedCornerShape(11.dp)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(46.dp)
+                    .border(
+                        width = if (isCurrent && !isError) 1.5.dp else 1.dp,
+                        color = when {
+                            isError -> EcoError
+                            isCurrent -> EcoPrimary
+                            else -> EcoCodeBorder
+                        },
+                        shape = shape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = value.getOrNull(index)?.toString().orEmpty(),
+                    style = if (isCompact) EcoTextStyles.NumbersCompact else EcoTextStyles.Numbers,
+                    color = EcoBlack,
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+        }
+    }
 }

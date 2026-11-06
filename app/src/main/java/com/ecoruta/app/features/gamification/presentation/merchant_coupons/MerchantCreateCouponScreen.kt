@@ -3,14 +3,33 @@ package com.ecoruta.app.features.gamification.presentation.merchant_coupons
 // Vista para que el comercio aliado cree y publique un cupón de descuento
 // Incluye los campos del cupón que también reutiliza la pantalla de edición
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,10 +40,18 @@ import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoTextField
 import com.ecoruta.app.core.ui.components.OfflineScreen
+import com.ecoruta.app.core.ui.theme.EcoDimens
+import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
+import com.ecoruta.app.core.ui.theme.EcoWhite
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 // Pantalla de creación con el formulario del cupón, el botón de publicar y su aclaración
 @Composable
@@ -125,15 +152,123 @@ internal fun MerchantCouponFormFields(
             // La edición explica debajo del costo quién paga los puntos del cupón
             if (pointsHint != null) Text(pointsHint, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         }
-        EcoTextField(
-            value = state.validUntil,
-            onValueChange = actions.onValidUntilChange,
-            label = stringResource(R.string.merchant_coupon_valid_until_label),
-            placeholder = stringResource(R.string.merchant_coupon_valid_until_placeholder),
-            errorMessage = errorFor(MerchantCouponField.VALID_UNTIL, R.string.merchant_coupon_error_valid_until),
+        // La vigencia no se escribe, se elige en el calendario que abre el campo al tocarlo
+        val openPickerLabel = stringResource(R.string.merchant_coupon_date_picker_title)
+        Box {
+            EcoTextField(
+                value = state.validUntilMillis?.let(::formatCouponDate).orEmpty(),
+                onValueChange = {},
+                label = stringResource(R.string.merchant_coupon_valid_until_label),
+                placeholder = stringResource(R.string.merchant_coupon_valid_until_placeholder),
+                errorMessage = errorFor(MerchantCouponField.VALID_UNTIL, R.string.merchant_coupon_error_valid_until),
+                readOnly = true,
+                trailingIcon = {
+                    Icon(
+                        painterResource(R.drawable.ic_calendar),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(EcoDimens.InputIconSize),
+                    )
+                },
+            )
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .clickable(role = Role.Button, onClickLabel = openPickerLabel) { actions.onDatePickerToggle(true) },
+            )
+        }
+    }
+    if (state.isDatePickerOpen) {
+        CouponDatePickerDialog(
+            selectedMillis = state.validUntilMillis,
+            onConfirm = { millis ->
+                actions.onDateChange(millis)
+                actions.onDatePickerToggle(false)
+            },
+            onDismiss = { actions.onDatePickerToggle(false) },
         )
     }
 }
+
+// Calendario para elegir el vencimiento del cupón desde el día de hoy en adelante
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CouponDatePickerDialog(selectedMillis: Long?, onConfirm: (Long?) -> Unit, onDismiss: () -> Unit) {
+    val todayMillis = remember { startOfTodayUtcMillis() }
+    val pickerState = rememberDatePickerState(
+        initialSelectedDateMillis = selectedMillis,
+        selectableDates = remember(todayMillis) { FromDaySelectableDates(todayMillis) },
+    )
+    val colors = DatePickerDefaults.colors(
+        containerColor = EcoWhite,
+        titleContentColor = EcoSubtitle,
+        headlineContentColor = EcoTitle,
+        weekdayContentColor = EcoSubtitle,
+        subheadContentColor = EcoTitle,
+        navigationContentColor = EcoTitle,
+        dayContentColor = EcoTitle,
+        selectedDayContainerColor = EcoGreenSecondary,
+        selectedDayContentColor = EcoWhite,
+        todayContentColor = EcoGreenSecondary,
+        todayDateBorderColor = EcoGreenSecondary,
+        selectedYearContainerColor = EcoGreenSecondary,
+        selectedYearContentColor = EcoWhite,
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(pickerState.selectedDateMillis) },
+                enabled = pickerState.selectedDateMillis != null,
+                shape = RoundedCornerShape(EcoDimens.ControlCornerRadius),
+                colors = ButtonDefaults.buttonColors(containerColor = EcoGreenSecondary, contentColor = EcoWhite),
+            ) { Text(stringResource(R.string.action_accept), style = EcoTextStyles.ButtonText) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel), style = EcoTextStyles.LinkText, color = EcoGreenSecondary)
+            }
+        },
+        colors = colors,
+    ) {
+        DatePicker(
+            state = pickerState,
+            colors = colors,
+            showModeToggle = false,
+            title = {
+                Text(
+                    stringResource(R.string.merchant_coupon_date_picker_title).uppercase(),
+                    style = EcoTextStyles.FieldLabel,
+                    color = EcoSubtitle,
+                    modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp),
+                )
+            },
+        )
+    }
+}
+
+// Solo deja elegir días desde la fecha indicada en adelante
+@OptIn(ExperimentalMaterial3Api::class)
+private class FromDaySelectableDates(private val firstDayMillis: Long) : SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis >= firstDayMillis
+
+    override fun isSelectableYear(year: Int): Boolean = year >= utcCalendar().apply { timeInMillis = firstDayMillis }.get(Calendar.YEAR)
+}
+
+// El calendario trabaja con días a medianoche UTC, así que hoy se convierte a ese mismo formato
+private fun startOfTodayUtcMillis(): Long {
+    val local = Calendar.getInstance()
+    return utcCalendar().apply {
+        clear()
+        set(local.get(Calendar.YEAR), local.get(Calendar.MONTH), local.get(Calendar.DAY_OF_MONTH))
+    }.timeInMillis
+}
+
+private fun utcCalendar(): Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+
+// Muestra la fecha elegida como día, mes y año sin correrla por la zona horaria del teléfono
+internal fun formatCouponDate(utcMillis: Long): String =
+    SimpleDateFormat("dd/MM/yyyy", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date(utcMillis))
 
 // Formulario ilustrativo usado solo en las vistas previas del comercio
 internal val PreviewCouponForm = MerchantCouponFormUiState(
@@ -142,7 +277,8 @@ internal val PreviewCouponForm = MerchantCouponFormUiState(
     description = "Obtén un 10% de descuento en tu compra en Café del Parque. Válido una vez por cupón.",
     pointsCost = "200",
     quantity = "50",
-    validUntil = "31/12/2026",
+    // Corresponde al 31 de diciembre de 2026 a medianoche UTC
+    validUntilMillis = 1_798_675_200_000L,
 )
 
 @Preview(name = "Crear cupón", widthDp = 393, heightDp = 852)
@@ -179,6 +315,14 @@ private fun MerchantCreateCouponErrorPreview() {
 @Composable
 private fun MerchantCreateCouponSavingPreview() {
     EcoRutaTheme { MerchantCreateCouponScreen(state = PreviewCouponForm.copy(isSaving = true), actions = MerchantCouponFormActions(), onTabClick = {}) }
+}
+
+@Preview(name = "Crear cupón · Selector de fecha", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantCreateCouponDatePickerPreview() {
+    EcoRutaTheme {
+        MerchantCreateCouponScreen(state = PreviewCouponForm.copy(isDatePickerOpen = true), actions = MerchantCouponFormActions(), onTabClick = {})
+    }
 }
 
 @Preview(name = "Crear cupón · Sin conexión", widthDp = 393, heightDp = 852)

@@ -43,6 +43,9 @@ import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.Mer
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantDashboardScreen
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantDashboardUiState
 import com.ecoruta.app.features.profile.presentation.MerchantChangeProfileScreen
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileActions
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.MerchantEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.MerchantProfileActions
 import com.ecoruta.app.features.profile.presentation.MerchantProfileScreen
 import com.ecoruta.app.features.profile.presentation.MerchantProfileUiState
@@ -56,10 +59,15 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
 
     composable(EcoRutaDestination.STORE_DASHBOARD) {
+        var state by remember { mutableStateOf(MerchantDashboardUiState()) }
         MerchantDashboardScreen(
-            state = MerchantDashboardUiState(),
+            state = state,
             actions = MerchantDashboardActions(
                 onEditCoupon = { open(EcoRutaDestination.merchantEditCoupon(it.id)) },
+                onDeactivateCoupon = { state = state.copy(couponToDeactivate = it) },
+                // Sin servidor la confirmación solo cierra el diálogo hasta que exista el ViewModel
+                onConfirmDeactivate = { state = state.copy(couponToDeactivate = null) },
+                onDismissDeactivate = { state = state.copy(couponToDeactivate = null) },
                 onCreateCoupon = { tabClick(MerchantTab.CREATE_COUPON) },
                 onTabClick = tabClick,
             ),
@@ -75,7 +83,8 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
                 onDescriptionChange = { state = state.copy(description = it) },
                 onPointsChange = { state = state.copy(pointsCost = it) },
                 onQuantityChange = { state = state.copy(quantity = it) },
-                onValidUntilChange = { state = state.copy(validUntil = it) },
+                onDateChange = { state = state.copy(validUntilMillis = it) },
+                onDatePickerToggle = { state = state.copy(isDatePickerOpen = it) },
                 onSubmit = { open(EcoRutaDestination.MERCHANT_COUPON_PUBLISHED) },
             ),
             onTabClick = tabClick,
@@ -94,10 +103,15 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
     }
 
     composable(EcoRutaDestination.MERCHANT_COUPONS) {
+        var state by remember { mutableStateOf(MerchantCouponsUiState()) }
         MerchantCouponsScreen(
-            state = MerchantCouponsUiState(),
+            state = state,
             actions = MerchantCouponsActions(
                 onEditCoupon = { open(EcoRutaDestination.merchantEditCoupon(it.id)) },
+                onDeactivateCoupon = { state = state.copy(couponToDeactivate = it) },
+                // Sin servidor la confirmación solo cierra el diálogo hasta que exista el ViewModel
+                onConfirmDeactivate = { state = state.copy(couponToDeactivate = null) },
+                onDismissDeactivate = { state = state.copy(couponToDeactivate = null) },
                 onCreateCoupon = { tabClick(MerchantTab.CREATE_COUPON) },
                 onTabClick = tabClick,
             ),
@@ -114,7 +128,8 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
                 onDescriptionChange = { state = state.copy(description = it) },
                 onPointsChange = { state = state.copy(pointsCost = it) },
                 onQuantityChange = { state = state.copy(quantity = it) },
-                onValidUntilChange = { state = state.copy(validUntil = it) },
+                onDateChange = { state = state.copy(validUntilMillis = it) },
+                onDatePickerToggle = { state = state.copy(isDatePickerOpen = it) },
                 onActiveChange = { state = state.copy(isActive = it) },
                 onSubmit = { tabClick(MerchantTab.MY_COUPONS) },
             ),
@@ -182,8 +197,25 @@ fun NavGraphBuilder.merchantGraph(navController: NavHostController) {
                 onPhotoSelected = { localPhoto = it },
                 onRemovePhoto = { localPhoto = null },
                 onChangeProfile = { open(EcoRutaDestination.MERCHANT_CHANGE_PROFILE) },
+                onEditProfile = { open(EcoRutaDestination.MERCHANT_EDIT_PROFILE) },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onTabClick = tabClick,
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.MERCHANT_EDIT_PROFILE) {
+        // Sin datos del servidor el formulario arranca vacío y guardar no hace nada hasta que exista el ViewModel
+        var state by remember { mutableStateOf(MerchantEditProfileUiState()) }
+        MerchantEditProfileScreen(
+            state = state,
+            actions = MerchantEditProfileActions(
+                onNameChange = { state = state.copy(name = it, nameErrorRes = null) },
+                onCategoryChange = { state = state.copy(category = it, categoryErrorRes = null) },
+                onAddressChange = { state = state.copy(address = it, addressErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }

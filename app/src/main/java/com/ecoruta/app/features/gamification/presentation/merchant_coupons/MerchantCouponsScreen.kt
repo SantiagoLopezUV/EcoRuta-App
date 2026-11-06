@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
+import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.OfflineScreen
@@ -42,6 +43,7 @@ import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.Mer
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponCostRow
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponEditButton
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponTitleRow
+import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantEmptyStateCard
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.PreviewMerchantCoupon
 
 // Lista de cupones que elige entre sin conexión, error, vacío o las tarjetas de cada cupón
@@ -58,16 +60,46 @@ fun MerchantCouponsScreen(state: MerchantCouponsUiState, actions: MerchantCoupon
             actionText = stringResource(R.string.action_retry),
             onAction = actions.onRetry,
         )
-        !state.isLoading && state.coupons.isEmpty() -> EcoSystemStateScreen(
-            title = stringResource(R.string.merchant_tab_coupons),
-            subtitle = state.storeName,
+        !state.isLoading && state.coupons.isEmpty() -> MerchantCouponsEmpty(state, actions)
+        else -> MerchantCouponsContent(state, actions)
+    }
+}
+
+// Lista sin cupones que conserva la barra del comercio y ofrece crear el primero
+@Composable
+private fun MerchantCouponsEmpty(state: MerchantCouponsUiState, actions: MerchantCouponsActions) {
+    EcoRoleTabScreenLayout(
+        items = MerchantTab.entries,
+        selectedTab = MerchantTab.MY_COUPONS,
+        onTabClick = actions.onTabClick,
+        contentSpacing = 14.dp,
+        bottomActions = {
+            EcoPrimaryButton(text = stringResource(R.string.merchant_tab_create), onClick = actions.onCreateCoupon)
+        },
+    ) {
+        MerchantCouponsHeading(storeName = state.storeName)
+        MerchantEmptyStateCard(
             illustrationRes = R.drawable.ic_nav_ticket,
             heading = stringResource(R.string.my_coupons_empty_title),
             body = stringResource(R.string.merchant_coupons_empty_body),
-            actionText = stringResource(R.string.merchant_tab_create),
-            onAction = actions.onCreateCoupon,
         )
-        else -> MerchantCouponsContent(state, actions)
+    }
+}
+
+// Título de la pestaña con una descripción que nombra al comercio cuando se conoce
+@Composable
+private fun MerchantCouponsHeading(storeName: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.merchant_tab_coupons), style = EcoTextStyles.Title, color = EcoTitle)
+        Text(
+            if (storeName.isBlank()) {
+                stringResource(R.string.merchant_coupons_description_generic)
+            } else {
+                stringResource(R.string.merchant_coupons_description, storeName)
+            },
+            style = EcoTextStyles.Subtitle,
+            color = EcoSubtitle,
+        )
     }
 }
 
@@ -79,18 +111,7 @@ private fun MerchantCouponsContent(state: MerchantCouponsUiState, actions: Merch
         onTabClick = actions.onTabClick,
         contentSpacing = 14.dp,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.merchant_tab_coupons), style = EcoTextStyles.Title, color = EcoTitle)
-            Text(
-                if (state.storeName.isBlank()) {
-                    stringResource(R.string.merchant_coupons_description_generic)
-                } else {
-                    stringResource(R.string.merchant_coupons_description, state.storeName)
-                },
-                style = EcoTextStyles.Subtitle,
-                color = EcoSubtitle,
-            )
-        }
+        MerchantCouponsHeading(storeName = state.storeName)
         if (state.isLoading) {
             Box(
                 Modifier
@@ -114,6 +135,9 @@ private fun MerchantCouponsContent(state: MerchantCouponsUiState, actions: Merch
                 }
             }
         }
+    }
+    if (state.showDeactivateConfirm) {
+        MerchantDeactivateCouponDialog(onConfirm = actions.onConfirmDeactivate, onDismiss = actions.onDismissDeactivate)
     }
 }
 
@@ -178,6 +202,17 @@ private val PreviewCouponsState = MerchantCouponsUiState(
 @Composable
 private fun MerchantCouponsPreview() {
     EcoRutaTheme { MerchantCouponsScreen(state = PreviewCouponsState, actions = MerchantCouponsActions()) }
+}
+
+@Preview(name = "Mis cupones del comercio · Confirmar desactivación", widthDp = 393, heightDp = 852)
+@Composable
+private fun MerchantCouponsDeactivateConfirmPreview() {
+    EcoRutaTheme {
+        MerchantCouponsScreen(
+            state = PreviewCouponsState.copy(couponToDeactivate = PreviewCouponsState.coupons.first()),
+            actions = MerchantCouponsActions(),
+        )
+    }
 }
 
 @Preview(name = "Mis cupones del comercio · Cargando", widthDp = 393, heightDp = 852)

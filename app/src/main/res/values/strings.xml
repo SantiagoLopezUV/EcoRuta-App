@@ -842,6 +842,7 @@
     <string name="driver_profile_sign_out_hint">Al salir, se detiene la ubicación compartida.</string>
     <!-- Perfil: foto y cambiar perfil (sección 09 / 19) -->
     <string name="action_cancel">Cancelar</string>
+    <string name="action_accept">Aceptar</string>
     <string name="profile_photo_sheet_title">Foto de perfil</string>
     <string name="profile_photo_sheet_description">Se verá en tu perfil.</string>
     <string name="profile_photo_take">Tomar foto</string>
@@ -1190,6 +1191,7 @@
     <string name="merchant_coupon_quantity_label">Cantidad disponible</string>
     <string name="merchant_coupon_valid_until_label">Vigencia</string>
     <string name="merchant_coupon_valid_until_placeholder">dd/mm/aaaa</string>
+    <string name="merchant_coupon_date_picker_title">Selecciona la fecha de vencimiento</string>
     <string name="merchant_create_publish">Publicar cupón</string>
     <string name="merchant_create_publish_hint">Al publicar, el cupón quedará disponible para canjear por %1$s puntos.</string>
     <string name="merchant_create_publish_hint_generic">Al publicar, el cupón quedará disponible para que los ciudadanos lo canjeen con sus puntos.</string>
@@ -1213,6 +1215,8 @@
         <item quantity="other">%1$d cupones</item>
     </plurals>
     <string name="merchant_coupons_deactivate">Desactivar</string>
+    <string name="merchant_coupons_deactivate_title">¿Desactivar este cupón?</string>
+    <string name="merchant_coupons_deactivate_message">Los clientes ya no podrán canjearlo. Puedes activarlo de nuevo cuando quieras.</string>
     <string name="merchant_coupons_hidden">No visible para ciudadanos</string>
     <string name="merchant_coupons_empty_body">Crea un cupón y aparecerá aquí para que lo administres.</string>
     <string name="merchant_coupons_error_heading">No pudimos cargar tus cupones</string>
@@ -1254,6 +1258,13 @@
     <string name="merchant_profile_title">Perfil del comercio</string>
     <string name="merchant_profile_category">Categoría</string>
     <string name="merchant_profile_address">Dirección</string>
+    <string name="merchant_profile_edit_data">Editar datos</string>
+    <string name="merchant_edit_profile_title">Editar perfil</string>
+    <string name="merchant_edit_profile_description">Actualiza los datos de tu comercio. Escribimos tu dirección completa para que la puedas corregir.</string>
+    <string name="merchant_edit_profile_nit_hint">El NIT no se puede modificar. Escribe a la administración si debe corregirse.</string>
+    <string name="merchant_edit_profile_review_notice">Algunos cambios pueden requerir revisión de la administración antes de verse en tu perfil.</string>
+    <string name="merchant_edit_profile_saved">Cambios guardados. Los datos que requieren revisión aparecerán cuando la administración los apruebe.</string>
+    <string name="merchant_edit_profile_error_name">Ingresa el nombre comercial.</string>
     <string name="merchant_profile_error_heading">No pudimos cargar el perfil del comercio</string>
     <string name="merchant_profile_empty_heading">Aún no hay datos del comercio</string>
     <string name="merchant_profile_empty_body">Los datos de tu comercio aparecerán aquí cuando la administración los confirme.</string>
