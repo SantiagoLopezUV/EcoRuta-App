@@ -40,6 +40,9 @@ import com.ecoruta.app.features.driver.presentation.orders.DriverRouteDetailActi
 import com.ecoruta.app.features.driver.presentation.orders.DriverRouteDetailScreen
 import com.ecoruta.app.features.driver.presentation.orders.SampleDriverOrders
 import com.ecoruta.app.features.driver.presentation.orders.SampleDriverOrdersState
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileActions
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.DriverProfileActions
 import com.ecoruta.app.features.profile.presentation.DriverProfileScreen
 import com.ecoruta.app.features.profile.presentation.SampleDriverDetails
@@ -197,8 +200,31 @@ fun NavGraphBuilder.driverGraph(navController: NavHostController) {
                 onChangePassword = {
                     navController.navigate(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, UserRole.CHOFER)) { launchSingleTop = true }
                 },
+                onEditProfile = { navController.navigate(EcoRutaDestination.DRIVER_EDIT_PROFILE) { launchSingleTop = true } },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onTabClick = tabClick,
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.DRIVER_EDIT_PROFILE) {
+        // Arranca con los datos del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
+        var state by remember {
+            mutableStateOf(
+                DriverEditProfileUiState(
+                    fullName = SampleDriverProfile.fullName,
+                    email = SampleDriverProfile.email,
+                    company = SampleDriverDetails.company,
+                ),
+            )
+        }
+        DriverEditProfileScreen(
+            state = state,
+            actions = DriverEditProfileActions(
+                onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }

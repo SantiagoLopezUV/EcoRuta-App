@@ -138,6 +138,8 @@ object NavigationDestination {
     const val DRIVER_DEBRIS_ORDER = "chofer/escombros/{id}"
     const val DRIVER_DEBRIS_COLLECTED = "chofer/escombros/{id}/recolectada"
     const val DRIVER_PROFILE = "chofer/perfil"
+    // Edición de los datos de contacto del chofer desde su perfil
+    const val DRIVER_EDIT_PROFILE = "chofer/perfil/editar"
 
     fun driverRouteDetail(id: String) = "chofer/ruta/$id"
     fun driverDebrisOrder(id: String) = "chofer/escombros/$id"
