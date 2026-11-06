@@ -138,6 +138,8 @@ object NavigationDestination {
     const val DRIVER_DEBRIS_ORDER = "chofer/escombros/{id}"
     const val DRIVER_DEBRIS_COLLECTED = "chofer/escombros/{id}/recolectada"
     const val DRIVER_PROFILE = "chofer/perfil"
+    // Edición de los datos de contacto del chofer desde su perfil
+    const val DRIVER_EDIT_PROFILE = "chofer/perfil/editar"
 
     fun driverRouteDetail(id: String) = "chofer/ruta/$id"
     fun driverDebrisOrder(id: String) = "chofer/escombros/$id"
@@ -231,9 +233,7 @@ object NavigationDestination {
     const val GUEST_PROFILE = "perfil_sin_sesion"
 
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
-    val pendingScreens: Map<String, String> = mapOf(
-        MY_ORDERS to "Chofer · Mis órdenes",
-    )
+    val pendingScreens: Map<String, String> = emptyMap()
 }
 
 // Redirige al inicio público limpiando toda la pila de navegación tras cerrar sesión

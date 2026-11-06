@@ -3,6 +3,7 @@ package com.ecoruta.app.features.circular_economy.presentation.navigation
 // Subgrafo de navegación del módulo reciclador
 // Conecta el mapa de entregas con las pestañas de rutas, escáner y perfil del reciclador
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,7 +13,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.navigation.rememberRouteLocationGate
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.AssignedRouteActions
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.RecyclerAssignedRouteScreen
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.SampleAssignedRoute
@@ -31,6 +34,7 @@ import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileActions
 import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileScreen
 import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.RecyclerProfileActions
+import com.ecoruta.app.features.profile.presentation.RecyclerModality
 import com.ecoruta.app.features.profile.presentation.RecyclerProfileScreen
 import com.ecoruta.app.features.profile.presentation.SampleRecyclerDetails
 import com.ecoruta.app.features.profile.presentation.SampleRecyclerProfile
@@ -40,7 +44,10 @@ import android.net.Uri
 
 // Registra las pantallas del reciclador con sesión iniciada
 fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
-    val tabClick: (RecyclerTab) -> Unit = { tab -> navController.navigateToRecyclerTab(tab) }
+    // El dato de ejemplo decide si el reciclador está vinculado a una empresa mientras no exista el ViewModel
+    val isCompanyLinked = SampleRecyclerDetails.modality == RecyclerModality.COMPANY_LINKED
+    val tabs = recyclerTabs(isCompanyLinked)
+    val tabClick: (RecyclerTab) -> Unit = { tab -> navController.navigateToRecyclerTab(tab, isCompanyLinked) }
     // Entrega tomada en el mapa y volumen elegido, compartidos por las pantallas del escaneo
     var activeDelivery by mutableStateOf<RecyclerDelivery?>(SampleRecyclerDeliveries.first())
     var deliveredVolume by mutableStateOf(DeliveredVolume.LARGE_BAG)
@@ -50,6 +57,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
         var state by remember { mutableStateOf(RecyclerDeliveriesUiState(deliveries = SampleRecyclerDeliveries)) }
         RecyclerDeliveriesMapScreen(
             state = state,
+            tabs = tabs,
             actions = RecyclerDeliveriesActions(
                 onMaterialFilterChange = { state = state.copy(materialFilter = it, selectedId = null) },
                 onStatusFilterChange = { state = state.copy(statusFilter = it, selectedId = null) },
@@ -75,6 +83,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
             },
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
+            tabs = tabs,
         )
     }
 
@@ -90,6 +99,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
             },
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
+            tabs = tabs,
         )
     }
 
@@ -99,18 +109,32 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
             onBackToMap = { tabClick(RecyclerTab.MAP) },
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
+            tabs = tabs,
         )
     }
 
-    composable(EcoRutaDestination.RECYCLER_ASSIGNED_ROUTE) {
-        var shareLocation by remember { mutableStateOf(false) }
+    composable(EcoRutaDestination.RECYCLER_ASSIGNED_ROUTE) { entry ->
+        // El independiente no tiene rutas, si llega por navegación directa vuelve al mapa de entregas
+        if (!isCompanyLinked) {
+            LaunchedEffect(Unit) {
+                navController.navigate(EcoRutaDestination.DELIVERY_MAP) {
+                    popUpTo(EcoRutaDestination.RECYCLER_ASSIGNED_ROUTE) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+            return@composable
+        }
+        // Los puntos en el mapa solo se abren con permiso de ubicación precisa y el GPS encendido
+        val locationGate = rememberRouteLocationGate(entry.lifecycle) { tabClick(RecyclerTab.MAP) }
         RecyclerAssignedRouteScreen(
             route = SampleAssignedRoute,
-            shareLocation = shareLocation,
+            locationStatus = locationGate.status,
+            tabs = tabs,
             actions = AssignedRouteActions(
                 onBack = { navController.popBackStack() },
-                onShareLocationChange = { shareLocation = it },
-                onViewOnMap = { tabClick(RecyclerTab.MAP) },
+                onViewOnMap = locationGate.onStart,
+                onOpenSettings = locationGate.onOpenSettings,
+                onEnableLocation = locationGate.onEnableLocation,
                 onTabClick = tabClick,
             ),
         )
@@ -121,6 +145,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
         RecyclerProfileScreen(
             profile = SampleRecyclerProfile,
             details = SampleRecyclerDetails,
+            tabs = tabs,
             localPhoto = localPhoto,
             actions = RecyclerProfileActions(
                 onBack = { navController.popBackStack() },
@@ -168,12 +193,15 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
                 },
             ),
             onTabClick = tabClick,
+            tabs = tabs,
         )
     }
 }
 
 // Navega entre las pestañas del reciclador conservando el mapa de entregas como base de la pila
-fun NavHostController.navigateToRecyclerTab(tab: RecyclerTab) {
+// La pestaña de rutas se ignora si el reciclador no está vinculado a una empresa
+fun NavHostController.navigateToRecyclerTab(tab: RecyclerTab, isCompanyLinked: Boolean) {
+    if (tab == RecyclerTab.ROUTES && !isCompanyLinked) return
     if (tab == RecyclerTab.MAP) {
         popBackStack(EcoRutaDestination.DELIVERY_MAP, inclusive = false)
         return

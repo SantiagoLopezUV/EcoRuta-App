@@ -15,3 +15,7 @@ enum class RecyclerTab(
     SCANNER(R.string.tab_scanner, R.drawable.ic_qr_code),
     PROFILE(R.string.tab_perfil, R.drawable.ic_nav_user),
 }
+
+// Pestañas visibles según el tipo de reciclador, la de rutas solo aparece para el vinculado a una empresa
+fun recyclerTabs(isCompanyLinked: Boolean): List<RecyclerTab> =
+    if (isCompanyLinked) RecyclerTab.entries else RecyclerTab.entries - RecyclerTab.ROUTES

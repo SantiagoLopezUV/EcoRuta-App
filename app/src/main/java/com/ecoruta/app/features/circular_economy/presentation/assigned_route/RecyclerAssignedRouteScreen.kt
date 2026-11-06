@@ -1,7 +1,7 @@
 package com.ecoruta.app.features.circular_economy.presentation.assigned_route
 
 // Vista composable de la ruta de reciclaje asignada al reciclador vinculado a una empresa
-// Muestra el recorrido en el mapa ilustrativo, las paradas ordenadas y la autorización de ubicación
+// Muestra el recorrido en el mapa ilustrativo, las paradas ordenadas y el estado de la ubicación
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,12 +22,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
-import com.ecoruta.app.core.ui.components.EcoCheckboxRow
+import com.ecoruta.app.core.navigation.components.recyclerTabs
+import com.ecoruta.app.core.ui.components.EcoLocationStatusCard
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoRouteMap
 import com.ecoruta.app.core.ui.components.EcoRouteMapPoint
-import com.ecoruta.app.core.ui.theme.EcoFieldBackground
+import com.ecoruta.app.core.ui.components.RouteLocationStatus
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
@@ -57,20 +57,22 @@ data class AssignedRecyclingRoute(
 // Acciones disponibles en la pantalla de ruta asignada
 data class AssignedRouteActions(
     val onBack: () -> Unit = {},
-    val onShareLocationChange: (Boolean) -> Unit = {},
     val onViewOnMap: () -> Unit = {},
+    val onOpenSettings: () -> Unit = {},
+    val onEnableLocation: () -> Unit = {},
     val onTabClick: (RecyclerTab) -> Unit = {},
 )
 
-// Pantalla con la ruta del día, sus paradas y el consentimiento para compartir la ubicación
+// Pantalla con la ruta del día, sus paradas y el aviso sobre la ubicación compartida
 @Composable
 fun RecyclerAssignedRouteScreen(
     route: AssignedRecyclingRoute,
-    shareLocation: Boolean,
+    locationStatus: RouteLocationStatus,
+    tabs: List<RecyclerTab>,
     actions: AssignedRouteActions,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.ROUTES,
         onTabClick = actions.onTabClick,
         onBack = actions.onBack,
@@ -109,22 +111,12 @@ fun RecyclerAssignedRouteScreen(
                 }
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(EcoFieldBackground)
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(stringResource(R.string.recycler_route_location_title), style = EcoTextStyles.FieldLabel, color = EcoPrimary)
-            Text(stringResource(R.string.recycler_route_location_body), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
-            EcoCheckboxRow(
-                checked = shareLocation,
-                onCheckedChange = actions.onShareLocationChange,
-                text = stringResource(R.string.recycler_route_location_consent),
-            )
-        }
+        EcoLocationStatusCard(
+            status = locationStatus,
+            infoBody = stringResource(R.string.recycler_route_location_body),
+            onOpenSettings = actions.onOpenSettings,
+            onEnableLocation = actions.onEnableLocation,
+        )
         EcoPrimaryButton(text = stringResource(R.string.recycler_route_view_on_map), onClick = actions.onViewOnMap, height = 56.dp)
     }
 }
@@ -146,6 +138,11 @@ val SampleAssignedRoute = AssignedRecyclingRoute(
 @Composable
 private fun RecyclerAssignedRoutePreview() {
     EcoRutaTheme {
-        RecyclerAssignedRouteScreen(route = SampleAssignedRoute, shareLocation = false, actions = AssignedRouteActions())
+        RecyclerAssignedRouteScreen(
+            route = SampleAssignedRoute,
+            locationStatus = RouteLocationStatus.OK,
+            tabs = recyclerTabs(isCompanyLinked = true),
+            actions = AssignedRouteActions(),
+        )
     }
 }

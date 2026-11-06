@@ -1,34 +1,30 @@
 package com.ecoruta.app.features.driver.presentation.orders
 
 // Vista composable del detalle de una ruta asignada antes de iniciarla
-// Muestra el recorrido en el mapa ilustrativo, los puntos en orden y la autorización de ubicación
+// Muestra el recorrido en el mapa ilustrativo, los puntos en orden y el estado de la ubicación
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.DriverTab
-import com.ecoruta.app.core.ui.components.EcoCheckboxRow
+import com.ecoruta.app.core.ui.components.EcoLocationStatusCard
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoRouteMap
 import com.ecoruta.app.core.ui.components.EcoRouteMapPoint
-import com.ecoruta.app.core.ui.theme.EcoDimens
-import com.ecoruta.app.core.ui.theme.EcoFieldBackground
+import com.ecoruta.app.core.ui.components.RouteLocationStatus
 import com.ecoruta.app.core.ui.theme.EcoPrimary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
@@ -41,12 +37,13 @@ import com.ecoruta.app.features.driver.presentation.active_route.SampleOrdinaryR
 // Acciones disponibles en el detalle de la ruta
 data class DriverRouteDetailActions(
     val onBack: () -> Unit = {},
-    val onLocationConsentChange: (Boolean) -> Unit = {},
     val onStartRoute: () -> Unit = {},
+    val onOpenSettings: () -> Unit = {},
+    val onEnableLocation: () -> Unit = {},
     val onTabClick: (DriverTab) -> Unit = {},
 )
 
-// Detalle de la ruta con su mapa, la secuencia de puntos y el consentimiento para compartir la ubicación
+// Detalle de la ruta con su mapa, la secuencia de puntos y el aviso sobre la ubicación compartida
 @Composable
 fun DriverRouteDetailScreen(state: ActiveRouteUiState, actions: DriverRouteDetailActions) {
     val route = state.route ?: return
@@ -90,27 +87,16 @@ fun DriverRouteDetailScreen(state: ActiveRouteUiState, actions: DriverRouteDetai
                 }
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(EcoDimens.ControlCornerRadius))
-                .background(EcoFieldBackground)
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(stringResource(R.string.recycler_route_location_title), style = EcoTextStyles.FieldLabel, color = EcoPrimary)
-            Text(stringResource(R.string.driver_route_location_body), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
-            EcoCheckboxRow(
-                checked = state.locationConsent,
-                onCheckedChange = actions.onLocationConsentChange,
-                text = stringResource(R.string.recycler_route_location_consent),
-            )
-        }
-        // La ruta solo puede iniciar cuando el chofer autoriza compartir su ubicación
+        EcoLocationStatusCard(
+            status = state.locationStatus,
+            infoBody = stringResource(R.string.driver_route_location_body),
+            onOpenSettings = actions.onOpenSettings,
+            onEnableLocation = actions.onEnableLocation,
+        )
+        // El botón siempre está activo y la comprobación de la ubicación ocurre al pulsarlo
         EcoPrimaryButton(
             text = stringResource(R.string.driver_route_start),
             onClick = actions.onStartRoute,
-            enabled = state.locationConsent,
         )
     }
 }
@@ -125,4 +111,26 @@ private fun DriverRouteDetailCleanupPreview() {
 @Composable
 private fun DriverRouteDetailOrdinaryPreview() {
     EcoRutaTheme { DriverRouteDetailScreen(state = ActiveRouteUiState(route = SampleOrdinaryRoute), actions = DriverRouteDetailActions()) }
+}
+
+@Preview(name = "Detalle de ruta · Ubicación no permitida", widthDp = 390, heightDp = 844)
+@Composable
+private fun DriverRouteDetailDeniedPreview() {
+    EcoRutaTheme {
+        DriverRouteDetailScreen(
+            state = ActiveRouteUiState(route = SampleCleanupRoute, locationStatus = RouteLocationStatus.PERMISSION_DENIED),
+            actions = DriverRouteDetailActions(),
+        )
+    }
+}
+
+@Preview(name = "Detalle de ruta · Ubicación desactivada", widthDp = 390, heightDp = 844)
+@Composable
+private fun DriverRouteDetailGpsOffPreview() {
+    EcoRutaTheme {
+        DriverRouteDetailScreen(
+            state = ActiveRouteUiState(route = SampleCleanupRoute, locationStatus = RouteLocationStatus.GPS_DISABLED),
+            actions = DriverRouteDetailActions(),
+        )
+    }
 }

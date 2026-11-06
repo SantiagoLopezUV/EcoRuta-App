@@ -33,6 +33,7 @@ import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
+import com.ecoruta.app.features.profile.presentation.components.EditDataButton
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
 
 // Datos ilustrativos que se muestran en el perfil del chofer
@@ -46,6 +47,7 @@ data class DriverProfileActions(
     val onRemovePhoto: () -> Unit = {},
     val onCameraUnavailable: () -> Unit = {},
     val onChangePassword: () -> Unit = {},
+    val onEditProfile: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onTabClick: (DriverTab) -> Unit = {},
 )
@@ -81,6 +83,7 @@ fun DriverProfileScreen(
                 content = EcoBlack,
                 onClick = actions.onChangePassword,
             )
+            EditDataButton(onClick = actions.onEditProfile)
             AccountButton(
                 text = stringResource(if (isSigningOut) R.string.profile_signing_out else R.string.home_logout),
                 iconRes = R.drawable.ic_profile_logout,

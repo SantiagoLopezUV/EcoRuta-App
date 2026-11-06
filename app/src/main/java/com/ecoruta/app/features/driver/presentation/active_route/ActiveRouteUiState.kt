@@ -5,6 +5,7 @@ package com.ecoruta.app.features.driver.presentation.active_route
 
 import androidx.annotation.StringRes
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.components.RouteLocationStatus
 import com.ecoruta.app.features.driver.presentation.orders.DriverOrderStatus
 
 // Tipo de ruta asignada, la ordinaria sigue un recorrido fijo y la dinámica atiende reportes aprobados
@@ -48,7 +49,7 @@ data class ActiveRouteUiState(
     val route: DriverRoute? = null,
     val city: String = "",
     val visitedCount: Int = 0,
-    val locationConsent: Boolean = false,
+    val locationStatus: RouteLocationStatus = RouteLocationStatus.OK,
     val isSharingLocation: Boolean = false,
     val completedSchedule: String = "",
     val duration: String = "",

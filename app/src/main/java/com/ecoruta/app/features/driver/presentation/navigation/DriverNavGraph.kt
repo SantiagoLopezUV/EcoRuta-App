@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.components.DriverTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.navigation.rememberRouteLocationGate
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
 import com.ecoruta.app.features.driver.presentation.active_route.ActiveRouteActions
 import com.ecoruta.app.features.driver.presentation.active_route.ActiveRouteTrackingScreen
@@ -40,6 +41,9 @@ import com.ecoruta.app.features.driver.presentation.orders.DriverRouteDetailActi
 import com.ecoruta.app.features.driver.presentation.orders.DriverRouteDetailScreen
 import com.ecoruta.app.features.driver.presentation.orders.SampleDriverOrders
 import com.ecoruta.app.features.driver.presentation.orders.SampleDriverOrdersState
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileActions
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.DriverEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.DriverProfileActions
 import com.ecoruta.app.features.profile.presentation.DriverProfileScreen
 import com.ecoruta.app.features.profile.presentation.SampleDriverDetails
@@ -76,23 +80,25 @@ fun NavGraphBuilder.driverGraph(navController: NavHostController) {
     composable(EcoRutaDestination.DRIVER_ROUTE_DETAIL, arguments = idArgument) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID)
         val route = if (id == SampleOrdinaryRoute.code) SampleOrdinaryRoute else SampleCleanupRoute
-        var locationConsent by remember { mutableStateOf(false) }
+        // La ruta solo inicia cuando hay permiso de ubicación precisa y el GPS está encendido
+        val locationGate = rememberRouteLocationGate(entry.lifecycle) {
+            routeState = ActiveRouteUiState(
+                route = route.copy(status = DriverOrderStatus.IN_PROGRESS),
+                city = "Tuluá",
+                isSharingLocation = true,
+            )
+            navController.navigate(EcoRutaDestination.DRIVER_ACTIVE_ROUTE) {
+                popUpTo(EcoRutaDestination.MY_ORDERS)
+                launchSingleTop = true
+            }
+        }
         DriverRouteDetailScreen(
-            state = ActiveRouteUiState(route = route, locationConsent = locationConsent),
+            state = ActiveRouteUiState(route = route, locationStatus = locationGate.status),
             actions = DriverRouteDetailActions(
                 onBack = { navController.popBackStack() },
-                onLocationConsentChange = { locationConsent = it },
-                onStartRoute = {
-                    routeState = ActiveRouteUiState(
-                        route = route.copy(status = DriverOrderStatus.IN_PROGRESS),
-                        city = "Tuluá",
-                        isSharingLocation = locationConsent,
-                    )
-                    navController.navigate(EcoRutaDestination.DRIVER_ACTIVE_ROUTE) {
-                        popUpTo(EcoRutaDestination.MY_ORDERS)
-                        launchSingleTop = true
-                    }
-                },
+                onStartRoute = locationGate.onStart,
+                onOpenSettings = locationGate.onOpenSettings,
+                onEnableLocation = locationGate.onEnableLocation,
                 onTabClick = tabClick,
             ),
         )
@@ -197,8 +203,31 @@ fun NavGraphBuilder.driverGraph(navController: NavHostController) {
                 onChangePassword = {
                     navController.navigate(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, UserRole.CHOFER)) { launchSingleTop = true }
                 },
+                onEditProfile = { navController.navigate(EcoRutaDestination.DRIVER_EDIT_PROFILE) { launchSingleTop = true } },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onTabClick = tabClick,
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.DRIVER_EDIT_PROFILE) {
+        // Arranca con los datos del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
+        var state by remember {
+            mutableStateOf(
+                DriverEditProfileUiState(
+                    fullName = SampleDriverProfile.fullName,
+                    email = SampleDriverProfile.email,
+                    company = SampleDriverDetails.company,
+                ),
+            )
+        }
+        DriverEditProfileScreen(
+            state = state,
+            actions = DriverEditProfileActions(
+                onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }
