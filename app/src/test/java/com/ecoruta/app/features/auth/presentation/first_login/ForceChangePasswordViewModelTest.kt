@@ -4,6 +4,7 @@ import com.ecoruta.app.R
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
 import com.ecoruta.app.core.testing.TestDataFactory
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -126,6 +127,82 @@ class ForceChangePasswordViewModelTest {
         viewModel.onToggleNewVisibility()
 
         assertFalse(viewModel.uiState.value.isNewVisible)
+    }
+
+    @Test
+    fun validForm_savesPasswordClearsFlagAndEmitsDone() = runTest {
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isSaving)
+        assertEquals(NEW_PASSWORD, repository.passwordOf(operator.email))
+        assertFalse(repository.getCurrentUser()!!.mustChangePassword)
+        assertEquals(listOf(ChangePasswordEvent.Done), events)
+    }
+
+    @Test
+    fun networkError_showsNoticeAndKeepsForm() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isSaving)
+        assertEquals(NEW_PASSWORD, state.newPassword)
+        assertEquals(NEW_PASSWORD, state.confirmPassword)
+        assertEquals(TEMPORARY_PASSWORD, repository.passwordOf(operator.email))
+        assertEquals(listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed)), events)
+    }
+
+    @Test
+    fun save_showsLoadingUntilRequestFinishes() = runTest {
+        fillForm()
+        viewModel.onSave()
+
+        // La corrutina sigue en cola porque el dispatcher de prueba aún no avanza
+        assertTrue(viewModel.uiState.value.isSaving)
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isSaving)
+    }
+
+    @Test
+    fun saveWhileLoading_isIgnored() = runTest {
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        assertEquals(listOf(ChangePasswordEvent.Done), events)
+    }
+
+    @Test
+    fun retryAfterError_succeeds() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        repository.error = null
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        assertEquals(NEW_PASSWORD, repository.passwordOf(operator.email))
+        assertEquals(
+            listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed), ChangePasswordEvent.Done),
+            events,
+        )
     }
 
     // Llena el formulario con datos válidos salvo el campo que la prueba quiera cambiar
