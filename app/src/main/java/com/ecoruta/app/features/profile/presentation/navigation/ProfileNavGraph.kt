@@ -161,6 +161,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
 
     composable(EcoRutaDestination.STORE_REQUEST) {
         var state by remember { mutableStateOf(StoreApplicationUiState()) }
+        val pickRut = rememberPdfPicker { doc -> state = state.copy(rut = doc, rutError = null) }
         StoreApplicationScreen(
             state = state,
             actions = StoreApplicationActions(
@@ -171,7 +172,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
                 onCategorySelected = { state = state.copy(category = it, categoryError = null) },
                 onIdTypeSelected = { state = state.copy(idType = it) },
                 onIdNumberChange = { state = state.copy(idNumber = it, idError = null) },
-                onRutPicked = { doc -> state = state.copy(rut = doc, rutError = null) },
+                onPickRut = pickRut,
                 onRutRemoved = { state = state.copy(rut = null) },
                 onSubmit = {
                     navController.navigate(EcoRutaDestination.storeRequestReview(true)) {
