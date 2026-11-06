@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoBlack
@@ -74,6 +75,7 @@ data class RecyclerProfileActions(
 fun RecyclerProfileScreen(
     profile: UserProfile,
     details: RecyclerProfileDetails,
+    tabs: List<RecyclerTab>,
     actions: RecyclerProfileActions,
     localPhoto: Uri? = null,
     isSigningOut: Boolean = false,
@@ -89,7 +91,7 @@ fun RecyclerProfileScreen(
         )
     }
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.PROFILE,
         onTabClick = actions.onTabClick,
         onBack = actions.onBack,
@@ -205,9 +207,10 @@ fun RecyclerChangeProfileScreen(
     profile: UserProfile,
     actions: ChangeProfileActions,
     onTabClick: (RecyclerTab) -> Unit,
+    tabs: List<RecyclerTab>,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.PROFILE,
         onTabClick = onTabClick,
         onBack = actions.onBack,
@@ -234,14 +237,14 @@ val SampleRecyclerProfile = UserProfile(
 // Datos de contacto y modalidad ilustrativos del reciclador
 val SampleRecyclerDetails = RecyclerProfileDetails(
     maskedPhone = "3•• ••• ••42",
-    modality = RecyclerModality.INDEPENDENT,
+    modality = RecyclerModality.COMPANY_LINKED,
 )
 
 @Preview(name = "Perfil del reciclador", widthDp = 393, heightDp = 852)
 @Composable
 private fun RecyclerProfilePreview() {
     EcoRutaTheme {
-        RecyclerProfileScreen(profile = SampleRecyclerProfile, details = SampleRecyclerDetails, actions = RecyclerProfileActions())
+        RecyclerProfileScreen(profile = SampleRecyclerProfile, details = SampleRecyclerDetails, tabs = recyclerTabs(isCompanyLinked = false), actions = RecyclerProfileActions())
     }
 }
 
@@ -249,6 +252,6 @@ private fun RecyclerProfilePreview() {
 @Composable
 private fun RecyclerChangeProfilePreview() {
     EcoRutaTheme {
-        RecyclerChangeProfileScreen(profile = SampleRecyclerProfile, actions = ChangeProfileActions(), onTabClick = {})
+        RecyclerChangeProfileScreen(profile = SampleRecyclerProfile, actions = ChangeProfileActions(), onTabClick = {}, tabs = recyclerTabs(isCompanyLinked = false))
     }
 }

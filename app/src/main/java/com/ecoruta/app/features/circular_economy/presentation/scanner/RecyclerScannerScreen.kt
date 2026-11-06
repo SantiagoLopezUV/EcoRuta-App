@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSampleQrCode
@@ -66,10 +67,11 @@ fun RecyclerScannerScreen(
     onQrDetected: (String) -> Unit,
     onBack: () -> Unit,
     onTabClick: (RecyclerTab) -> Unit,
+    tabs: List<RecyclerTab>,
     modifier: Modifier = Modifier,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.SCANNER,
         onTabClick = onTabClick,
         onBack = onBack,
@@ -192,10 +194,11 @@ fun RecyclerScanResultScreen(
     onBackToMap: () -> Unit,
     onBack: () -> Unit,
     onTabClick: (RecyclerTab) -> Unit,
+    tabs: List<RecyclerTab>,
     modifier: Modifier = Modifier,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.SCANNER,
         onTabClick = onTabClick,
         onBack = onBack,
@@ -295,6 +298,7 @@ private fun RecyclerScannerPreview() {
             onQrDetected = {},
             onBack = {},
             onTabClick = {},
+            tabs = recyclerTabs(isCompanyLinked = false),
         )
     }
 }
@@ -308,6 +312,7 @@ private fun RecyclerScanCompletedPreview() {
             onBackToMap = {},
             onBack = {},
             onTabClick = {},
+            tabs = recyclerTabs(isCompanyLinked = false),
         )
     }
 }
@@ -321,6 +326,7 @@ private fun RecyclerScanFailedPreview() {
             onBackToMap = {},
             onBack = {},
             onTabClick = {},
+            tabs = recyclerTabs(isCompanyLinked = false),
         )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.core.ui.components.EcoLocationStatusCard
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
@@ -67,10 +68,11 @@ data class AssignedRouteActions(
 fun RecyclerAssignedRouteScreen(
     route: AssignedRecyclingRoute,
     locationStatus: RouteLocationStatus,
+    tabs: List<RecyclerTab>,
     actions: AssignedRouteActions,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.ROUTES,
         onTabClick = actions.onTabClick,
         onBack = actions.onBack,
@@ -136,6 +138,11 @@ val SampleAssignedRoute = AssignedRecyclingRoute(
 @Composable
 private fun RecyclerAssignedRoutePreview() {
     EcoRutaTheme {
-        RecyclerAssignedRouteScreen(route = SampleAssignedRoute, locationStatus = RouteLocationStatus.OK, actions = AssignedRouteActions())
+        RecyclerAssignedRouteScreen(
+            route = SampleAssignedRoute,
+            locationStatus = RouteLocationStatus.OK,
+            tabs = recyclerTabs(isCompanyLinked = true),
+            actions = AssignedRouteActions(),
+        )
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
@@ -49,10 +50,11 @@ fun ConfirmVolumeScreen(
     onConfirm: () -> Unit,
     onBack: () -> Unit,
     onTabClick: (RecyclerTab) -> Unit,
+    tabs: List<RecyclerTab>,
     modifier: Modifier = Modifier,
 ) {
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.SCANNER,
         onTabClick = onTabClick,
         onBack = onBack,
@@ -153,6 +155,7 @@ private fun ConfirmVolumePreview() {
             onConfirm = {},
             onBack = {},
             onTabClick = {},
+            tabs = recyclerTabs(isCompanyLinked = false),
         )
     }
 }

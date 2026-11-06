@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.RecyclerTab
+import com.ecoruta.app.core.navigation.components.recyclerTabs
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.theme.EcoAccent
@@ -85,12 +86,13 @@ private val FilterStatuses = listOf(PublicationStatus.DISPONIBLE, PublicationSta
 @Composable
 fun RecyclerDeliveriesMapScreen(
     state: RecyclerDeliveriesUiState,
+    tabs: List<RecyclerTab>,
     actions: RecyclerDeliveriesActions,
     modifier: Modifier = Modifier,
 ) {
     val selected = state.selectedDelivery
     EcoRoleTabScreenLayout(
-        items = RecyclerTab.entries,
+        items = tabs,
         selectedTab = RecyclerTab.MAP,
         onTabClick = actions.onTabClick,
         onBack = if (state.isListExpanded) actions.onCollapseList else null,
@@ -495,6 +497,7 @@ private fun RecyclerDeliveriesMapPreview() {
     EcoRutaTheme {
         RecyclerDeliveriesMapScreen(
             state = RecyclerDeliveriesUiState(deliveries = SampleRecyclerDeliveries),
+            tabs = recyclerTabs(isCompanyLinked = false),
             actions = RecyclerDeliveriesActions(),
         )
     }
@@ -506,6 +509,7 @@ private fun RecyclerDeliveriesListPreview() {
     EcoRutaTheme {
         RecyclerDeliveriesMapScreen(
             state = RecyclerDeliveriesUiState(deliveries = SampleRecyclerDeliveries, isListExpanded = true),
+            tabs = recyclerTabs(isCompanyLinked = false),
             actions = RecyclerDeliveriesActions(),
         )
     }
