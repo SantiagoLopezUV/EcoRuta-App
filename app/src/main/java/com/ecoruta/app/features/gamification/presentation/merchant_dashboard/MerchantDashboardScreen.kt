@@ -3,8 +3,6 @@ package com.ecoruta.app.features.gamification.presentation.merchant_dashboard
 // Vista del panel principal del comercio aliado
 // Resume los cupones activos, permite activarlos o editarlos y muestra los canjes recientes
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,11 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
+import com.ecoruta.app.core.ui.components.EcoEmptyStateCard
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
@@ -100,31 +98,11 @@ private fun MerchantDashboardEmpty(state: MerchantDashboardUiState, actions: Mer
         },
     ) {
         MerchantHeaderCard(storeName = state.storeName)
-        MerchantEmptyStateCard(
+        EcoEmptyStateCard(
             illustrationRes = R.drawable.ic_nav_ticket,
             heading = stringResource(R.string.merchant_dashboard_empty_heading),
             body = stringResource(R.string.merchant_dashboard_empty_body),
         )
-    }
-}
-
-// Recuadro con ilustración, título y explicación para las pestañas del comercio que aún no tienen datos
-@Composable
-internal fun MerchantEmptyStateCard(@DrawableRes illustrationRes: Int, heading: String, body: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(EcoFieldBackground)
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-        Image(painterResource(illustrationRes), contentDescription = null, modifier = Modifier.size(104.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(heading, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            Text(body, style = EcoTextStyles.Subtitle, color = EcoSubtitle, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-        }
     }
 }
 
