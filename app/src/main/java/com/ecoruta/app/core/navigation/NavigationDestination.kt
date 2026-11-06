@@ -54,6 +54,7 @@ object NavigationDestination {
     const val RECYCLER_ASSIGNED_ROUTE = "reciclador/ruta_asignada"
     const val RECYCLER_PROFILE = "reciclador/perfil"
     const val RECYCLER_CHANGE_PROFILE = "reciclador/perfil/cambiar"
+    const val RECYCLER_EDIT_PROFILE = "reciclador/perfil/editar"
     const val MY_ORDERS = "chofer/mis_ordenes"
     const val STORE_DASHBOARD = "comercio/panel"
 

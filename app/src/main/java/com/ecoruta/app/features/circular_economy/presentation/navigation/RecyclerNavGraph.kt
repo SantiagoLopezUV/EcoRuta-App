@@ -27,6 +27,9 @@ import com.ecoruta.app.features.circular_economy.presentation.scanner.RecyclerSc
 import com.ecoruta.app.features.circular_economy.presentation.scanner.RecyclerScannerScreen
 import com.ecoruta.app.features.circular_economy.presentation.scanner.RecyclerScannerUiState
 import com.ecoruta.app.features.profile.presentation.RecyclerChangeProfileScreen
+import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileActions
+import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.RecyclerEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.RecyclerProfileActions
 import com.ecoruta.app.features.profile.presentation.RecyclerProfileScreen
 import com.ecoruta.app.features.profile.presentation.SampleRecyclerDetails
@@ -124,8 +127,26 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
                 onPhotoSelected = { localPhoto = it },
                 onRemovePhoto = { localPhoto = null },
                 onChangeProfile = { navController.navigate(EcoRutaDestination.RECYCLER_CHANGE_PROFILE) { launchSingleTop = true } },
+                onEditProfile = { navController.navigate(EcoRutaDestination.RECYCLER_EDIT_PROFILE) { launchSingleTop = true } },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onTabClick = tabClick,
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.RECYCLER_EDIT_PROFILE) {
+        // Arranca con el nombre del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
+        var state by remember { mutableStateOf(RecyclerEditProfileUiState(fullName = SampleRecyclerProfile.fullName)) }
+        RecyclerEditProfileScreen(
+            state = state,
+            actions = RecyclerEditProfileActions(
+                onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onAssociationChange = { state = state.copy(association = it) },
+                onDocumentPicked = { state = state.copy(idDocument = it, documentErrorRes = null) },
+                onDocumentRemoved = { state = state.copy(idDocument = null) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }
