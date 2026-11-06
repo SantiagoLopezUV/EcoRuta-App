@@ -127,6 +127,19 @@ object NavigationDestination {
     fun radar(id: String) = "ciudadano/radar/$id"
     fun proximityAlert(id: String, radius: Int, notificationsEnabled: Boolean) = "ciudadano/alerta/$id/$radius/$notificationsEnabled"
 
+    // Rutas del módulo chofer para ejecutar rutas, cerrar órdenes de escombros y consultar su perfil
+    const val DRIVER_ROUTE_DETAIL = "chofer/ruta/{id}"
+    const val DRIVER_ACTIVE_ROUTE = "chofer/ruta_en_curso"
+    const val DRIVER_POINT_VISITED = "chofer/ruta_en_curso/punto_visitado"
+    const val DRIVER_ROUTE_FINISHED = "chofer/ruta_en_curso/finalizada"
+    const val DRIVER_DEBRIS_ORDER = "chofer/escombros/{id}"
+    const val DRIVER_DEBRIS_COLLECTED = "chofer/escombros/{id}/recolectada"
+    const val DRIVER_PROFILE = "chofer/perfil"
+
+    fun driverRouteDetail(id: String) = "chofer/ruta/$id"
+    fun driverDebrisOrder(id: String) = "chofer/escombros/$id"
+    fun driverDebrisCollected(id: String) = "chofer/escombros/$id/recolectada"
+
     // Rutas de consulta de notificaciones con y sin sesión
     const val NOTIFICATIONS = "ciudadano/notificaciones"
     const val GUEST_NOTIFICATIONS = "notificaciones_sin_sesion"
