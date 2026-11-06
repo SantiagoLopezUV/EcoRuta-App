@@ -52,6 +52,7 @@ import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoBlack
+import com.ecoruta.app.core.ui.theme.EcoDimens
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoPrimary
@@ -73,6 +74,7 @@ data class RecyclerDeliveriesActions(
     val onCollapseList: () -> Unit = {},
     val onTakeDelivery: (RecyclerDelivery) -> Unit = {},
     val onMyLocationClick: () -> Unit = {},
+    val onMyPickupsClick: () -> Unit = {},
     val onTabClick: (RecyclerTab) -> Unit = {},
 )
 
@@ -97,6 +99,7 @@ fun RecyclerDeliveriesMapScreen(
         onTabClick = actions.onTabClick,
         onBack = if (state.isListExpanded) actions.onCollapseList else null,
         contentSpacing = if (state.isListExpanded) 8.dp else 16.dp,
+        headerAction = { MyPickupsButton(onClick = actions.onMyPickupsClick) },
         modifier = modifier,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(if (state.isListExpanded) 4.dp else 8.dp)) {
@@ -144,6 +147,29 @@ fun RecyclerDeliveriesMapScreen(
             }
             else -> SelectedDeliveryCard(delivery = selected, onViewDetail = actions.onExpandList)
         }
+    }
+}
+
+// Pastilla de la cabecera que abre la lista de recogidas reservadas por el reciclador
+@Composable
+private fun MyPickupsButton(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .height(EcoDimens.MinTouchTarget)
+            .clip(RoundedCornerShape(EcoDimens.HeaderActionCornerRadius))
+            .background(EcoFieldBackground)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = EcoDimens.ChipHorizontalPadding),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(EcoDimens.ChipSpacing),
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_list),
+            contentDescription = null,
+            tint = EcoTitle,
+            modifier = Modifier.size(EcoDimens.InputIconSize),
+        )
+        Text(stringResource(R.string.recycler_pickups_title), style = EcoTextStyles.LinkText, color = EcoTitle)
     }
 }
 

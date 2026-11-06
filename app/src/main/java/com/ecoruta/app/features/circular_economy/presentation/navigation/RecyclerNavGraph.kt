@@ -73,6 +73,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
                 onDeliverySelected = { state = state.copy(selectedId = it) },
                 onExpandList = { state = state.copy(isListExpanded = true) },
                 onCollapseList = { state = state.copy(isListExpanded = false) },
+                onMyPickupsClick = { navController.navigate(EcoRutaDestination.RECYCLER_PICKUPS) { launchSingleTop = true } },
                 onTakeDelivery = { delivery ->
                     activeDelivery = delivery
                     tabClick(RecyclerTab.SCANNER)
