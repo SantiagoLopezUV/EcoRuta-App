@@ -872,6 +872,7 @@
     <string name="pdf_field_attach">Adjuntar archivo PDF</string>
     <string name="pdf_field_pick">Elegir archivo PDF</string>
     <string name="pdf_field_remove">Quitar</string>
+    <string name="pdf_field_badge">PDF</string>
     <string name="role_request_all_required">Todos los campos son obligatorios</string>
     <string name="role_request_citizen_stays_active">Tu perfil Ciudadano seguirá activo.</string>
     <string name="role_request_error_pdf_size">El archivo supera 5 MB. Elige un PDF más liviano.</string>
@@ -975,6 +976,9 @@
     <string name="recycler_registration_confirm_independent">A tu correo llegará un mensaje de confirmación. Ábrelo y sigue los pasos para continuar con tu cuenta: allí encontrarás tu usuario y una contraseña provisional, que deberás cambiar en tu primer ingreso.</string>
     <string name="recycler_registration_confirm_company">Abre tu correo y usa el enlace de confirmación para confirmar tu correo registrado.</string>
     <string name="recycler_registration_resend_link">Reenviar enlace</string>
+    <string name="registration_resending_link">Reenviando enlace…</string>
+    <string name="registration_resend_link_sent_title">Enlace reenviado</string>
+    <string name="registration_resend_link_sent_body">Enviamos un nuevo enlace a %1$s. Revisa también la carpeta de spam.</string>
     <string name="recycler_registration_confirmed_title">Registro confirmado</string>
     <string name="recycler_registration_confirmed_independent">Tu cuenta de reciclador independiente está lista.</string>
     <string name="recycler_registration_confirmed_company">Tu correo electrónico ha sido validado con éxito.</string>

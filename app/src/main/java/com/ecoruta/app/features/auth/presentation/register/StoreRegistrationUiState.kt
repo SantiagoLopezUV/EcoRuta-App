@@ -19,6 +19,15 @@ data class StoreOwnerAccountUiState(
     val hasErrors: Boolean get() = fullNameErrorRes != null || emailErrorRes != null
 }
 
+// Estados del reenvío del enlace de confirmación al correo
+enum class ResendLinkStatus { IDLE, SENDING, SENT }
+
+// Estado de la pantalla que espera la confirmación del correo del gerente
+data class StoreEmailConfirmationUiState(
+    val email: String,
+    val resendStatus: ResendLinkStatus = ResendLinkStatus.IDLE,
+)
+
 // Estado del segundo paso con los datos del establecimiento y la aceptación de la política de datos
 data class StoreDetailsUiState(
     val name: String = "",
@@ -27,17 +36,19 @@ data class StoreDetailsUiState(
     val category: StoreCategory? = null,
     val address: String = "",
     val phone: String = "",
+    val rutFileName: String? = null,
     val acceptedDataPolicy: Boolean = false,
     @StringRes val nameErrorRes: Int? = null,
     @StringRes val idErrorRes: Int? = null,
     @StringRes val categoryErrorRes: Int? = null,
     @StringRes val addressErrorRes: Int? = null,
     @StringRes val phoneErrorRes: Int? = null,
+    @StringRes val rutErrorRes: Int? = null,
     val isSubmitting: Boolean = false,
     val isOffline: Boolean = false,
 ) {
     val hasErrors: Boolean
-        get() = listOf(nameErrorRes, idErrorRes, categoryErrorRes, addressErrorRes, phoneErrorRes).any { it != null }
+        get() = listOf(nameErrorRes, idErrorRes, categoryErrorRes, addressErrorRes, phoneErrorRes, rutErrorRes).any { it != null }
 }
 
 // Estado de la solicitud del comercio después de enviarla a revisión

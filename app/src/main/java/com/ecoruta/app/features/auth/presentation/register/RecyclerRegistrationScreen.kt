@@ -4,11 +4,15 @@ package com.ecoruta.app.features.auth.presentation.register
 // Incluye el formulario de datos, la confirmación por correo y los estados finales del registro
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
@@ -17,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -37,8 +42,10 @@ import com.ecoruta.app.core.ui.components.PickedDocument
 import com.ecoruta.app.core.ui.theme.EcoBorder
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
+import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
+import com.ecoruta.app.core.ui.theme.EcoWhite
 import com.ecoruta.app.features.profile.presentation.Company
 import com.ecoruta.app.features.profile.presentation.components.CompanyCard
 
@@ -203,6 +210,7 @@ fun RecyclerEmailConfirmationScreen(
     onResendClick: () -> Unit,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
+    resendStatus: ResendLinkStatus = ResendLinkStatus.IDLE,
 ) {
     if (!LocalInspectionMode.current) {
         BackHandler(onBack = onExit)
@@ -216,7 +224,12 @@ fun RecyclerEmailConfirmationScreen(
         showBrand = false,
         modifier = modifier,
         bottomActions = {
-            EcoTextLink(text = stringResource(R.string.recycler_registration_resend_link), onClick = onResendClick)
+            // Mientras se reenvía el enlace se muestra en gris y no se puede volver a tocar
+            if (resendStatus == ResendLinkStatus.SENDING) {
+                Text(stringResource(R.string.registration_resending_link), style = EcoTextStyles.LinkText, color = EcoSubtitle)
+            } else {
+                EcoTextLink(text = stringResource(R.string.recycler_registration_resend_link), onClick = onResendClick)
+            }
         },
     ) {
         RegistrationTitle(
@@ -229,10 +242,32 @@ fun RecyclerEmailConfirmationScreen(
             Text(stringResource(R.string.registration_delivery_email), style = EcoTextStyles.FieldLabel, color = EcoTitle)
             Text(email, style = EcoTextStyles.LinkText, color = EcoTitle)
         }
+        if (resendStatus == ResendLinkStatus.SENT) ResendLinkNotice(email = email)
         if (isIndependent) {
             Text(stringResource(R.string.registration_spam_hint), style = EcoTextStyles.LinkText, color = EcoTitle)
         }
         CenteredBrand(modifier = Modifier.padding(top = 48.dp))
+    }
+}
+
+// Tarjeta verde que confirma que se envió un nuevo enlace al correo registrado
+@Composable
+private fun ResendLinkNotice(email: String) {
+    val shape = RoundedCornerShape(12.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(EcoWhite)
+            .border(1.5.dp, EcoGreenSecondary, shape)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(painterResource(R.drawable.ic_circle_check), contentDescription = null, tint = EcoGreenSecondary, modifier = Modifier.size(20.dp))
+            Text(stringResource(R.string.registration_resend_link_sent_title), style = EcoTextStyles.ButtonText, color = EcoTitle)
+        }
+        Text(stringResource(R.string.registration_resend_link_sent_body, email), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
 }
 
