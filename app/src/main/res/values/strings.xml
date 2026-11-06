@@ -1303,4 +1303,20 @@
     <string name="recycler_pickups_cancel">Cancelar recogida</string>
     <string name="recycler_pickups_cancel_dialog_title">¿Cancelar esta recogida?</string>
     <string name="recycler_pickups_cancel_dialog_body">La entrega volverá a estar disponible para otros recicladores y avisaremos al ciudadano.</string>
+    <string name="recycler_pickups_title">Mis recogidas</string>
+    <string name="recycler_pickups_subtitle">Tuluá · Entregas que reservaste</string>
+    <string name="recycler_pickups_tab_pending">Pendientes</string>
+    <string name="recycler_pickups_tab_completed">Completadas</string>
+    <string name="recycler_pickups_tab_cancelled">Canceladas</string>
+    <string name="recycler_pickups_status_pending">Pendiente de entrega</string>
+    <string name="recycler_pickups_status_completed">Completada</string>
+    <string name="recycler_pickups_status_cancelled">Cancelada</string>
+    <string name="recycler_pickups_confirmed_volume">Volumen confirmado</string>
+    <string name="recycler_pickups_completed_on">Completada el</string>
+    <string name="recycler_pickups_cancelled_on">Cancelada el</string>
+    <string name="recycler_pickups_scan">Escanear QR</string>
+    <string name="recycler_pickups_empty_pending">No tienes recogidas pendientes</string>
+    <string name="recycler_pickups_empty_completed">Aún no tienes recogidas completadas</string>
+    <string name="recycler_pickups_empty_cancelled">No tienes recogidas canceladas</string>
+    <string name="recycler_pickups_empty_body">Las entregas que reserves en el Mapa de entregas aparecerán aquí.</string>
 </resources>
