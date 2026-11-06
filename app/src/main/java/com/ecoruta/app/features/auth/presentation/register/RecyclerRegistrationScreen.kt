@@ -38,7 +38,6 @@ import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoSecondaryButton
 import com.ecoruta.app.core.ui.components.EcoTextField
 import com.ecoruta.app.core.ui.components.EcoTextLink
-import com.ecoruta.app.core.ui.components.PickedDocument
 import com.ecoruta.app.core.ui.theme.EcoBorder
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
@@ -55,7 +54,7 @@ data class RecyclerRegistrationActions(
     val onEmailChange: (String) -> Unit = {},
     val onDocumentTypeChange: (DocumentType) -> Unit = {},
     val onDocumentNumberChange: (String) -> Unit = {},
-    val onIdDocumentPicked: (PickedDocument) -> Unit = {},
+    val onPickIdDocument: () -> Unit = {},
     val onIdDocumentRemoved: () -> Unit = {},
     val onPhoneChange: (String) -> Unit = {},
     val onGoogleClick: () -> Unit = {},
@@ -187,6 +186,7 @@ private fun RecyclerPhoneField(
 }
 
 // Campo para adjuntar la cédula en PDF compartido por ambos formularios de reciclador
+// El selector de archivos vive en la navegación, aquí solo se muestra el documento elegido
 @Composable
 private fun RecyclerIdDocumentField(
     state: RecyclerRegistrationUiState,
@@ -195,8 +195,8 @@ private fun RecyclerIdDocumentField(
     EcoPdfField(
         label = stringResource(R.string.recycler_registration_id_pdf),
         hint = stringResource(R.string.recycler_application_document_pdf_hint),
-        document = state.idDocument,
-        onPicked = actions.onIdDocumentPicked,
+        fileName = state.idDocument?.name,
+        onPickClick = actions.onPickIdDocument,
         onRemove = actions.onIdDocumentRemoved,
         errorMessage = state.idDocumentErrorRes?.let { stringResource(it) },
     )

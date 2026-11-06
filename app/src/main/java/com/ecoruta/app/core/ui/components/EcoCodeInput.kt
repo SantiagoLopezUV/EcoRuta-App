@@ -29,12 +29,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.core.ui.theme.EcoBlack
 import com.ecoruta.app.core.ui.theme.EcoCodeBorder
 import com.ecoruta.app.core.ui.theme.EcoError
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 
 // Entrada única de texto que muestra cada carácter del código dentro de su propia casilla visual
@@ -128,4 +130,22 @@ private fun CodeCells(value: String, length: Int, gap: Dp, isCompact: Boolean, i
             }
         }
     }
+}
+
+@Preview(name = "Código vacío", widthDp = 354)
+@Composable
+private fun EcoCodeInputEmptyPreview() {
+    EcoRutaTheme { EcoCodeInput(value = "", onValueChange = {}, length = 6, accessibilityLabel = "Código de verificación") }
+}
+
+@Preview(name = "Código a medias", widthDp = 354)
+@Composable
+private fun EcoCodeInputPartialPreview() {
+    EcoRutaTheme { EcoCodeInput(value = "482", onValueChange = {}, length = 6, accessibilityLabel = "Código de verificación") }
+}
+
+@Preview(name = "Código alfanumérico con error", widthDp = 354)
+@Composable
+private fun EcoCodeInputErrorPreview() {
+    EcoRutaTheme { EcoCodeInput(value = "A7K2Q9XM", onValueChange = {}, length = 8, accessibilityLabel = "Código del cupón", isError = true, allowLetters = true) }
 }

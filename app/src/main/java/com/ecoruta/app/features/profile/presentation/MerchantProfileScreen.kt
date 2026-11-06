@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
+import com.ecoruta.app.core.ui.components.EcoEmptyStateCard
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.EcoTextLink
@@ -48,7 +49,6 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
-import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantEmptyStateCard
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileContent
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
@@ -148,7 +148,7 @@ private fun MerchantProfileContent(state: MerchantProfileUiState, actions: Merch
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator(color = EcoPrimary) }
         } else if (profile == null) {
-            MerchantEmptyStateCard(
+            EcoEmptyStateCard(
                 illustrationRes = R.drawable.ic_nav_ticket,
                 heading = stringResource(R.string.merchant_profile_empty_heading),
                 body = stringResource(R.string.merchant_profile_empty_body),

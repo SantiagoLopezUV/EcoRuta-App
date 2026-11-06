@@ -73,66 +73,84 @@ fun AuthPromptBottomSheet(
         containerColor = EcoWhite,
         modifier = modifier,
     ) {
-        Column(
+        AuthPromptContent(
+            title = title,
+            subtitle = subtitle,
+            onLoginClick = onLoginClick,
+            onRegisterClick = onRegisterClick,
+            onDismiss = onDismiss,
+        )
+    }
+}
+
+// Contenido de la hoja con el candado, los textos y las opciones de cuenta, separado para poder previsualizarlo
+@Composable
+private fun AuthPromptContent(
+    title: String,
+    subtitle: String,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = EcoDimens.ScreenHorizontalPadding)
+            .padding(bottom = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = EcoDimens.ScreenHorizontalPadding)
-                .padding(bottom = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(EcoFieldBackground),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(EcoFieldBackground),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_lock),
-                    contentDescription = null,
-                    tint = EcoPrimary,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
+            Icon(
+                painter = painterResource(R.drawable.ic_lock),
+                contentDescription = null,
+                tint = EcoPrimary,
+                modifier = Modifier.size(24.dp),
+            )
+        }
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(
-                    text = title,
-                    style = EcoTextStyles.Title,
-                    color = EcoTitle,
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = subtitle,
-                    style = EcoTextStyles.Subtitle,
-                    color = EcoSubtitle,
-                    textAlign = TextAlign.Center,
-                )
-            }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = title,
+                style = EcoTextStyles.Title,
+                color = EcoTitle,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = subtitle,
+                style = EcoTextStyles.Subtitle,
+                color = EcoSubtitle,
+                textAlign = TextAlign.Center,
+            )
+        }
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                EcoPrimaryButton(
-                    text = stringResource(R.string.auth_action_login),
-                    onClick = onLoginClick,
-                    trailingIconRes = R.drawable.ic_arrow_right,
-                )
-                EcoSecondaryButton(
-                    text = stringResource(R.string.auth_action_register),
-                    onClick = onRegisterClick,
-                )
-                EcoTextLink(
-                    text = stringResource(R.string.auth_action_continue_browsing),
-                    onClick = onDismiss,
-                )
-            }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            EcoPrimaryButton(
+                text = stringResource(R.string.auth_action_login),
+                onClick = onLoginClick,
+                trailingIconRes = R.drawable.ic_arrow_right,
+            )
+            EcoSecondaryButton(
+                text = stringResource(R.string.auth_action_register),
+                onClick = onRegisterClick,
+            )
+            EcoTextLink(
+                text = stringResource(R.string.auth_action_continue_browsing),
+                onClick = onDismiss,
+            )
         }
     }
 }
@@ -312,4 +330,43 @@ private fun SplashScreenPreview() {
     EcoRutaTheme {
         SplashScreen(onSplashFinished = {})
     }
+}
+
+@Preview(name = "Invitación a iniciar sesión", widthDp = 393)
+@Composable
+private fun AuthPromptContentPreview() {
+    EcoRutaTheme {
+        Column(Modifier.background(EcoWhite).padding(top = 24.dp)) {
+            AuthPromptContent(
+                title = stringResource(R.string.auth_prompt_title),
+                subtitle = stringResource(R.string.auth_prompt_subtitle),
+                onLoginClick = {},
+                onRegisterClick = {},
+                onDismiss = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Servicio para invitados", widthDp = 393, heightDp = 852)
+@Composable
+private fun GuestServiceScreenPreview() {
+    EcoRutaTheme {
+        GuestServiceScreen(
+            content = GuestServiceContent(
+                banner = R.string.debris_guest_banner,
+                lockedSection = R.string.debris_guest_locked,
+                title = R.string.debris_guest_title,
+                description = R.string.debris_guest_description,
+                benefits = listOf(R.string.debris_guest_can_1, R.string.debris_guest_can_2, R.string.debris_guest_can_3),
+            ),
+            actions = GuestServiceActions(),
+        )
+    }
+}
+
+@Preview(name = "Pantalla pendiente", widthDp = 393, heightDp = 852)
+@Composable
+private fun PendingScreenPreview() {
+    EcoRutaTheme { PendingScreen(screenName = "Historial de entregas") }
 }

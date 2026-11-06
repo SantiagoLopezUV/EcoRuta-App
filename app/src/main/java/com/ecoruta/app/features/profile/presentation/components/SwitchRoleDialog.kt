@@ -69,7 +69,6 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
-import com.ecoruta.app.core.ui.components.PickedDocument
 import com.ecoruta.app.features.auth.presentation.register.CenteredBrand
 import com.ecoruta.app.features.auth.presentation.register.RegistrationLayout
 import com.ecoruta.app.features.profile.presentation.Company
@@ -327,7 +326,7 @@ data class StoreApplicationActions(
     val onCategorySelected: (StoreCategory) -> Unit = {},
     val onIdTypeSelected: (StoreIdType) -> Unit = {},
     val onIdNumberChange: (String) -> Unit = {},
-    val onRutPicked: (PickedDocument) -> Unit = {},
+    val onPickRut: () -> Unit = {},
     val onRutRemoved: () -> Unit = {},
     val onSubmit: () -> Unit = {},
 )
@@ -413,11 +412,12 @@ fun StoreApplicationScreen(state: StoreApplicationUiState, actions: StoreApplica
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         )
+        // El selector de archivos vive en la navegación, aquí solo se muestra el RUT elegido
         EcoPdfField(
             label = stringResource(R.string.store_application_rut),
             hint = stringResource(R.string.store_application_rut_hint),
-            document = state.rut,
-            onPicked = actions.onRutPicked,
+            fileName = state.rut?.name,
+            onPickClick = actions.onPickRut,
             onRemove = actions.onRutRemoved,
             errorMessage = state.rutError?.let { stringResource(it) },
         )
@@ -544,7 +544,7 @@ data class RecyclerApplicationActions(
     val onBack: () -> Unit = {},
     val onModalitySelected: (RecyclerModality) -> Unit = {},
     val onPhoneChange: (String) -> Unit = {},
-    val onDocumentPicked: (PickedDocument) -> Unit = {},
+    val onPickDocument: () -> Unit = {},
     val onDocumentRemoved: () -> Unit = {},
     val onContinue: () -> Unit = {},
 )
@@ -593,11 +593,12 @@ fun RecyclerApplicationScreen(state: RecyclerApplicationUiState, actions: Recycl
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         )
+        // El selector de archivos vive en la navegación, aquí solo se muestra la cédula elegida
         EcoPdfField(
             label = stringResource(R.string.recycler_application_document_pdf),
             hint = stringResource(R.string.recycler_application_document_pdf_hint),
-            document = state.idDocument,
-            onPicked = actions.onDocumentPicked,
+            fileName = state.idDocument?.name,
+            onPickClick = actions.onPickDocument,
             onRemove = actions.onDocumentRemoved,
             errorMessage = state.documentError?.let { stringResource(it) },
         )

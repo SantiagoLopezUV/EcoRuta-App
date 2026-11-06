@@ -72,13 +72,13 @@ fun RecyclerEditProfileScreen(state: RecyclerEditProfileUiState, actions: Recycl
             enabled = false,
             supportingText = stringResource(R.string.recycler_edit_profile_company_hint),
         )
-        // Mientras se guarda el campo ignora el documento elegido o el retiro del actual
+        // Mientras se guarda el campo no abre el selector ni retira el documento actual
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             EcoPdfField(
                 label = stringResource(R.string.recycler_edit_profile_document_label),
                 hint = stringResource(R.string.recycler_application_document_pdf_hint),
-                document = state.idDocument,
-                onPicked = { if (isEditable) actions.onDocumentPicked(it) },
+                fileName = state.idDocument?.name,
+                onPickClick = { if (isEditable) actions.onPickDocument() },
                 onRemove = { if (isEditable) actions.onDocumentRemoved() },
                 errorMessage = state.documentErrorRes?.let { stringResource(it) },
             )

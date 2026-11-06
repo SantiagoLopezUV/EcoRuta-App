@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
@@ -37,6 +38,7 @@ import com.ecoruta.app.core.ui.theme.EcoAccent
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoWhite
@@ -151,4 +153,24 @@ private fun RouteMapLabel(labelRes: Int, x: Float, y: Float, mapWidth: Float, ma
         color = EcoSubtitle,
         modifier = Modifier.offset(x = (x * scale).dp, y = (y * verticalScale).dp),
     )
+}
+
+// Paradas ilustrativas usadas solo en las vistas previas del mapa
+private val PreviewRoutePoints = listOf(
+    EcoRouteMapPoint(0.12f, 0.75f),
+    EcoRouteMapPoint(0.35f, 0.40f),
+    EcoRouteMapPoint(0.62f, 0.55f),
+    EcoRouteMapPoint(0.86f, 0.22f),
+)
+
+@Preview(name = "Mapa de la ruta", widthDp = 354)
+@Composable
+private fun EcoRouteMapPreview() {
+    EcoRutaTheme { EcoRouteMap(points = PreviewRoutePoints) }
+}
+
+@Preview(name = "Mapa de la ruta · Ubicación en vivo", widthDp = 354)
+@Composable
+private fun EcoRouteMapLivePreview() {
+    EcoRutaTheme { EcoRouteMap(points = PreviewRoutePoints, mapHeight = 220.dp, showLiveLocation = true) }
 }

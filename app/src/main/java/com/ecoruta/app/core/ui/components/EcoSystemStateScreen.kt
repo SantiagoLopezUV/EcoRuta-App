@@ -177,3 +177,21 @@ private fun CameraPermissionPreview() {
 private fun NotificationsPermissionPreview() {
     EcoRutaTheme { EcoPermissionScreen(EcoPermissionKind.NOTIFICATIONS, onAllow = {}, onBack = {}) }
 }
+
+@Preview(name = "Sin conexión", widthDp = 393, heightDp = 852)
+@Composable
+private fun OfflinePreview() {
+    EcoRutaTheme { OfflineScreen(onRetry = {}) }
+}
+
+@Preview(name = "Acceso solo en la web", widthDp = 393, heightDp = 852)
+@Composable
+private fun WebOnlyAccessPreview() {
+    EcoRutaTheme { WebOnlyAccessScreen(isSigningOut = false, onSignOut = {}) }
+}
+
+@Preview(name = "Acceso solo en la web · Cerrando sesión", widthDp = 393, heightDp = 852)
+@Composable
+private fun WebOnlyAccessSigningOutPreview() {
+    EcoRutaTheme { WebOnlyAccessScreen(isSigningOut = true, onSignOut = {}) }
+}

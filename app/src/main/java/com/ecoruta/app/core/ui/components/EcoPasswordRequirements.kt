@@ -20,9 +20,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
@@ -58,4 +60,22 @@ fun EcoPasswordRequirements(password: String, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Preview(name = "Requisitos de contraseña sin cumplir", widthDp = 354)
+@Composable
+private fun EcoPasswordRequirementsEmptyPreview() {
+    EcoRutaTheme { EcoPasswordRequirements(password = "") }
+}
+
+@Preview(name = "Requisitos de contraseña parciales", widthDp = 354)
+@Composable
+private fun EcoPasswordRequirementsPartialPreview() {
+    EcoRutaTheme { EcoPasswordRequirements(password = "ecoruta") }
+}
+
+@Preview(name = "Requisitos de contraseña cumplidos", widthDp = 354)
+@Composable
+private fun EcoPasswordRequirementsMetPreview() {
+    EcoRutaTheme { EcoPasswordRequirements(password = "EcoRuta2026!") }
 }

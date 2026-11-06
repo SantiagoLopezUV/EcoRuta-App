@@ -30,13 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.EcoBottomBar
 import com.ecoruta.app.core.navigation.components.EcoBottomBarItem
+import com.ecoruta.app.core.navigation.components.MerchantTab
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
@@ -141,5 +144,36 @@ fun EcoRoleBrandHeader(onBack: (() -> Unit)?, modifier: Modifier = Modifier) {
             }
         }
         Text(stringResource(R.string.app_name), style = EcoTextStyles.Title, color = EcoPrimary)
+    }
+}
+
+@Preview(name = "Plantilla con pestañas del comercio", widthDp = 393, heightDp = 852)
+@Composable
+private fun EcoRoleTabScreenLayoutPreview() {
+    EcoRutaTheme {
+        EcoRoleTabScreenLayout(
+            items = MerchantTab.entries,
+            selectedTab = MerchantTab.DASHBOARD,
+            onTabClick = {},
+            onBack = {},
+            bottomActions = { EcoPrimaryButton(text = stringResource(R.string.merchant_tab_create), onClick = {}) },
+        ) {
+            EcoEmptyStateCard(
+                illustrationRes = R.drawable.ic_nav_ticket,
+                heading = stringResource(R.string.merchant_dashboard_empty_heading),
+                body = stringResource(R.string.merchant_dashboard_empty_body),
+            )
+        }
+    }
+}
+
+@Preview(name = "Cabecera de marca por rol", widthDp = 393)
+@Composable
+private fun EcoRoleBrandHeaderPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            EcoRoleBrandHeader(onBack = {})
+            EcoRoleBrandHeader(onBack = null)
+        }
     }
 }

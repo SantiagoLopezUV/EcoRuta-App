@@ -29,7 +29,7 @@ data class RecyclerEditProfileActions(
     val onFullNameChange: (String) -> Unit = {},
     val onPhoneChange: (String) -> Unit = {},
     val onAssociationChange: (String) -> Unit = {},
-    val onDocumentPicked: (PickedDocument) -> Unit = {},
+    val onPickDocument: () -> Unit = {},
     val onDocumentRemoved: () -> Unit = {},
     val onSave: () -> Unit = {},
     val onCancel: () -> Unit = {},

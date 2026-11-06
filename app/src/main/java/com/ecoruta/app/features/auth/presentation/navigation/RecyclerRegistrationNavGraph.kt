@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.auth.presentation.register.RecyclerEmailConfirmationScreen
 import com.ecoruta.app.features.auth.presentation.register.RecyclerEmailConfirmedScreen
 import com.ecoruta.app.features.auth.presentation.register.RecyclerPendingActivationScreen
@@ -40,6 +41,7 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
 
     composable(EcoRutaDestination.INDEPENDENT_RECYCLER_REGISTRATION) {
         var state by remember { mutableStateOf(RecyclerRegistrationUiState()) }
+        val pickIdDocument = rememberPdfPicker { document -> state = state.copy(idDocument = document, idDocumentErrorRes = null) }
         val goToConfirmation = {
             navController.navigate(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMATION) {
                 popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
@@ -52,6 +54,7 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
             actions = recyclerFormActions(
                 state = { state },
                 update = { state = it },
+                onPickIdDocument = pickIdDocument,
                 onValid = goToConfirmation,
                 onGoogleClick = goToConfirmation,
                 onBack = { navController.popBackStack() },
@@ -87,12 +90,14 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
 
     composable(EcoRutaDestination.COMPANY_RECYCLER_REGISTRATION) {
         var state by remember { mutableStateOf(RecyclerRegistrationUiState()) }
+        val pickIdDocument = rememberPdfPicker { document -> state = state.copy(idDocument = document, idDocumentErrorRes = null) }
         RecyclerRegistrationFormScreen(
             type = RegistrationType.COMPANY_RECYCLER,
             state = state,
             actions = recyclerFormActions(
                 state = { state },
                 update = { state = it },
+                onPickIdDocument = pickIdDocument,
                 onValid = {
                     navController.navigate(EcoRutaDestination.COMPANY_RECYCLER_CONFIRMATION) {
                         popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
@@ -177,6 +182,7 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
 private fun recyclerFormActions(
     state: () -> RecyclerRegistrationUiState,
     update: (RecyclerRegistrationUiState) -> Unit,
+    onPickIdDocument: () -> Unit,
     onValid: () -> Unit,
     onGoogleClick: () -> Unit,
     onBack: () -> Unit,
@@ -185,7 +191,7 @@ private fun recyclerFormActions(
     onEmailChange = { update(state().copy(email = it, emailErrorRes = null)) },
     onDocumentTypeChange = { update(state().copy(documentType = it, documentErrorRes = null)) },
     onDocumentNumberChange = { update(state().copy(documentNumber = it, documentErrorRes = null)) },
-    onIdDocumentPicked = { update(state().copy(idDocument = it, idDocumentErrorRes = null)) },
+    onPickIdDocument = onPickIdDocument,
     onIdDocumentRemoved = { update(state().copy(idDocument = null)) },
     onPhoneChange = { update(state().copy(phone = it, phoneErrorRes = null)) },
     onGoogleClick = onGoogleClick,

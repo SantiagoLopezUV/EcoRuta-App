@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,11 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.theme.EcoDimens
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 
 // Cabecera de identidad para pantallas de acceso con opción de mostrar un botón para regresar
@@ -159,5 +162,34 @@ fun EcoTextLink(
             )
         }
         Text(text = text, style = EcoTextStyles.LinkText, color = EcoPrimary)
+    }
+}
+
+@Preview(name = "Cabecera de marca", widthDp = 393)
+@Composable
+private fun EcoBrandHeaderPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            EcoBrandHeader()
+            EcoBrandHeader(onBackClick = {})
+        }
+    }
+}
+
+@Preview(name = "Insignia, íconos y enlace", widthDp = 354)
+@Composable
+private fun EcoAuthSmallPartsPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            EcoIconBadge(iconRes = R.drawable.ic_shield_check)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                EcoInputIcon(R.drawable.ic_mail)
+                EcoInputIcon(R.drawable.ic_lock)
+                EcoPasswordVisibilityToggle(isVisible = false, onToggle = {})
+                EcoPasswordVisibilityToggle(isVisible = true, onToggle = {})
+            }
+            EcoTextLink(text = stringResource(R.string.registration_back), onClick = {})
+            EcoTextLink(text = stringResource(R.string.registration_back), onClick = {}, leadingIconRes = R.drawable.ic_arrow_right)
+        }
     }
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.MerchantTab
+import com.ecoruta.app.core.ui.components.EcoEmptyStateCard
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoRoleTabScreenLayout
 import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
@@ -43,7 +44,6 @@ import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.Mer
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponCostRow
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponEditButton
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCouponTitleRow
-import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantEmptyStateCard
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.PreviewMerchantCoupon
 
 // Lista de cupones que elige entre sin conexión, error, vacío o las tarjetas de cada cupón
@@ -78,7 +78,7 @@ private fun MerchantCouponsEmpty(state: MerchantCouponsUiState, actions: Merchan
         },
     ) {
         MerchantCouponsHeading(storeName = state.storeName)
-        MerchantEmptyStateCard(
+        EcoEmptyStateCard(
             illustrationRes = R.drawable.ic_nav_ticket,
             heading = stringResource(R.string.my_coupons_empty_title),
             body = stringResource(R.string.merchant_coupons_empty_body),

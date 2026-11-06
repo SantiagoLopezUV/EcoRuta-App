@@ -22,6 +22,7 @@ import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
 import com.ecoruta.app.features.profile.presentation.CitizenEditProfileActions
 import com.ecoruta.app.features.profile.presentation.CitizenEditProfileScreen
@@ -160,6 +161,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
 
     composable(EcoRutaDestination.STORE_REQUEST) {
         var state by remember { mutableStateOf(StoreApplicationUiState()) }
+        val pickRut = rememberPdfPicker { doc -> state = state.copy(rut = doc, rutError = null) }
         StoreApplicationScreen(
             state = state,
             actions = StoreApplicationActions(
@@ -170,7 +172,7 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
                 onCategorySelected = { state = state.copy(category = it, categoryError = null) },
                 onIdTypeSelected = { state = state.copy(idType = it) },
                 onIdNumberChange = { state = state.copy(idNumber = it, idError = null) },
-                onRutPicked = { doc -> state = state.copy(rut = doc, rutError = null) },
+                onPickRut = pickRut,
                 onRutRemoved = { state = state.copy(rut = null) },
                 onSubmit = {
                     navController.navigate(EcoRutaDestination.storeRequestReview(true)) {
@@ -216,13 +218,14 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
                     ),
                 )
             }
+            val pickDocument = rememberPdfPicker { doc -> state = state.copy(idDocument = doc, documentError = null) }
             RecyclerApplicationScreen(
                 state = state,
                 actions = RecyclerApplicationActions(
                     onBack = { navController.popBackStack(EcoRutaDestination.RECYCLER_APPLICATION, inclusive = true) },
                     onModalitySelected = { state = state.copy(modality = it) },
                     onPhoneChange = { state = state.copy(phone = it, phoneError = null) },
-                    onDocumentPicked = { doc -> state = state.copy(idDocument = doc, documentError = null) },
+                    onPickDocument = pickDocument,
                     onDocumentRemoved = { state = state.copy(idDocument = null) },
                     onContinue = {
                         if (state.modality == RecyclerModality.COMPANY_LINKED) {
