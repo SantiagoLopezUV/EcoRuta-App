@@ -29,13 +29,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.components.EcoBottomBar
+import com.ecoruta.app.core.ui.theme.EcoAccentSurface
 import com.ecoruta.app.core.ui.theme.EcoBorder
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
@@ -227,6 +230,60 @@ fun EcoFocusLayout(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = bottomActions,
             )
+        }
+    }
+}
+
+@Preview(name = "Plantilla de asistente por pasos", widthDp = 393, heightDp = 852)
+@Composable
+private fun EcoWizardLayoutPreview() {
+    EcoRutaTheme {
+        EcoWizardLayout(
+            step = 1,
+            totalSteps = 3,
+            stageLabel = stringResource(R.string.registration_stage_account),
+            title = stringResource(R.string.recycler_registration_account_title),
+            description = stringResource(R.string.recycler_registration_account_description),
+            onBack = {},
+            bottomActions = { EcoPrimaryButton(text = stringResource(R.string.registration_create_account), onClick = {}) },
+        ) {
+            EcoTextField(value = "", onValueChange = {}, label = stringResource(R.string.registration_full_name_label))
+        }
+    }
+}
+
+@Preview(name = "Plantilla con pestañas del ciudadano", widthDp = 393, heightDp = 852)
+@Composable
+private fun EcoTabScreenLayoutPreview() {
+    EcoRutaTheme {
+        EcoTabScreenLayout(selectedTab = CitizenTab.HOME, onBack = {}, onTabClick = {}) {
+            Text(stringResource(R.string.report_type_title), style = EcoTextStyles.Title, color = EcoTitle)
+            Text(stringResource(R.string.report_type_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+        }
+    }
+}
+
+@Preview(name = "Plantilla enfocada sin pestañas", widthDp = 393, heightDp = 852)
+@Composable
+private fun EcoFocusLayoutPreview() {
+    EcoRutaTheme {
+        EcoFocusLayout(
+            onBack = {},
+            bottomActions = { EcoPrimaryButton(text = stringResource(R.string.registration_create_account), onClick = {}) },
+        ) {
+            Text(stringResource(R.string.report_type_title), style = EcoTextStyles.Title, color = EcoTitle)
+        }
+    }
+}
+
+@Preview(name = "Aviso, etiqueta y estado", widthDp = 354)
+@Composable
+private fun EcoSmallLayoutPartsPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            EcoInfoHint(text = stringResource(R.string.recycler_application_linked_hint))
+            EcoDataLabel(text = stringResource(R.string.registration_full_name_label))
+            EcoStatusChip(text = stringResource(R.string.report_status_pending), background = EcoAccentSurface, content = EcoPrimary)
         }
     }
 }

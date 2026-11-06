@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,10 +25,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
@@ -135,5 +138,28 @@ fun EcoAccountOption(
             tint = EcoSubtitle,
             modifier = Modifier.size(20.dp),
         )
+    }
+}
+
+@Preview(name = "Barra superior", widthDp = 393)
+@Composable
+private fun EcoTopBarPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            EcoTopBar(onBackClick = {})
+            EcoTopBar()
+        }
+    }
+}
+
+@Preview(name = "Opciones de cuenta", widthDp = 354)
+@Composable
+private fun EcoAccountOptionPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            EcoAccountOption(text = stringResource(R.string.home_logout), iconRes = R.drawable.ic_profile_logout, onClick = {})
+            EcoAccountOption(text = stringResource(R.string.profile_edit_data), onClick = {})
+            EcoAccountOption(text = stringResource(R.string.profile_edit_data), iconRes = R.drawable.ic_lock, onClick = {}, locked = true)
+        }
     }
 }
