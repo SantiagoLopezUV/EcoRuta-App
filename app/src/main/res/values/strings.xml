@@ -1072,6 +1072,12 @@
     <string name="citizen_edit_profile_radar_label">Radio de aviso del radar</string>
     <string name="citizen_edit_profile_radar_hint">Te avisaremos de puntos de recolección dentro de este radio.</string>
     <string name="citizen_edit_profile_photo_note">Tu foto se cambia desde la pantalla de perfil.</string>
+    <string name="recycler_edit_profile_description">Actualiza tus datos de contacto y tu asociación.</string>
+    <string name="recycler_edit_profile_association_label">Asociación</string>
+    <string name="recycler_edit_profile_company_label">Empresa vinculada</string>
+    <string name="recycler_edit_profile_company_hint">La vinculación la aprueba el administrador de la empresa.</string>
+    <string name="recycler_edit_profile_document_label">Cédula en PDF</string>
+    <string name="recycler_edit_profile_document_hint">Si cambias el documento, la administración lo revisará de nuevo.</string>
     <!-- Comercio aliado · Panel, cupones, validación en caja y perfil -->
     <string name="merchant_tab_dashboard">Panel</string>
     <string name="merchant_tab_create">Crear cupón</string>
