@@ -18,13 +18,33 @@ if(localPropertiesFile.exists()) { localProperties.load(localPropertiesFile.inpu
 // lectura con ?: para tolerar los fallos
 // busca la clave en local.properties, Si es nula, busca en las variables de entorno del sistema operativo con System.getenv
 // Si tampoco existe, asigna una cadena vacía "" para que Gradle no lance NullPointerException
-val rawSupabaseUrl: String = localProperties.getProperty("SUPABASE_URL")
-    ?: System.getenv("SUPABASE_URL") ?: ""
-val rawSupabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY")
-    ?: System.getenv("SUPABASE_ANON_KEY") ?: ""
 
-val supabaseUrl: String = rawSupabaseUrl.trim().removeSurrounding("\"")
-val supabaseAnonKey: String = rawSupabaseAnonKey.trim().removeSurrounding("\"")
+// Función auxiliar para leer propiedades
+fun getEnvProperty(key: String): String {
+    val raw = localProperties.getProperty(key) ?: System.getenv(key) ?: ""
+    return raw.trim().removeSurrounding("\"")
+}
+// si no se definine Cloud, o Phone en SUPABASE_ENV, toma por defecto el local
+val activeEnv = getEnvProperty("SUPABASE_ENV").ifEmpty { "LOCAL" }.uppercase()
+
+// Se pasa por parametro la variable de entorno que se necesita, la cual viene de local.properties
+val (activeUrl, activeKey) = when (activeEnv)
+{
+    "CLOUD" -> Pair(
+        getEnvProperty("SUPABASE_URL_CLOUD")
+            .ifEmpty { getEnvProperty("SUPABASE_URL") },
+        getEnvProperty("SUPABASE_ANON_KEY_CLOUD")
+            .ifEmpty { getEnvProperty("SUPABASE_ANON_KEY") }
+    )
+    "PHONE" -> Pair(
+        getEnvProperty("SUPABASE_URL_PHONE"),
+        getEnvProperty("SUPABASE_ANON_KEY_PHONE")
+    )
+    else -> Pair( // Local por defecto
+        getEnvProperty("SUPABASE_URL_LOCAL"),
+        getEnvProperty("SUPABASE_ANON_KEY_LOCAL")
+    )
+}
 
 android {
     namespace = "com.ecoruta.app"
@@ -40,8 +60,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Inyección de variables seguras para el cliente Supabase
-        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
+        buildConfigField("String", "SUPABASE_URL", "\"$activeUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$activeKey\"")
+        buildConfigField("String", "SUPABASE_ENV", "\"$activeEnv\"") // Para saber en logs cuál está activo
     }
 
     buildTypes {
