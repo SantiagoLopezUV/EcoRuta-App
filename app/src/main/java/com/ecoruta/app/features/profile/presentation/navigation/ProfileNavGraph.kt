@@ -23,6 +23,9 @@ import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
+import com.ecoruta.app.features.profile.presentation.CitizenEditProfileActions
+import com.ecoruta.app.features.profile.presentation.CitizenEditProfileScreen
+import com.ecoruta.app.features.profile.presentation.CitizenEditProfileUiState
 import com.ecoruta.app.features.profile.presentation.Company
 import com.ecoruta.app.features.profile.presentation.GuestProfileActions
 import com.ecoruta.app.features.profile.presentation.GuestProfileScreen
@@ -94,10 +97,29 @@ fun NavGraphBuilder.profileGraph(
                 onMyDebrisRequests = { open(EcoRutaDestination.MY_DEBRIS_REQUESTS) },
                 onMyCoupons = { open(EcoRutaDestination.PROFILE_MY_COUPONS) },
                 onChangeProfile = { open(EcoRutaDestination.SWITCH_PROFILE) },
+                onEditProfile = { open(EcoRutaDestination.CITIZEN_EDIT_PROFILE) },
                 onChangePassword = { open(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, SampleUserProfile.role)) },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
                 onRetry = {},
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
+            ),
+        )
+    }
+
+    composable(EcoRutaDestination.CITIZEN_EDIT_PROFILE) {
+        // Arranca con el nombre y el correo del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
+        var state by remember {
+            mutableStateOf(CitizenEditProfileUiState(fullName = SampleUserProfile.fullName, email = SampleUserProfile.email))
+        }
+        CitizenEditProfileScreen(
+            state = state,
+            actions = CitizenEditProfileActions(
+                onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
+                onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
+                onNeighborhoodChange = { state = state.copy(neighborhood = it, neighborhoodErrorRes = null) },
+                onRadarRadiusChange = { state = state.copy(radarRadiusMeters = it) },
+                onCancel = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
             ),
         )
     }

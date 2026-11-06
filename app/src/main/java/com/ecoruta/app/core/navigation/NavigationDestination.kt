@@ -77,9 +77,10 @@ object NavigationDestination {
         UserRole.COMERCIO -> STORE_DASHBOARD
     }
 
-    // Rutas de inicio y perfil para el ciudadano con sesión activa
+    // Rutas de inicio, perfil y edición de datos para el ciudadano con sesión activa
     const val CITIZEN_HOME = "inicio_ciudadano"
     const val MY_PROFILE = "ciudadano/mi_perfil"
+    const val CITIZEN_EDIT_PROFILE = "ciudadano/mi_perfil/editar"
 
     // Rutas del flujo para crear un nuevo reporte ciudadano
     const val NEW_REPORT = "ciudadano/nuevo_reporte"
