@@ -2,10 +2,16 @@ package com.ecoruta.app.features.auth.presentation.password_reset
 
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
+import com.ecoruta.app.core.testing.TestDataFactory
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -70,5 +76,63 @@ class PasswordResetViewModelTest {
         val state = viewModel.uiState.value
         assertNull(state.emailErrorRes)
         assertFalse(state.requestFailed)
+    }
+
+    @Test
+    fun validEmail_sendsResetEmailAndEmitsCodeSent() = runTest {
+        repository.addAccount(TestDataFactory.userAccount(email = "ana@correo.com"))
+        val events = collectEvents()
+
+        viewModel.onEmailChange(" ana@correo.com ")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+        assertNull(state.emailErrorRes)
+        assertFalse(state.requestFailed)
+        assertFalse(state.isRequestingCode)
+        assertEquals(listOf(PasswordRecoveryEvent.CodeSent), events)
+    }
+
+    @Test
+    fun unregisteredEmail_behavesLikeSuccess() = runTest {
+        // El repositorio falso no tiene cuentas, igual que un correo que nadie registró
+        val events = collectEvents()
+
+        viewModel.onEmailChange("nadie@correo.com")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(listOf("nadie@correo.com"), repository.passwordResetEmails)
+        assertNull(state.emailErrorRes)
+        assertFalse(state.requestFailed)
+        assertEquals(listOf(PasswordRecoveryEvent.CodeSent), events)
+    }
+
+    @Test
+    fun networkError_setsRequestFailedAndKeepsEmail() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.requestFailed)
+        assertFalse(state.isRequestingCode)
+        assertEquals("ana@correo.com", state.email)
+        assertTrue(events.isEmpty())
+    }
+
+    // Guarda en una lista los avisos de una sola vez que emite el ViewModel durante la prueba
+    private fun TestScope.collectEvents(): List<PasswordRecoveryEvent> {
+        val events = mutableListOf<PasswordRecoveryEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.events.toList(events)
+        }
+        return events
     }
 }
