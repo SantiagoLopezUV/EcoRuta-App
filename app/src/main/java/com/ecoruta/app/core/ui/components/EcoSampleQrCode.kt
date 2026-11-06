@@ -5,11 +5,15 @@ package com.ecoruta.app.core.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTitle
 
@@ -38,4 +42,16 @@ fun EcoSampleQrCode(seed: String, modifier: Modifier = Modifier, faded: Boolean 
         finder(0, modules - 7)
         finder(modules - 7, 0)
     }
+}
+
+@Preview(name = "Código QR de ejemplo", widthDp = 160, heightDp = 160)
+@Composable
+private fun EcoSampleQrCodePreview() {
+    EcoRutaTheme { EcoSampleQrCode(seed = "ECO-A7K2Q9XM", modifier = Modifier.size(120.dp)) }
+}
+
+@Preview(name = "Código QR de ejemplo atenuado", widthDp = 160, heightDp = 160)
+@Composable
+private fun EcoSampleQrCodeFadedPreview() {
+    EcoRutaTheme { EcoSampleQrCode(seed = "ECO-A7K2Q9XM", modifier = Modifier.size(120.dp), faded = true) }
 }

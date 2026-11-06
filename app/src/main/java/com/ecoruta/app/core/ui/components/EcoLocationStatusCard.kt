@@ -15,12 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.theme.EcoDimens
 import com.ecoruta.app.core.ui.theme.EcoError
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 
@@ -92,5 +94,29 @@ private fun LocationErrorCard(
         Text(title, style = EcoTextStyles.FieldLabel, color = EcoError)
         Text(body, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         EcoSecondaryButton(text = action, onClick = onAction)
+    }
+}
+
+@Preview(name = "Ubicación lista", widthDp = 354)
+@Composable
+private fun EcoLocationStatusOkPreview() {
+    EcoRutaTheme {
+        EcoLocationStatusCard(status = RouteLocationStatus.OK, infoBody = stringResource(R.string.recycler_route_location_body), onOpenSettings = {}, onEnableLocation = {})
+    }
+}
+
+@Preview(name = "Ubicación sin permiso", widthDp = 354)
+@Composable
+private fun EcoLocationStatusDeniedPreview() {
+    EcoRutaTheme {
+        EcoLocationStatusCard(status = RouteLocationStatus.PERMISSION_DENIED, infoBody = stringResource(R.string.recycler_route_location_body), onOpenSettings = {}, onEnableLocation = {})
+    }
+}
+
+@Preview(name = "Ubicación con GPS apagado", widthDp = 354)
+@Composable
+private fun EcoLocationStatusGpsOffPreview() {
+    EcoRutaTheme {
+        EcoLocationStatusCard(status = RouteLocationStatus.GPS_DISABLED, infoBody = stringResource(R.string.recycler_route_location_body), onOpenSettings = {}, onEnableLocation = {})
     }
 }

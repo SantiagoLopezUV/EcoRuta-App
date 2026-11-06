@@ -20,11 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.theme.EcoFieldBackground
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
@@ -76,6 +79,19 @@ fun EcoServiceCard(
                 .align(Alignment.TopEnd)
                 .padding(top = 6.dp)
                 .size(20.dp),
+        )
+    }
+}
+
+@Preview(name = "Tarjeta de servicio", widthDp = 180)
+@Composable
+private fun EcoServiceCardPreview() {
+    EcoRutaTheme {
+        EcoServiceCard(
+            title = stringResource(R.string.service_garbage_title),
+            description = stringResource(R.string.service_garbage_description),
+            iconRes = R.drawable.ic_trash,
+            onClick = {},
         )
     }
 }
