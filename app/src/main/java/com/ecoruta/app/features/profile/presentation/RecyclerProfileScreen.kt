@@ -47,6 +47,7 @@ import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileActions
 import com.ecoruta.app.features.profile.presentation.components.ChangeProfileContent
+import com.ecoruta.app.features.profile.presentation.components.EditDataButton
 import com.ecoruta.app.features.profile.presentation.components.ProfilePhotoSheet
 
 // Datos ilustrativos que se muestran en el perfil del reciclador
@@ -63,6 +64,7 @@ data class RecyclerProfileActions(
     val onRemovePhoto: () -> Unit = {},
     val onCameraUnavailable: () -> Unit = {},
     val onChangeProfile: () -> Unit = {},
+    val onEditProfile: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onTabClick: (RecyclerTab) -> Unit = {},
 )
@@ -99,6 +101,7 @@ fun RecyclerProfileScreen(
                 content = EcoBlack,
                 onClick = actions.onChangeProfile,
             )
+            EditDataButton(onClick = actions.onEditProfile)
             AccountButton(
                 text = stringResource(if (isSigningOut) R.string.profile_signing_out else R.string.home_logout),
                 iconRes = R.drawable.ic_profile_logout,

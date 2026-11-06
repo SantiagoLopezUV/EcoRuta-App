@@ -91,11 +91,11 @@ fun EcoTopBar(
     }
 }
 
-// Fila interactiva para opciones del perfil con icono a la izquierda e indicador de acceso o bloqueo
+// Fila interactiva para opciones del perfil con icono opcional a la izquierda e indicador de acceso o bloqueo
 @Composable
 fun EcoAccountOption(
     text: String,
-    @DrawableRes iconRes: Int,
+    @DrawableRes iconRes: Int? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     locked: Boolean = false,
@@ -111,19 +111,22 @@ fun EcoAccountOption(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(EcoWhite),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(20.dp),
-            )
+        // Sin icono la opción muestra solo el texto
+        if (iconRes != null) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(EcoWhite),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
         Text(text, style = EcoTextStyles.LinkText, color = EcoPrimary, modifier = Modifier.weight(1f))
         Icon(

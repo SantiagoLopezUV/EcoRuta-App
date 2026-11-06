@@ -75,6 +75,7 @@ data class ProfileActions(
     val onMyDebrisRequests: () -> Unit = {},
     val onMyCoupons: () -> Unit = {},
     val onChangeProfile: () -> Unit = {},
+    val onEditProfile: () -> Unit = {},
     val onChangePassword: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onRetry: () -> Unit = {},
@@ -164,6 +165,7 @@ fun ProfileScreen(
                     EcoAccountOption(stringResource(R.string.profile_my_debris_requests), R.drawable.ic_profile_clipboard, actions.onMyDebrisRequests)
                     EcoAccountOption(stringResource(R.string.profile_my_coupons), R.drawable.ic_profile_ticket, actions.onMyCoupons)
                     EcoAccountOption(stringResource(R.string.profile_change_profile), R.drawable.ic_profile_users, actions.onChangeProfile)
+                    EcoAccountOption(text = stringResource(R.string.profile_edit_data), onClick = actions.onEditProfile)
                     EcoAccountOption(stringResource(R.string.change_password_title), R.drawable.ic_profile_lock, actions.onChangePassword)
                     EcoAccountOption(
                         text = stringResource(if (isSigningOut) R.string.profile_signing_out else R.string.home_logout),

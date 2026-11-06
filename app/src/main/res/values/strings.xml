@@ -1155,6 +1155,26 @@
     <string name="web_only_heading">Tu perfil de despachador usa el panel web</string>
     <string name="web_only_body">La gestión de rutas y la asignación de camiones se realizan desde el panel web de EcoRuta, no desde esta app.</string>
     <string name="design_mode_web_only">Simular cuenta de despachador (solo web)</string>
+    <!-- Editar perfil de ciudadano, reciclador y chofer -->
+    <string name="profile_edit_data">Editar datos</string>
+    <string name="edit_profile_title">Editar perfil</string>
+    <string name="edit_profile_saving">Guardando…</string>
+    <string name="edit_profile_saved">Cambios guardados. Tus datos ya están actualizados.</string>
+    <string name="citizen_edit_profile_description">Actualiza tus datos personales y tu barrio.</string>
+    <string name="citizen_edit_profile_email_hint">El correo de tu cuenta no se puede cambiar aquí.</string>
+    <string name="citizen_edit_profile_radar_label">Radio de aviso del radar</string>
+    <string name="citizen_edit_profile_radar_hint">Te avisaremos de puntos de recolección dentro de este radio.</string>
+    <string name="citizen_edit_profile_photo_note">Tu foto se cambia desde la pantalla de perfil.</string>
+    <string name="recycler_edit_profile_description">Actualiza tus datos de contacto y tu asociación.</string>
+    <string name="recycler_edit_profile_association_label">Asociación</string>
+    <string name="recycler_edit_profile_company_label">Empresa vinculada</string>
+    <string name="recycler_edit_profile_company_hint">La vinculación la aprueba el administrador de la empresa.</string>
+    <string name="recycler_edit_profile_document_label">Cédula en PDF</string>
+    <string name="recycler_edit_profile_document_hint">Si cambias el documento, la administración lo revisará de nuevo.</string>
+    <string name="driver_edit_profile_description">Actualiza tu nombre y tu teléfono de contacto.</string>
+    <string name="driver_edit_profile_company_label">Empresa</string>
+    <string name="driver_edit_profile_plate_label">Placa del vehículo</string>
+    <string name="driver_edit_profile_company_hint">La empresa administra estos datos. Contáctala para corregirlos.</string>
     <!-- Comercio aliado · Panel, cupones, validación en caja y perfil -->
     <string name="merchant_tab_dashboard">Panel</string>
     <string name="merchant_tab_create">Crear cupón</string>
