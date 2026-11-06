@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecoruta.app.R
@@ -42,6 +43,7 @@ import com.ecoruta.app.core.ui.theme.EcoBorder
 import com.ecoruta.app.core.ui.theme.EcoDimens
 import com.ecoruta.app.core.ui.theme.EcoGreenSecondary
 import com.ecoruta.app.core.ui.theme.EcoPrimary
+import com.ecoruta.app.core.ui.theme.EcoRutaTheme
 import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
@@ -237,6 +239,80 @@ fun EcoCheckboxRow(
         }
         if (linkText != null) {
             EcoTextLink(text = linkText, onClick = onLinkClick)
+        }
+    }
+}
+
+@Preview(name = "Cabecera de pasos", widthDp = 393)
+@Composable
+private fun EcoStepHeaderPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            EcoStepHeader(
+                stepLabel = stringResource(R.string.registration_step_1_of_2),
+                stageLabel = stringResource(R.string.registration_stage_account),
+                progress = 0.5f,
+                onBackClick = {},
+            )
+            EcoStepHeader(
+                stepLabel = stringResource(R.string.registration_step_1_of_2),
+                stageLabel = stringResource(R.string.registration_stage_account),
+                progress = 0.5f,
+                showBrand = false,
+                showProgress = false,
+            )
+        }
+    }
+}
+
+@Preview(name = "Barra de acciones inferior", widthDp = 393)
+@Composable
+private fun EcoBottomActionBarPreview() {
+    EcoRutaTheme {
+        EcoBottomActionBar {
+            EcoPrimaryButton(text = stringResource(R.string.registration_create_account), onClick = {})
+            EcoTextLink(text = stringResource(R.string.registration_back), onClick = {})
+        }
+    }
+}
+
+@Preview(name = "Tarjetas de selección", widthDp = 354)
+@Composable
+private fun EcoSelectionCardPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            EcoSelectionCard(
+                title = stringResource(R.string.report_type_full_container),
+                description = stringResource(R.string.report_type_full_container_description),
+                iconRes = R.drawable.ic_trash,
+                iconSize = 24.dp,
+                selected = true,
+                onClick = {},
+            )
+            EcoSelectionCard(
+                title = stringResource(R.string.report_type_illegal_dump),
+                description = stringResource(R.string.report_type_illegal_dump_description),
+                iconRes = R.drawable.ic_trash,
+                iconSize = 24.dp,
+                selected = false,
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Casilla con enlace", widthDp = 354)
+@Composable
+private fun EcoCheckboxRowPreview() {
+    EcoRutaTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            EcoCheckboxRow(
+                checked = false,
+                onCheckedChange = {},
+                text = stringResource(R.string.registration_policy_consent),
+                linkText = stringResource(R.string.registration_view_policy),
+            )
+            EcoCheckboxRow(checked = true, onCheckedChange = {}, text = stringResource(R.string.registration_policy_consent))
         }
     }
 }
