@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -56,6 +57,8 @@ fun <T : EcoBottomBarItem> EcoRoleTabScreenLayout(
     // Permite ocultar la fila de marca cuando el contenido ya incluye su propia cabecera
     showBrandHeader: Boolean = true,
     contentSpacing: Dp = 16.dp,
+    // Acción opcional que se ubica a la derecha de la marca en la cabecera
+    headerAction: (@Composable () -> Unit)? = null,
     bottomActions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -77,7 +80,7 @@ fun <T : EcoBottomBarItem> EcoRoleTabScreenLayout(
             if (compactHeader) {
                 EcoTopBar(onBackClick = onBack)
             } else if (showBrandHeader) {
-                EcoRoleBrandHeader(onBack = onBack)
+                EcoRoleBrandHeader(onBack = onBack, action = headerAction)
             }
             content()
         }
@@ -102,7 +105,11 @@ fun <T : EcoBottomBarItem> EcoRoleTabScreenLayout(
 
 // Cabecera con el logo de EcoRuta o, si hay acción de regreso, con el botón para volver
 @Composable
-fun EcoRoleBrandHeader(onBack: (() -> Unit)?, modifier: Modifier = Modifier) {
+fun EcoRoleBrandHeader(
+    onBack: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -144,6 +151,11 @@ fun EcoRoleBrandHeader(onBack: (() -> Unit)?, modifier: Modifier = Modifier) {
             }
         }
         Text(stringResource(R.string.app_name), style = EcoTextStyles.Title, color = EcoPrimary)
+        // La acción opcional queda empujada al borde derecho de la cabecera
+        if (action != null) {
+            Spacer(Modifier.weight(1f))
+            action()
+        }
     }
 }
 
