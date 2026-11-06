@@ -1067,6 +1067,11 @@
     <string name="edit_profile_title">Editar perfil</string>
     <string name="edit_profile_saving">Guardando…</string>
     <string name="edit_profile_saved">Cambios guardados. Tus datos ya están actualizados.</string>
+    <string name="citizen_edit_profile_description">Actualiza tus datos personales y tu barrio.</string>
+    <string name="citizen_edit_profile_email_hint">El correo de tu cuenta no se puede cambiar aquí.</string>
+    <string name="citizen_edit_profile_radar_label">Radio de aviso del radar</string>
+    <string name="citizen_edit_profile_radar_hint">Te avisaremos de puntos de recolección dentro de este radio.</string>
+    <string name="citizen_edit_profile_photo_note">Tu foto se cambia desde la pantalla de perfil.</string>
     <!-- Comercio aliado · Panel, cupones, validación en caja y perfil -->
     <string name="merchant_tab_dashboard">Panel</string>
     <string name="merchant_tab_create">Crear cupón</string>
