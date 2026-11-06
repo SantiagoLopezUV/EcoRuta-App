@@ -28,6 +28,9 @@ sealed interface ScanResult {
 // Estado visual del flujo de escaneo: entrega en verificación, volumen elegido y resultado
 data class RecyclerScannerUiState(
     val delivery: RecyclerDelivery? = null,
+    // Permiso de cámara resuelto en la navegación y si el sistema ya no deja volver a pedirlo
+    val hasCameraPermission: Boolean = false,
+    val isCameraPermanentlyDenied: Boolean = false,
     // Contenido del código QR leído por la cámara, pendiente de validar en la capa de lógica
     val scannedCode: String? = null,
     val selectedVolume: DeliveredVolume = DeliveredVolume.LARGE_BAG,

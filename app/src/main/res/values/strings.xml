@@ -1091,6 +1091,10 @@
     <string name="recycler_scanner_camera">Cámara</string>
     <string name="recycler_scanner_hint">Mantén el código dentro del marco.</string>
     <string name="recycler_scanner_camera_needed">Permite el acceso a la cámara para leer el código QR de la entrega.</string>
+    <string name="recycler_scanner_camera_denied">Activa el permiso de cámara en los ajustes del teléfono para leer el código QR de la entrega.</string>
+    <string name="recycler_scanner_camera_subtitle">Escanea el QR de quien entrega el material.</string>
+    <string name="recycler_scanner_camera_heading">Escanea el código QR</string>
+    <string name="recycler_scanner_camera_body">Necesitamos acceder a la cámara solo mientras escaneas el QR de una entrega. No tomamos ni guardamos fotos.</string>
     <string name="recycler_scanner_location_title">Verificación de ubicación</string>
     <string name="recycler_scanner_location_body">Debes estar en el punto de entrega. Al leer el QR, se verificará tu ubicación antes de completar la entrega.</string>
     <string name="recycler_volume_title">Confirmar volumen entregado</string>

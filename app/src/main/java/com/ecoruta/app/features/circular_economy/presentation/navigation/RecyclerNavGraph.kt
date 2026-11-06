@@ -8,14 +8,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.navigation.rememberCameraPermissionGate
 import com.ecoruta.app.core.navigation.rememberRouteLocationGate
 import com.ecoruta.app.core.navigation.components.RecyclerTab
 import com.ecoruta.app.core.navigation.components.recyclerTabs
+import com.ecoruta.app.core.ui.components.EcoSystemStateScreen
 import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.AssignedRouteActions
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.RecyclerAssignedRouteScreen
@@ -74,14 +78,34 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
         )
     }
 
-    composable(EcoRutaDestination.RECYCLER_SCANNER) {
+    composable(EcoRutaDestination.RECYCLER_SCANNER) { entry ->
+        // Sin permiso de cámara se explica su uso antes de pedirlo y al volver atrás queda el aviso en el visor
+        val cameraGate = rememberCameraPermissionGate(entry.lifecycle)
+        if (cameraGate.showRationale) {
+            EcoSystemStateScreen(
+                title = stringResource(R.string.permission_camera_title),
+                subtitle = stringResource(R.string.recycler_scanner_camera_subtitle),
+                illustrationRes = R.drawable.ill_state_camera,
+                heading = stringResource(R.string.recycler_scanner_camera_heading),
+                body = stringResource(R.string.recycler_scanner_camera_body),
+                actionText = stringResource(R.string.permission_camera_action),
+                onAction = cameraGate.onAllow,
+                onBack = cameraGate.onDismissRationale,
+            )
+            return@composable
+        }
         RecyclerScannerScreen(
-            state = RecyclerScannerUiState(delivery = activeDelivery),
+            state = RecyclerScannerUiState(
+                delivery = activeDelivery,
+                hasCameraPermission = cameraGate.hasPermission,
+                isCameraPermanentlyDenied = cameraGate.isPermanentlyDenied,
+            ),
             // Al leer un código QR con la cámara se continúa con la confirmación del volumen
             onQrDetected = { code ->
                 scannedCode = code
                 navController.navigate(EcoRutaDestination.RECYCLER_CONFIRM_VOLUME) { launchSingleTop = true }
             },
+            onRequestCamera = cameraGate.onRequest,
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
             tabs = tabs,
