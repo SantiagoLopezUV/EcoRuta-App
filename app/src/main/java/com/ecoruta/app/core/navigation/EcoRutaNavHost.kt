@@ -29,6 +29,7 @@ import com.ecoruta.app.features.auth.presentation.navigation.authGraph
 import com.ecoruta.app.features.bulky_waste.presentation.navigation.debrisGraph
 import com.ecoruta.app.features.circular_economy.presentation.navigation.circularEconomyGraph
 import com.ecoruta.app.features.circular_economy.presentation.navigation.recyclerGraph
+import com.ecoruta.app.features.driver.presentation.navigation.driverGraph
 import com.ecoruta.app.features.education.presentation.navigation.educationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.gamificationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.merchantGraph
@@ -84,6 +85,7 @@ fun EcoRutaNavHost(
             debrisGraph(navController = navController)
             circularEconomyGraph(navController = navController, showNotice = showNotice)
             recyclerGraph(navController = navController)
+            driverGraph(navController = navController)
             gamificationGraph(navController = navController)
             merchantGraph(navController = navController)
             educationGraph(navController = navController, showNotice = showNotice)

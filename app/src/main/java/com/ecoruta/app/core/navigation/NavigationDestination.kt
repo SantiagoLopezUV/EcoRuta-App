@@ -231,9 +231,7 @@ object NavigationDestination {
     const val GUEST_PROFILE = "perfil_sin_sesion"
 
     // Mapa con los títulos descriptivos de las pantallas pendientes de implementar
-    val pendingScreens: Map<String, String> = mapOf(
-        MY_ORDERS to "Chofer · Mis órdenes",
-    )
+    val pendingScreens: Map<String, String> = emptyMap()
 }
 
 // Redirige al inicio público limpiando toda la pila de navegación tras cerrar sesión
