@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Avisos de una sola vez que la pantalla consume para navegar
+// Avisos de una sola vez que el grafo de navegación consumirá para cambiar de pantalla cuando se conecte este ViewModel
 sealed interface PasswordRecoveryEvent {
     data object CodeSent : PasswordRecoveryEvent
 }
