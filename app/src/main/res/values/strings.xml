@@ -1132,7 +1132,6 @@
     <string name="recycler_route_assigned">Asignada</string>
     <string name="recycler_route_location_title">Tu ubicación, solo durante la ruta</string>
     <string name="recycler_route_location_body">Al iniciar, permite compartir tu ubicación con la empresa que te asignó la ruta.</string>
-    <string name="recycler_route_location_consent">Autorizo compartir mi ubicación</string>
     <string name="recycler_route_view_on_map">Ver puntos en el mapa</string>
     <!-- Estados transversales (sección 20) -->
     <string name="permission_location_title">Permiso de ubicación</string>

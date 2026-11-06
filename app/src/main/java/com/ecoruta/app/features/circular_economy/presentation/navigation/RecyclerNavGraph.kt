@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
+import com.ecoruta.app.core.navigation.rememberRouteLocationGate
 import com.ecoruta.app.core.navigation.components.RecyclerTab
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.AssignedRouteActions
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.RecyclerAssignedRouteScreen
@@ -102,15 +103,17 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
         )
     }
 
-    composable(EcoRutaDestination.RECYCLER_ASSIGNED_ROUTE) {
-        var shareLocation by remember { mutableStateOf(false) }
+    composable(EcoRutaDestination.RECYCLER_ASSIGNED_ROUTE) { entry ->
+        // Los puntos en el mapa solo se abren con permiso de ubicación precisa y el GPS encendido
+        val locationGate = rememberRouteLocationGate(entry.lifecycle) { tabClick(RecyclerTab.MAP) }
         RecyclerAssignedRouteScreen(
             route = SampleAssignedRoute,
-            shareLocation = shareLocation,
+            locationStatus = locationGate.status,
             actions = AssignedRouteActions(
                 onBack = { navController.popBackStack() },
-                onShareLocationChange = { shareLocation = it },
-                onViewOnMap = { tabClick(RecyclerTab.MAP) },
+                onViewOnMap = locationGate.onStart,
+                onOpenSettings = locationGate.onOpenSettings,
+                onEnableLocation = locationGate.onEnableLocation,
                 onTabClick = tabClick,
             ),
         )
