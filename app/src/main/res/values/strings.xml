@@ -788,6 +788,12 @@
     <string name="driver_route_map_description">Mapa ilustrativo de Tuluá con el recorrido y los puntos de la ruta</string>
     <string name="driver_route_location_body">Al iniciar, permite compartir tu ubicación con tu empresa para guiarte y registrar visitas. Se detiene al finalizar.</string>
     <string name="driver_route_start">Iniciar ruta</string>
+    <string name="route_location_denied_title">Ubicación no permitida</string>
+    <string name="route_location_denied_body">Para iniciar la ruta, permite el acceso a tu ubicación en los ajustes del teléfono. Se usa solo durante la ruta y se detiene al finalizar.</string>
+    <string name="route_location_open_settings">Abrir ajustes</string>
+    <string name="route_location_gps_off_title">Ubicación desactivada</string>
+    <string name="route_location_gps_off_body">Activa el GPS de tu teléfono para iniciar la ruta y registrar tus visitas. Se detiene al finalizar.</string>
+    <string name="route_location_enable">Activar ubicación</string>
     <string name="driver_active_route_title">Ruta en curso</string>
     <plurals name="driver_route_progress">
         <item quantity="one">%1$d de %2$d punto visitado</item>

@@ -21,4 +21,7 @@ object EcoDimens {
 
     // Tamaño estándar para iconos ubicados dentro de campos y botones
     val InputIconSize = 20.dp
+
+    // Grosor del borde en tarjetas y contenedores delineados
+    val BorderWidth = 1.dp
 }

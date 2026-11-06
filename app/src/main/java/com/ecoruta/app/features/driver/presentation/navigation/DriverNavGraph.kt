@@ -79,17 +79,15 @@ fun NavGraphBuilder.driverGraph(navController: NavHostController) {
     composable(EcoRutaDestination.DRIVER_ROUTE_DETAIL, arguments = idArgument) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID)
         val route = if (id == SampleOrdinaryRoute.code) SampleOrdinaryRoute else SampleCleanupRoute
-        var locationConsent by remember { mutableStateOf(false) }
         DriverRouteDetailScreen(
-            state = ActiveRouteUiState(route = route, locationConsent = locationConsent),
+            state = ActiveRouteUiState(route = route),
             actions = DriverRouteDetailActions(
                 onBack = { navController.popBackStack() },
-                onLocationConsentChange = { locationConsent = it },
                 onStartRoute = {
                     routeState = ActiveRouteUiState(
                         route = route.copy(status = DriverOrderStatus.IN_PROGRESS),
                         city = "Tuluá",
-                        isSharingLocation = locationConsent,
+                        isSharingLocation = true,
                     )
                     navController.navigate(EcoRutaDestination.DRIVER_ACTIVE_ROUTE) {
                         popUpTo(EcoRutaDestination.MY_ORDERS)
