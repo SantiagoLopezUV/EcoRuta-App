@@ -1062,6 +1062,11 @@
     <string name="web_only_heading">Tu perfil de despachador usa el panel web</string>
     <string name="web_only_body">La gestión de rutas y la asignación de camiones se realizan desde el panel web de EcoRuta, no desde esta app.</string>
     <string name="design_mode_web_only">Simular cuenta de despachador (solo web)</string>
+    <!-- Editar perfil de ciudadano, reciclador y chofer -->
+    <string name="profile_edit_data">Editar datos</string>
+    <string name="edit_profile_title">Editar perfil</string>
+    <string name="edit_profile_saving">Guardando…</string>
+    <string name="edit_profile_saved">Cambios guardados. Tus datos ya están actualizados.</string>
     <!-- Comercio aliado · Panel, cupones, validación en caja y perfil -->
     <string name="merchant_tab_dashboard">Panel</string>
     <string name="merchant_tab_create">Crear cupón</string>
