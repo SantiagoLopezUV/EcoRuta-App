@@ -28,6 +28,8 @@ class SupabaseConnectionTest {
         // Ejecuta una petición select a la base de datos mediante el cliente configurado
         val result = supabase.postgrest.from("roles").select()
 
+        //saber que entorno se esta usando
+        println("Conectado a Supabase en modo [${BuildConfig.SUPABASE_ENV}]: ${BuildConfig.SUPABASE_URL}")
         // Imprime en consola la respuesta
         println("CONEXION EXITOSA A SUPABASE")
         println("Respuesta del servidor: ${result.data}")
