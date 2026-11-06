@@ -1300,4 +1300,7 @@
     <string name="merchant_cashier_camera_subtitle">Escanea el cupón del cliente en caja.</string>
     <string name="merchant_cashier_camera_heading">Escanea el código QR</string>
     <string name="merchant_cashier_camera_body">Necesitamos acceder a la cámara solo mientras escaneas el QR de un cupón. No tomamos ni guardamos fotos.</string>
+    <string name="recycler_pickups_cancel">Cancelar recogida</string>
+    <string name="recycler_pickups_cancel_dialog_title">¿Cancelar esta recogida?</string>
+    <string name="recycler_pickups_cancel_dialog_body">La entrega volverá a estar disponible para otros recicladores y avisaremos al ciudadano.</string>
 </resources>
