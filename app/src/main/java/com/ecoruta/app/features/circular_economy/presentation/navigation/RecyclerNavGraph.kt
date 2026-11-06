@@ -16,6 +16,7 @@ import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.navigation.rememberRouteLocationGate
 import com.ecoruta.app.core.navigation.components.RecyclerTab
 import com.ecoruta.app.core.navigation.components.recyclerTabs
+import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.AssignedRouteActions
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.RecyclerAssignedRouteScreen
 import com.ecoruta.app.features.circular_economy.presentation.assigned_route.SampleAssignedRoute
@@ -162,13 +163,14 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
     composable(EcoRutaDestination.RECYCLER_EDIT_PROFILE) {
         // Arranca con el nombre del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
         var state by remember { mutableStateOf(RecyclerEditProfileUiState(fullName = SampleRecyclerProfile.fullName)) }
+        val pickDocument = rememberPdfPicker { document -> state = state.copy(idDocument = document, documentErrorRes = null) }
         RecyclerEditProfileScreen(
             state = state,
             actions = RecyclerEditProfileActions(
                 onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
                 onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
                 onAssociationChange = { state = state.copy(association = it) },
-                onDocumentPicked = { state = state.copy(idDocument = it, documentErrorRes = null) },
+                onPickDocument = pickDocument,
                 onDocumentRemoved = { state = state.copy(idDocument = null) },
                 onCancel = { navController.popBackStack() },
                 onBack = { navController.popBackStack() },
