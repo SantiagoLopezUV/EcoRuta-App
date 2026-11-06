@@ -1078,6 +1078,10 @@
     <string name="recycler_edit_profile_company_hint">La vinculación la aprueba el administrador de la empresa.</string>
     <string name="recycler_edit_profile_document_label">Cédula en PDF</string>
     <string name="recycler_edit_profile_document_hint">Si cambias el documento, la administración lo revisará de nuevo.</string>
+    <string name="driver_edit_profile_description">Actualiza tu nombre y tu teléfono de contacto.</string>
+    <string name="driver_edit_profile_company_label">Empresa</string>
+    <string name="driver_edit_profile_plate_label">Placa del vehículo</string>
+    <string name="driver_edit_profile_company_hint">La empresa administra estos datos. Contáctala para corregirlos.</string>
     <!-- Comercio aliado · Panel, cupones, validación en caja y perfil -->
     <string name="merchant_tab_dashboard">Panel</string>
     <string name="merchant_tab_create">Crear cupón</string>
