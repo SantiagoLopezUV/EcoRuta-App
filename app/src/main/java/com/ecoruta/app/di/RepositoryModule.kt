@@ -7,6 +7,8 @@ import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
+import com.ecoruta.app.features.reports.data.repository.ReportRepositoryImpl
+import com.ecoruta.app.features.reports.domain.repository.ReportRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,5 +32,11 @@ abstract class RepositoryModule {
     abstract fun bindProfileRepository(
         impl: ProfileRepositoryImpl
     ): ProfileRepository
-}
 
+    // Vincula la interfaz de reportes ciudadanos con la implementación de Supabase
+    @Binds
+    @Singleton
+    abstract fun bindReportRepository(
+        impl: ReportRepositoryImpl
+    ): ReportRepository
+}
