@@ -5,6 +5,8 @@ package com.ecoruta.app.di
 
 import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
+import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,5 +23,12 @@ abstract class RepositoryModule {
     abstract fun bindAuthRepository(
         impl: AuthRepositoryImpl
     ): AuthRepository
+
+    // Vincula la interfaz de perfil y roles con la implementación de Supabase
+    @Binds
+    @Singleton
+    abstract fun bindProfileRepository(
+        impl: ProfileRepositoryImpl
+    ): ProfileRepository
 }
 

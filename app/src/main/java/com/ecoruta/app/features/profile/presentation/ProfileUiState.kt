@@ -6,14 +6,10 @@ package com.ecoruta.app.features.profile.presentation
 import android.net.Uri
 import androidx.annotation.StringRes
 import com.ecoruta.app.core.ui.components.PickedDocument
+import com.ecoruta.app.features.profile.domain.model.Profile
 
 // Rol de visualización de las pantallas de la aplicación móvil
-enum class UserRole {
-    CIUDADANO,
-    RECICLADOR,
-    CHOFER,
-    COMERCIO,
-}
+typealias UserRole = com.ecoruta.app.features.profile.domain.model.UserRole
 
 // Datos visuales del perfil de usuario para renderizar el perfil y el cambio de rol
 data class UserProfile(
@@ -96,4 +92,17 @@ data class RecyclerApplicationUiState(
     @StringRes val searchError: Int? = null,
     val isSubmitting: Boolean = false,
     val submittedWithoutBackend: Boolean = false,
+)
+
+// pasa los datos del perfil a la vista
+fun Profile.toUserProfile(): UserProfile = UserProfile(
+    fullName = fullName,
+    role = activeRole,
+    city = city,
+    email = email,
+    documentNumber = documentNumber,
+    ecoPoints = ecoPoints,
+    photoUrl = photoUrl,
+    approvedRoles = approvedRoles,
+    pendingRoles = pendingRoles,
 )
