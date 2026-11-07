@@ -55,6 +55,8 @@ object NavigationDestination {
     const val RECYCLER_PROFILE = "reciclador/perfil"
     const val RECYCLER_CHANGE_PROFILE = "reciclador/perfil/cambiar"
     const val RECYCLER_EDIT_PROFILE = "reciclador/perfil/editar"
+    // Lista de recogidas reservadas por el reciclador agrupadas por estado
+    const val RECYCLER_PICKUPS = "reciclador/mis_recogidas"
     const val MY_ORDERS = "chofer/mis_ordenes"
     const val STORE_DASHBOARD = "comercio/panel"
 

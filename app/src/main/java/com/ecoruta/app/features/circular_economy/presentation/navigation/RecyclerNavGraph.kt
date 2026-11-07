@@ -29,6 +29,10 @@ import com.ecoruta.app.features.circular_economy.presentation.deliveries_map.Rec
 import com.ecoruta.app.features.circular_economy.presentation.deliveries_map.RecyclerDeliveriesUiState
 import com.ecoruta.app.features.circular_economy.presentation.deliveries_map.RecyclerDelivery
 import com.ecoruta.app.features.circular_economy.presentation.deliveries_map.SampleRecyclerDeliveries
+import com.ecoruta.app.features.circular_economy.presentation.my_pickups.RecyclerPickupsActions
+import com.ecoruta.app.features.circular_economy.presentation.my_pickups.RecyclerPickupsScreen
+import com.ecoruta.app.features.circular_economy.presentation.my_pickups.RecyclerPickupsUiState
+import com.ecoruta.app.features.circular_economy.presentation.my_pickups.SampleRecyclerPickups
 import com.ecoruta.app.features.circular_economy.presentation.scanner.ConfirmVolumeScreen
 import com.ecoruta.app.features.circular_economy.presentation.scanner.DeliveredVolume
 import com.ecoruta.app.features.circular_economy.presentation.scanner.RecyclerScanResultScreen
@@ -69,6 +73,7 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
                 onDeliverySelected = { state = state.copy(selectedId = it) },
                 onExpandList = { state = state.copy(isListExpanded = true) },
                 onCollapseList = { state = state.copy(isListExpanded = false) },
+                onMyPickupsClick = { navController.navigate(EcoRutaDestination.RECYCLER_PICKUPS) { launchSingleTop = true } },
                 onTakeDelivery = { delivery ->
                     activeDelivery = delivery
                     tabClick(RecyclerTab.SCANNER)
@@ -135,6 +140,25 @@ fun NavGraphBuilder.recyclerGraph(navController: NavHostController) {
             onBack = { navController.popBackStack() },
             onTabClick = tabClick,
             tabs = tabs,
+        )
+    }
+
+    composable(EcoRutaDestination.RECYCLER_PICKUPS) {
+        // Arranca con recogidas de ejemplo y confirmar solo cierra el diálogo hasta que exista el ViewModel
+        var state by remember { mutableStateOf(RecyclerPickupsUiState(pickups = SampleRecyclerPickups)) }
+        RecyclerPickupsScreen(
+            state = state,
+            tabs = tabs,
+            actions = RecyclerPickupsActions(
+                onTabSelected = { state = state.copy(selectedTab = it) },
+                onCancelClick = { state = state.copy(pickupToCancelId = it) },
+                onConfirmCancel = { state = state.copy(pickupToCancelId = null) },
+                onDismissCancel = { state = state.copy(pickupToCancelId = null) },
+                // El escáner todavía trabaja con la entrega tomada en el mapa, por eso aquí solo se abre
+                onScanQrClick = { tabClick(RecyclerTab.SCANNER) },
+                onBack = { tabClick(RecyclerTab.MAP) },
+                onTabClick = tabClick,
+            ),
         )
     }
 
