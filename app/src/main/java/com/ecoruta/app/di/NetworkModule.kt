@@ -16,7 +16,7 @@ import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
-import jakarta.inject.Singleton
+import javax.inject.Singleton
 
 // Módulo de inyección Dagger Hilt para servicios de red
 // Provee cliente de Supabase configurado con credenciales seguras y motor Ktor

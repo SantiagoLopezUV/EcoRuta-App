@@ -1,8 +1,8 @@
 [versions]
 # Core, Gradle, and Kotlin stable
-agp = "8.7.2"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.27"
+agp = "9.3.3"
+kotlin = "2.2.10"
+ksp = "2.2.10-2.0.2"
 coreKtx = "1.15.0"
 coreSplashscreen = "1.2.0"
 lifecycleRuntimeKtx = "2.8.7"
@@ -11,7 +11,7 @@ composeBom = "2024.10.01"
 kotlinxSerialization = "1.7.3"
 
 # Dependency injection & navigation
-hilt = "2.52"
+hilt = "2.55"
 hiltNavigationCompose = "1.2.0"
 navigationCompose = "2.8.3"
 
@@ -28,7 +28,7 @@ camerax = "1.4.0"
 barcodeScanning = "17.3.0"
 
 # Local persistence `Room` and background tasks `WorkManager`
-room = "2.6.1"
+room = "2.7.2"
 workmanager = "2.9.1"
 
 # Utilidades UI `images and permission`
