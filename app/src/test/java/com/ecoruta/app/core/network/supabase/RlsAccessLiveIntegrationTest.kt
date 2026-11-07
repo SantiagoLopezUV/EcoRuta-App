@@ -163,6 +163,51 @@ class RlsAccessLiveIntegrationTest {
         assertEquals("El saldo de B sigue en cero", 0, balanceOfB)
     }
 
+    @Test
+    fun citizen_cannotSeeAnotherCitizensBulkyWasteRequests() = runBlocking {
+        val citizenA = registerCitizen()
+        val citizenB = registerCitizen()
+        val requestId = insertOwnRow(
+            citizenB,
+            "bulky_waste_requests",
+            buildJsonObject {
+                put("citizen_id", citizenB.id)
+                put("item_type", "colchon")
+                put("location", TULUA_POINT)
+            },
+        )
+
+        assertTrue("A no debe ver la solicitud de B", rowsById(citizenA, "bulky_waste_requests", requestId).isEmpty())
+        assertEquals("B sí ve su propia solicitud", 1, rowsById(citizenB, "bulky_waste_requests", requestId).size)
+    }
+
+    @Test
+    fun citizen_cannotSeeAnotherCitizensReports() = runBlocking {
+        val citizenA = registerCitizen()
+        val citizenB = registerCitizen()
+        val reportId = insertOwnRow(
+            citizenB,
+            "reports",
+            buildJsonObject {
+                put("citizen_id", citizenB.id)
+                put("type", "contenedor_lleno")
+                put("location", TULUA_POINT)
+            },
+        )
+
+        assertTrue("A no debe ver el reporte de B", rowsById(citizenA, "reports", reportId).isEmpty())
+        assertEquals("B sí ve su propio reporte", 1, rowsById(citizenB, "reports", reportId).size)
+    }
+
+    // Inserta una fila con la sesión del usuario y devuelve el identificador que asignó la base
+    private suspend fun insertOwnRow(user: TestUser, table: String, row: JsonObject): String =
+        user.client.postgrest.from(table).insert(row) { select() }
+            .decodeSingle<JsonObject>().getValue("id").jsonPrimitive.content
+
+    // Consulta una fila por identificador con la sesión del usuario
+    private suspend fun rowsById(user: TestUser, table: String, id: String): List<JsonObject> =
+        user.client.postgrest.from(table).select { filter { eq("id", id) } }.decodeList<JsonObject>()
+
     // Registra un ciudadano nuevo con su propio cliente y deja la sesión iniciada
     private suspend fun registerCitizen(): TestUser {
         val client = newClient()
@@ -227,6 +272,8 @@ class RlsAccessLiveIntegrationTest {
 
     private companion object {
         const val TEST_PASSWORD = "ClavePruebaRls123*"
+        // Punto en el centro de Tuluá en el formato de texto que acepta la columna geography
+        const val TULUA_POINT = "SRID=4326;POINT(-76.1953 4.0847)"
         val LOCAL_HOSTS = setOf("127.0.0.1", "localhost", "10.0.2.2")
         val PROTECTED_TABLES = listOf("profiles", "user_roles", "citizens", "reports", "bulky_waste_requests")
     }
