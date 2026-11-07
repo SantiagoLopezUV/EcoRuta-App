@@ -5,19 +5,11 @@ package com.ecoruta.app.features.reports.presentation.create
 
 import android.net.Uri
 import androidx.annotation.StringRes
+import com.ecoruta.app.features.reports.domain.model.CitizenReport
 
-enum class ReportType {
-    CONTENEDOR_LLENO,
-    BOTADERO_CLANDESTINO,
-}
-
-enum class ReportStatus {
-    PENDIENTE,
-    APROBADO,
-    ATENDIDO,
-    RECHAZADO,
-    DUPLICADO,
-}
+// Tipo de afectación y estado de moderación compartidos entre dominio y presentación
+typealias ReportType = com.ecoruta.app.features.reports.domain.model.AffectationType
+typealias ReportStatus = com.ecoruta.app.features.reports.domain.model.ReportStatus
 
 data class Report(
     val id: String,
@@ -59,3 +51,16 @@ data class NewReportUiState(
 }
 
 typealias CreateReportUiState = NewReportUiState
+
+// Transforma el modelo de dominio de un reporte ciudadano al modelo visual de la pantalla
+fun CitizenReport.toUiReport(): Report = Report(
+    id = id,
+    type = type,
+    status = status,
+    address = address.ifBlank { "$latitude, $longitude" },
+    area = area,
+    createdAtMillis = createdAtMillis,
+    photoUrl = photoUrl ?: photoUrls.firstOrNull(),
+    statusNote = statusNote,
+    originalReportId = originalReportId,
+)
