@@ -53,7 +53,13 @@ data class Company(
 sealed interface ProfileUiState {
     data object Loading : ProfileUiState
 
-    data class Loaded(val profile: UserProfile, val localPhoto: Uri? = null) : ProfileUiState {
+    // isSwitching marca el cambio de rol en curso y switchErrorRes guarda el error si ese cambio falla
+    data class Loaded(
+        val profile: UserProfile,
+        val localPhoto: Uri? = null,
+        val isSwitching: Boolean = false,
+        @StringRes val switchErrorRes: Int? = null,
+    ) : ProfileUiState {
         val hasPhoto: Boolean get() = localPhoto != null || profile.photoUrl != null
     }
 
