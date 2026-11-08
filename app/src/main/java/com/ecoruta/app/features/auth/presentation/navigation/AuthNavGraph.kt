@@ -21,9 +21,11 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.ui.components.WebOnlyAccessScreen
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordActions
+import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordEvent
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordScreen
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordUiState
+import com.ecoruta.app.features.auth.presentation.first_login.ForceChangePasswordViewModel
 import com.ecoruta.app.features.auth.presentation.first_login.PasswordChangedScreen
 import com.ecoruta.app.features.auth.presentation.login.LoginActions
 import com.ecoruta.app.features.auth.presentation.login.LoginScreen
@@ -255,23 +257,34 @@ private fun NavGraphBuilder.changePasswordDestinations(navController: NavHostCon
     composable(EcoRutaDestination.CHANGE_PASSWORD, arguments = arguments) { entry ->
         val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODE).orEmpty())
         val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROLE).orEmpty())
-        var state by remember { mutableStateOf(ChangePasswordUiState()) }
+        val viewModel: ForceChangePasswordViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(viewModel) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is ChangePasswordEvent.Done -> {
+                        navController.navigate(EcoRutaDestination.passwordChanged(mode, role)) {
+                            popUpTo(EcoRutaDestination.CHANGE_PASSWORD) { inclusive = true }
+                        }
+                    }
+                    is ChangePasswordEvent.ShowNotice -> Unit
+                }
+            }
+        }
+
         ChangePasswordScreen(
             mode = mode,
             role = role,
             state = state,
             actions = ChangePasswordActions(
-                onCurrentChange = { state = state.copy(currentPassword = it, currentErrorRes = null) },
-                onNewChange = { state = state.copy(newPassword = it, newErrorRes = null) },
-                onConfirmChange = { state = state.copy(confirmPassword = it, confirmErrorRes = null) },
-                onToggleCurrentVisibility = { state = state.copy(isCurrentVisible = !state.isCurrentVisible) },
-                onToggleNewVisibility = { state = state.copy(isNewVisible = !state.isNewVisible) },
-                onToggleConfirmVisibility = { state = state.copy(isConfirmVisible = !state.isConfirmVisible) },
-                onSave = {
-                    navController.navigate(EcoRutaDestination.passwordChanged(mode, role)) {
-                        popUpTo(EcoRutaDestination.CHANGE_PASSWORD) { inclusive = true }
-                    }
-                },
+                onCurrentChange = viewModel::onCurrentChange,
+                onNewChange = viewModel::onNewChange,
+                onConfirmChange = viewModel::onConfirmChange,
+                onToggleCurrentVisibility = viewModel::onToggleCurrentVisibility,
+                onToggleNewVisibility = viewModel::onToggleNewVisibility,
+                onToggleConfirmVisibility = viewModel::onToggleConfirmVisibility,
+                onSave = viewModel::onSave,
                 onBack = { navController.popBackStack() },
             ),
         )
