@@ -238,3 +238,4 @@ class GoogleRegistrationViewModelTest {
         assertNull(state.neighborhoodErrorRes)
     }
 }
+

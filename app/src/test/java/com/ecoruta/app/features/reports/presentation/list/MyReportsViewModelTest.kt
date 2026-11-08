@@ -66,3 +66,4 @@ class MyReportsViewModelTest {
         assertEquals(fakeRepository.reports.size, loaded.reports.size)
     }
 }
+
