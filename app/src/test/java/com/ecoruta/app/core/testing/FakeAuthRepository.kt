@@ -16,6 +16,10 @@ class FakeAuthRepository : AuthRepository {
     // Cuando tiene un valor, todas las operaciones que devuelven Result fallan con ese error
     var error: Throwable? = null
 
+    // Cuando tiene un valor, signInWithEmail falla con ese error después de validar las credenciales
+    // Simula que la autenticación fue válida pero no se pudo leer la tabla profiles
+    var profileReadError: Throwable? = null
+
     // Cuenta que se usa al entrar o registrarse con Google
     var googleAccount: UserAccount = TestDataFactory.googleAccount()
 
@@ -58,7 +62,10 @@ class FakeAuthRepository : AuthRepository {
         result {
             val stored = accounts[email]
             require(stored != null && stored.password == password) { "Credenciales inválidas" }
+            // Como en el servicio real, la sesión ya quedó abierta cuando falla la lectura del perfil
             startSession(stored.user)
+            profileReadError?.let { throw it }
+            stored.user
         }
 
     override suspend fun signInWithGoogle(idToken: String, rawNonce: String?): Result<UserAccount> =

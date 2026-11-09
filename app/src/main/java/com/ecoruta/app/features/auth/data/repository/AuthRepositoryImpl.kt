@@ -69,18 +69,18 @@ class AuthRepositoryImpl @Inject constructor(
             ?: error("No se encontró la sesión del usuario tras iniciar sesión")
 
         // Consulta en la tabla profiles la bandera de cambio obligatorio de clave y el nombre
-        val profile = runCatching {
-            postgrest.from("profiles")
-                .select { filter { eq("id", userInfo.id) } }
-                .decodeSingleOrNull<ProfileDto>()
-        }.getOrNull()
+        // Si la lectura falla o no hay perfil, el inicio de sesión falla para no saltarse el cambio de clave
+        val profile = postgrest.from("profiles")
+            .select { filter { eq("id", userInfo.id) } }
+            .decodeSingleOrNull<ProfileDto>()
+            ?: error("No se encontró el perfil del usuario tras iniciar sesión")
 
         UserAccount(
             id = userInfo.id,
             email = userInfo.email ?: email,
-            fullName = profile?.fullName,
+            fullName = profile.fullName,
             isEmailConfirmed = userInfo.emailConfirmedAt != null,
-            mustChangePassword = profile?.mustChangePassword ?: false
+            mustChangePassword = profile.mustChangePassword
         )
     }
 

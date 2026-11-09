@@ -84,6 +84,24 @@ class AuthExtensionsRepositoryTest {
     }
 
     @Test
+    fun signInWithEmail_profileReadFails_returnsFailure() = runBlocking {
+        repository.profileReadError = IllegalStateException("No se pudo leer el perfil")
+
+        val result = repository.signInWithEmail(testUser.email, "OldPassword123*")
+
+        assertTrue("El inicio de sesión debe fallar si no se puede leer el perfil", result.isFailure)
+    }
+
+    @Test
+    fun signInWithEmail_profileReadable_returnsAccountWithTemporaryPasswordFlag() = runBlocking {
+        val result = repository.signInWithEmail(testUser.email, "OldPassword123*")
+
+        assertTrue(result.isSuccess)
+        assertEquals(testUser, result.getOrThrow())
+        assertTrue(result.getOrThrow().mustChangePassword)
+    }
+
+    @Test
     fun completeRecyclerRegistration_recordsCallWhenUserAuthenticated() = runBlocking {
         repository.setSession(TestDataFactory.authenticatedSession(testUser))
 
