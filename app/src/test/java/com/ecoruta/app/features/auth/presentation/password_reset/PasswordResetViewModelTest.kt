@@ -1,8 +1,11 @@
 package com.ecoruta.app.features.auth.presentation.password_reset
 
+import com.ecoruta.app.R
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
 import com.ecoruta.app.core.testing.TestDataFactory
+import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import io.github.jan.supabase.auth.exception.AuthRestException
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -20,7 +23,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-// Pruebas del paso del correo en la recuperación de contraseña usando un repositorio falso en memoria
+// Pruebas de los pasos de correo, código y nueva clave en la recuperación de contraseña usando un repositorio falso en memoria
 @OptIn(ExperimentalCoroutinesApi::class)
 class PasswordResetViewModelTest {
 
@@ -28,12 +31,32 @@ class PasswordResetViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var repository: FakeAuthRepository
+    private lateinit var countingRepository: CountingAuthRepository
     private lateinit var viewModel: PasswordResetViewModel
+
+    // Cuenta las verificaciones de código y los guardados de clave para comprobar que no se envían dos a la vez
+    private class CountingAuthRepository(
+        private val delegate: FakeAuthRepository,
+    ) : AuthRepository by delegate {
+        var verifyCalls = 0
+        var updateCalls = 0
+
+        override suspend fun verifyPasswordResetCode(email: String, code: String): Result<Unit> {
+            verifyCalls++
+            return delegate.verifyPasswordResetCode(email, code)
+        }
+
+        override suspend fun updatePassword(newPassword: String): Result<Unit> {
+            updateCalls++
+            return delegate.updatePassword(newPassword)
+        }
+    }
 
     @Before
     fun setUp() {
         repository = FakeAuthRepository()
-        viewModel = PasswordResetViewModel(repository)
+        countingRepository = CountingAuthRepository(repository)
+        viewModel = PasswordResetViewModel(countingRepository)
     }
 
     @Test
@@ -166,6 +189,238 @@ class PasswordResetViewModelTest {
         assertFalse(viewModel.uiState.value.requestFailed)
         assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
         assertEquals(listOf(PasswordRecoveryEvent.CodeSent), events)
+    }
+
+    @Test
+    fun codeChange_keepsOnlySixDigits() {
+        viewModel.onCodeChange("12a34 5678")
+
+        assertEquals("123456", viewModel.uiState.value.code)
+    }
+
+    @Test
+    fun incompleteCode_showsErrorAndDoesNotCallRepository() = runTest {
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("1234")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_code_incomplete, state.codeErrorRes)
+        assertFalse(state.isVerifyingCode)
+        assertFalse(state.isCodeVerified)
+        assertEquals(0, countingRepository.verifyCalls)
+    }
+
+    @Test
+    fun validCode_verifiesWithEmailAndMarksCodeVerified() = runTest {
+        repository.expectedResetCode = "482910"
+        viewModel.onEmailChange(" ana@correo.com ")
+        viewModel.onCodeChange("482910")
+        viewModel.onSubmitCode()
+
+        // La corrutina sigue en cola porque el dispatcher de prueba aún no avanza
+        assertTrue(viewModel.uiState.value.isVerifyingCode)
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isCodeVerified)
+        assertFalse(state.isVerifyingCode)
+        assertNull(state.codeErrorRes)
+        assertNull(state.noticeRes)
+        assertEquals("ana@correo.com", repository.verifiedResetEmail)
+    }
+
+    @Test
+    fun invalidCode_showsIncorrectCodeError() = runTest {
+        // El servidor responde con este código de error cuando el código no es válido o ya venció
+        repository.error = AuthRestException("otp_expired", "Token has expired or is invalid", 403)
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("000000")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_code_incorrect, state.codeErrorRes)
+        assertNull(state.noticeRes)
+        assertFalse(state.isCodeVerified)
+        assertFalse(state.isVerifyingCode)
+    }
+
+    @Test
+    fun verifyCodeNetworkError_showsGeneralNoticeInsteadOfCodeError() = runTest {
+        repository.error = IOException("Sin conexión")
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("482910")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_request_failed, state.noticeRes)
+        assertNull(state.codeErrorRes)
+        assertFalse(state.isCodeVerified)
+    }
+
+    @Test
+    fun verifyCodeOtherServerError_showsGeneralNotice() = runTest {
+        repository.error = AuthRestException("over_request_rate_limit", "Too many requests", 429)
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("482910")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_request_failed, state.noticeRes)
+        assertNull(state.codeErrorRes)
+    }
+
+    @Test
+    fun codeChange_clearsCodeErrorAndNotice() = runTest {
+        repository.error = AuthRestException("otp_expired", "Token has expired or is invalid", 403)
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("000000")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+        assertNotNull(viewModel.uiState.value.codeErrorRes)
+
+        viewModel.onCodeChange("00000")
+
+        val state = viewModel.uiState.value
+        assertNull(state.codeErrorRes)
+        assertNull(state.noticeRes)
+    }
+
+    @Test
+    fun submitCodeWhileVerifying_isIgnored() = runTest {
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onCodeChange("482910")
+        viewModel.onSubmitCode()
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+
+        assertEquals(1, countingRepository.verifyCalls)
+    }
+
+    @Test
+    fun passwordFieldEdits_updateValuesAndVisibility() {
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2026")
+        viewModel.onToggleNewPasswordVisibility()
+        viewModel.onToggleConfirmPasswordVisibility()
+
+        val state = viewModel.uiState.value
+        assertEquals("EcoRuta2026", state.newPassword)
+        assertEquals("EcoRuta2026", state.confirmPassword)
+        assertTrue(state.isNewPasswordVisible)
+        assertTrue(state.isConfirmPasswordVisible)
+    }
+
+    @Test
+    fun weakPassword_showsInvalidPasswordError() = runTest {
+        viewModel.onNewPasswordChange("ecoruta")
+        viewModel.onConfirmPasswordChange("ecoruta")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_password_invalid, state.newPasswordErrorRes)
+        assertNull(state.confirmPasswordErrorRes)
+        assertFalse(state.isSavingPassword)
+        assertEquals(0, countingRepository.updateCalls)
+    }
+
+    @Test
+    fun passwordWithoutLetter_showsInvalidPasswordError() = runTest {
+        viewModel.onNewPasswordChange("12345678")
+        viewModel.onConfirmPasswordChange("12345678")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        assertEquals(R.string.recovery_error_password_invalid, viewModel.uiState.value.newPasswordErrorRes)
+        assertEquals(0, countingRepository.updateCalls)
+    }
+
+    @Test
+    fun mismatchedPasswords_showsMismatchError() = runTest {
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2027")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertNull(state.newPasswordErrorRes)
+        assertEquals(R.string.recovery_error_password_mismatch, state.confirmPasswordErrorRes)
+        assertFalse(state.isPasswordUpdated)
+        assertEquals(0, countingRepository.updateCalls)
+    }
+
+    @Test
+    fun passwordChange_clearsItsError() = runTest {
+        viewModel.onNewPasswordChange("ecoruta")
+        viewModel.onConfirmPasswordChange("otra")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2026")
+
+        val state = viewModel.uiState.value
+        assertNull(state.newPasswordErrorRes)
+        assertNull(state.confirmPasswordErrorRes)
+    }
+
+    @Test
+    fun fullFlow_updatesPasswordAndMarksSuccess() = runTest {
+        repository.addAccount(TestDataFactory.userAccount(email = "ana@correo.com"))
+        repository.expectedResetCode = "482910"
+
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+        viewModel.onCodeChange("482910")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2026")
+        viewModel.onSave()
+
+        // La corrutina sigue en cola porque el dispatcher de prueba aún no avanza
+        assertTrue(viewModel.uiState.value.isSavingPassword)
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isPasswordUpdated)
+        assertFalse(state.isSavingPassword)
+        assertNull(state.noticeRes)
+        assertEquals("EcoRuta2026", repository.passwordOf("ana@correo.com"))
+    }
+
+    @Test
+    fun updatePasswordFailure_showsGeneralNoticeAndKeepsFields() = runTest {
+        repository.error = IOException("Sin conexión")
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2026")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_request_failed, state.noticeRes)
+        assertFalse(state.isPasswordUpdated)
+        assertFalse(state.isSavingPassword)
+        assertEquals("EcoRuta2026", state.newPassword)
+    }
+
+    @Test
+    fun saveWhileSaving_isIgnored() = runTest {
+        viewModel.onNewPasswordChange("EcoRuta2026")
+        viewModel.onConfirmPasswordChange("EcoRuta2026")
+        viewModel.onSave()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        assertEquals(1, countingRepository.updateCalls)
     }
 
     // Guarda en una lista los avisos de una sola vez que emite el ViewModel durante la prueba
