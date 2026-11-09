@@ -133,7 +133,7 @@ private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostControll
                 state = state,
                 onCodeChange = viewModel::onCodeChange,
                 onSubmit = viewModel::onSubmitCode,
-                onResendClick = {},
+                onResendClick = viewModel::onResendClick,
             )
         }
         composable(EcoRutaDestination.RESET_PASSWORD) { entry ->

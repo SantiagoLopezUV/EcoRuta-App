@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -421,6 +423,88 @@ class PasswordResetViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, countingRepository.updateCalls)
+    }
+
+    @Test
+    fun codeSent_startsResendCountdownAndCountsDownToZero() = runTest {
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        runCurrent()
+
+        assertEquals(60, viewModel.uiState.value.resendSecondsLeft)
+
+        advanceTimeBy(1_000)
+        runCurrent()
+
+        assertEquals(59, viewModel.uiState.value.resendSecondsLeft)
+
+        advanceUntilIdle()
+
+        assertEquals(0, viewModel.uiState.value.resendSecondsLeft)
+    }
+
+    @Test
+    fun resendWhileCountdownRunning_isIgnored() = runTest {
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onSubmit()
+        runCurrent()
+
+        viewModel.onResendClick()
+        runCurrent()
+
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+        assertFalse(viewModel.uiState.value.isRequestingCode)
+    }
+
+    @Test
+    fun resendAfterCountdown_sendsToSameEmailAndRestartsCountdown() = runTest {
+        repository.error = AuthRestException("otp_expired", "Token has expired or is invalid", 403)
+        viewModel.onEmailChange(" ana@correo.com ")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+        viewModel.onCodeChange("000000")
+        viewModel.onSubmitCode()
+        advanceUntilIdle()
+        assertNotNull(viewModel.uiState.value.codeErrorRes)
+
+        repository.error = null
+        viewModel.onResendClick()
+
+        // La corrutina sigue en cola porque el dispatcher de prueba aún no avanza
+        assertTrue(viewModel.uiState.value.isRequestingCode)
+
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+        assertFalse(state.isRequestingCode)
+        assertEquals(60, state.resendSecondsLeft)
+        assertEquals("", state.code)
+        assertNull(state.codeErrorRes)
+        assertNull(state.noticeRes)
+    }
+
+    @Test
+    fun resendWhileRequesting_isIgnored() = runTest {
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onResendClick()
+        viewModel.onResendClick()
+        advanceUntilIdle()
+
+        assertEquals(listOf("ana@correo.com"), repository.passwordResetEmails)
+    }
+
+    @Test
+    fun resendFailure_showsGeneralNoticeAndKeepsCounterAtZero() = runTest {
+        repository.error = IOException("Sin conexión")
+        viewModel.onEmailChange("ana@correo.com")
+        viewModel.onResendClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recovery_error_request_failed, state.noticeRes)
+        assertFalse(state.isRequestingCode)
+        assertEquals(0, state.resendSecondsLeft)
     }
 
     // Guarda en una lista los avisos de una sola vez que emite el ViewModel durante la prueba

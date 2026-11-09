@@ -11,7 +11,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +38,8 @@ class PasswordResetViewModel @Inject constructor(
     private val _events = Channel<PasswordRecoveryEvent>(Channel.BUFFERED)
     val events: Flow<PasswordRecoveryEvent> = _events.receiveAsFlow()
 
+    private var countdownJob: Job? = null
+
     // Guarda el correo escrito y borra los errores que quedaron del intento anterior
     fun onEmailChange(email: String) {
         _uiState.update { it.copy(email = email, emailErrorRes = null, requestFailed = false) }
@@ -58,10 +62,35 @@ class PasswordResetViewModel @Inject constructor(
             authRepository.sendPasswordResetEmail(email)
                 .onSuccess {
                     _uiState.update { it.copy(isRequestingCode = false) }
+                    startResendCountdown()
                     _events.send(PasswordRecoveryEvent.CodeSent)
                 }
                 .onFailure {
                     _uiState.update { it.copy(isRequestingCode = false, requestFailed = true) }
+                }
+        }
+    }
+
+    // Pide un código nuevo al mismo correo cuando el contador ya llegó a cero
+    fun onResendClick() {
+        val current = _uiState.value
+        if (current.isRequestingCode || current.resendSecondsLeft > 0) return
+
+        // La carga se marca antes de lanzar la corrutina para bloquear un segundo envío
+        _uiState.update { it.copy(isRequestingCode = true, noticeRes = null) }
+        viewModelScope.launch {
+            authRepository.sendPasswordResetEmail(current.email.trim())
+                .onSuccess {
+                    // El código anterior deja de servir, así que se limpia el campo y sus errores
+                    _uiState.update {
+                        it.copy(isRequestingCode = false, code = "", codeErrorRes = null, isCodeExpired = false)
+                    }
+                    startResendCountdown()
+                }
+                .onFailure {
+                    _uiState.update {
+                        it.copy(isRequestingCode = false, noticeRes = R.string.recovery_error_request_failed)
+                    }
                 }
         }
     }
@@ -155,6 +184,18 @@ class PasswordResetViewModel @Inject constructor(
         }
     }
 
+    // Reinicia la cuenta regresiva y resta un segundo cada vez hasta llegar a cero
+    private fun startResendCountdown() {
+        countdownJob?.cancel()
+        _uiState.update { it.copy(resendSecondsLeft = RESEND_COOLDOWN_SECONDS) }
+        countdownJob = viewModelScope.launch {
+            while (_uiState.value.resendSecondsLeft > 0) {
+                delay(ONE_SECOND_MILLIS)
+                _uiState.update { it.copy(resendSecondsLeft = it.resendSecondsLeft - 1) }
+            }
+        }
+    }
+
     // El servidor responde con el mismo código de error cuando el código es incorrecto o ya venció
     private fun Throwable.isInvalidCode(): Boolean =
         this is AuthRestException && errorCode == AuthErrorCode.OtpExpired
@@ -168,5 +209,7 @@ class PasswordResetViewModel @Inject constructor(
         val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
         val CODE_REGEX = Regex("^\\d{$RECOVERY_CODE_LENGTH}$")
         const val MIN_PASSWORD_LENGTH = 8
+        const val RESEND_COOLDOWN_SECONDS = 60
+        const val ONE_SECOND_MILLIS = 1_000L
     }
 }
