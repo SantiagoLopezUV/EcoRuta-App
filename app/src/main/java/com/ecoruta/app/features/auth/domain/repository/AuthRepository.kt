@@ -1,5 +1,8 @@
 package com.ecoruta.app.features.auth.domain.repository
 
+// Contrato de dominio para operaciones de autenticación
+// Define métodos abstractos de inicio de sesión, registro, recuperación y gestión de credenciales
+
 import com.ecoruta.app.features.auth.domain.model.AuthSession
 import com.ecoruta.app.features.auth.domain.model.BusinessRegistration
 import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
@@ -7,14 +10,8 @@ import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import kotlinx.coroutines.flow.Flow
 
-// Contrato de dominio para operaciones de autenticación
-// Define métodos abstractos de inicio de sesión, registro y gestión de credenciales
-
-// Retorna Result<Unit> para encapsular éxito o fallo sin transferir datos, ya que es una acción de actualización
-// unit representa la ausencia de un valor de retorno (void)
-//
-
 interface AuthRepository {
+
     // Registra un nuevo ciudadano con correo y contraseña
     suspend fun signUpWithEmail(email: String, password: String): Result<UserAccount>
 
@@ -36,17 +33,37 @@ interface AuthRepository {
     // Emite los cambios en el estado de autenticación
     fun observeAuthState(): Flow<AuthSession>
 
-    // envía un correo electronico con el enlace para reestablecer la contraseña
+    // Envía un correo electrónico con el enlace para restablecer la contraseña
     suspend fun sendPasswordResetEmail(email: String): Result<Unit>
 
-    // actualiza la contraseña en el primer inicio de sesion y desacativa la bandera
+    // Verifica el código OTP de 6 dígitos enviado por correo para la recuperación de contraseña
+    suspend fun verifyPasswordResetCode(email: String, code: String): Result<Unit>
+
+    // Actualiza la contraseña del usuario en el servidor tras la verificación del código de recuperación
+    suspend fun updatePassword(newPassword: String): Result<Unit>
+
+    // Actualiza la contraseña en el primer inicio de sesión y desactiva la bandera
     suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit>
 
-    // Registro de ciudadano creando cuenta en autenticación, perfil y entidad cuidadna
+    // Envía un enlace mágico o código de verificación al correo para registro o acceso sin contraseña inicial
+    suspend fun signUpWithEmailLink(email: String): Result<Unit>
+
+    // Sube un documento de soporte (cédula de reciclador o RUT de comercio) al almacenamiento institucional
+    suspend fun uploadRegistrationDocument(fileName: String, bytes: ByteArray): Result<String>
+
+    // Registro de ciudadano creando cuenta en autenticación, perfil y entidad ciudadana
     suspend fun signUpCitizen(registration: CitizenRegistration): Result<UserAccount>
 
     // Registra a un reciclador de oficio con perfil y estado inicial pendiente de aprobación
     suspend fun signUpRecycler(registration: RecyclerRegistration): Result<UserAccount>
+
+    // Completa o actualiza los datos del reciclador en estado pendiente (modalidad, empresa y soporte)
+    suspend fun completeRecyclerRegistration(
+        phone: String? = null,
+        associationName: String? = null,
+        companyId: String? = null,
+        idDocumentPdfUrl: String? = null
+    ): Result<Unit>
 
     // Registra a un comercio aliado con perfil y estado inicial pendiente de verificación
     suspend fun signUpBusiness(registration: BusinessRegistration): Result<UserAccount>
@@ -66,5 +83,4 @@ interface AuthRepository {
         address: String,
         rutPdfUrl: String? = null
     ): Result<Unit>
-
 }
