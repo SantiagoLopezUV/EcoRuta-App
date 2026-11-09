@@ -3,11 +3,16 @@ package com.ecoruta.app.features.auth.presentation.navigation
 // Subgrafo de navegación para autenticación, registro y gestión de contraseñas
 // Conecta las vistas de inicio de sesión, recuperación de cuenta y cambio de clave
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -25,7 +30,8 @@ import com.ecoruta.app.features.auth.presentation.first_login.PasswordChangedScr
 import com.ecoruta.app.features.auth.presentation.login.LoginActions
 import com.ecoruta.app.features.auth.presentation.login.LoginScreen
 import com.ecoruta.app.features.auth.presentation.login.LoginUiState
-import com.ecoruta.app.features.auth.presentation.password_reset.PasswordRecoveryUiState
+import com.ecoruta.app.features.auth.presentation.password_reset.PasswordRecoveryEvent
+import com.ecoruta.app.features.auth.presentation.password_reset.PasswordResetViewModel
 import com.ecoruta.app.features.auth.presentation.password_reset.PasswordUpdatedScreen
 import com.ecoruta.app.features.auth.presentation.password_reset.RecoveryCodeScreen
 import com.ecoruta.app.features.auth.presentation.password_reset.RecoveryEmailScreen
@@ -93,34 +99,62 @@ private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostControll
         startDestination = EcoRutaDestination.RECOVER_EMAIL,
         route = EcoRutaDestination.RECOVERY,
     ) {
-        composable(EcoRutaDestination.RECOVER_EMAIL) {
-            var state by remember { mutableStateOf(PasswordRecoveryUiState()) }
+        composable(EcoRutaDestination.RECOVER_EMAIL) { entry ->
+            val viewModel = recoveryViewModel(navController, entry)
+            val state by viewModel.uiState.collectAsState()
+            // Pasa a la pantalla del código cuando el servidor confirma el envío del correo
+            LaunchedEffect(viewModel) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        PasswordRecoveryEvent.CodeSent ->
+                            navController.navigate(EcoRutaDestination.RETRIEVE_CODE) { launchSingleTop = true }
+                    }
+                }
+            }
             RecoveryEmailScreen(
                 state = state,
-                onEmailChange = { state = state.copy(email = it, emailErrorRes = null) },
-                onSubmit = { navController.navigate(EcoRutaDestination.RETRIEVE_CODE) { launchSingleTop = true } },
+                onEmailChange = viewModel::onEmailChange,
+                onSubmit = viewModel::onSubmit,
                 onBackClick = backToLogin,
             )
         }
-        composable(EcoRutaDestination.RETRIEVE_CODE) {
-            var state by remember { mutableStateOf(PasswordRecoveryUiState(email = "ciudadano@ecoruta.co")) }
+        composable(EcoRutaDestination.RETRIEVE_CODE) { entry ->
+            val viewModel = recoveryViewModel(navController, entry)
+            val state by viewModel.uiState.collectAsState()
+            // Con el código aceptado pasa a la nueva contraseña y saca esta pantalla de la pila para no volver a ella
+            LaunchedEffect(state.isCodeVerified) {
+                if (state.isCodeVerified) {
+                    navController.navigate(EcoRutaDestination.RESET_PASSWORD) {
+                        popUpTo(EcoRutaDestination.RETRIEVE_CODE) { inclusive = true }
+                    }
+                }
+            }
             RecoveryCodeScreen(
                 state = state,
-                onCodeChange = { state = state.copy(code = it, codeErrorRes = null) },
-                onSubmit = { navController.navigate(EcoRutaDestination.RESET_PASSWORD) { launchSingleTop = true } },
+                onCodeChange = viewModel::onCodeChange,
+                onSubmit = viewModel::onSubmitCode,
                 onResendClick = {},
             )
         }
-        composable(EcoRutaDestination.RESET_PASSWORD) {
-            var state by remember { mutableStateOf(PasswordRecoveryUiState()) }
+        composable(EcoRutaDestination.RESET_PASSWORD) { entry ->
+            val viewModel = recoveryViewModel(navController, entry)
+            val state by viewModel.uiState.collectAsState()
+            // Con la contraseña guardada muestra la confirmación que lleva de vuelta al inicio de sesión
+            LaunchedEffect(state.isPasswordUpdated) {
+                if (state.isPasswordUpdated) {
+                    navController.navigate(EcoRutaDestination.PASSWORD_UPDATED) {
+                        popUpTo(EcoRutaDestination.RECOVER_EMAIL) { inclusive = true }
+                    }
+                }
+            }
             ResetPasswordScreen(
                 state = state,
                 actions = ResetPasswordActions(
-                    onNewPasswordChange = { state = state.copy(newPassword = it, newPasswordErrorRes = null) },
-                    onConfirmPasswordChange = { state = state.copy(confirmPassword = it, confirmPasswordErrorRes = null) },
-                    onToggleNewPasswordVisibility = { state = state.copy(isNewPasswordVisible = !state.isNewPasswordVisible) },
-                    onToggleConfirmPasswordVisibility = { state = state.copy(isConfirmPasswordVisible = !state.isConfirmPasswordVisible) },
-                    onSave = { navController.navigate(EcoRutaDestination.PASSWORD_UPDATED) { launchSingleTop = true } },
+                    onNewPasswordChange = viewModel::onNewPasswordChange,
+                    onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
+                    onToggleNewPasswordVisibility = viewModel::onToggleNewPasswordVisibility,
+                    onToggleConfirmPasswordVisibility = viewModel::onToggleConfirmPasswordVisibility,
+                    onSave = viewModel::onSave,
                     onBackToLogin = backToLogin,
                 ),
             )
@@ -129,6 +163,13 @@ private fun NavGraphBuilder.passwordRecoveryGraph(navController: NavHostControll
             PasswordUpdatedScreen(onBackToLogin = backToLogin)
         }
     }
+}
+
+// Comparte un solo ViewModel entre las pantallas del subgrafo de recuperación para conservar el correo y el código
+@Composable
+private fun recoveryViewModel(navController: NavHostController, entry: NavBackStackEntry): PasswordResetViewModel {
+    val recoveryEntry = remember(entry) { navController.getBackStackEntry(EcoRutaDestination.RECOVERY) }
+    return hiltViewModel(recoveryEntry)
 }
 
 private fun NavGraphBuilder.registrationGraph(navController: NavHostController) {
