@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalFocusManager
@@ -110,17 +111,35 @@ fun ChangeProfileScreen(state: ProfileUiState, actions: ChangeProfileActions) {
                 EcoErrorMessage(text = stringResource(R.string.profile_load_error))
                 EcoPrimaryButton(text = stringResource(R.string.action_retry), onClick = actions.onRetry)
             }
-            is ProfileUiState.Loaded -> ChangeProfileContent(state.profile, actions)
+            is ProfileUiState.Loaded -> ChangeProfileContent(
+                profile = state.profile,
+                actions = actions,
+                isSwitching = state.isSwitching,
+                switchErrorRes = state.switchErrorRes,
+            )
         }
     }
 }
 
 @Composable
-internal fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileActions) {
+internal fun ChangeProfileContent(
+    profile: UserProfile,
+    actions: ChangeProfileActions,
+    isSwitching: Boolean = false,
+    @StringRes switchErrorRes: Int? = null,
+) {
     val roles = listOf(profile.role) + UserRole.entries.filter { it != profile.role && it in profile.approvedRoles }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(EcoDimens.CardContentSpacing)) {
+        // Mientras cambia el rol muestra un indicador y bloquea las demás opciones
+        if (isSwitching) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = EcoPrimary, modifier = Modifier.size(28.dp))
+            }
+        }
+        // Si el cambio falla muestra el mensaje de error que llega en el estado
+        switchErrorRes?.let { EcoErrorMessage(text = stringResource(it)) }
         roles.forEach { role ->
-            RoleCard(role = role, isCurrent = role == profile.role, onClick = { actions.onSwitchRole(role) })
+            RoleCard(role = role, isCurrent = role == profile.role, enabled = !isSwitching, onClick = { actions.onSwitchRole(role) })
         }
     }
     val available = requestableRoles.filter { it !in profile.approvedRoles }
@@ -135,16 +154,17 @@ internal fun ChangeProfileContent(profile: UserProfile, actions: ChangeProfileAc
 }
 
 @Composable
-private fun RoleCard(role: UserRole, isCurrent: Boolean, onClick: () -> Unit) {
+private fun RoleCard(role: UserRole, isCurrent: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(16.dp)
     val info = role.info()
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .alpha(if (enabled || isCurrent) 1f else 0.5f)
             .clip(shape)
             .background(EcoWhite)
             .border(1.5.dp, if (isCurrent) EcoGreenSecondary else EcoFieldBackground, shape)
-            .clickable(enabled = !isCurrent, role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled && !isCurrent, role = Role.Button, onClick = onClick)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
