@@ -19,9 +19,18 @@ class FakeAuthRepository : AuthRepository {
     // Cuenta que se usa al entrar o registrarse con Google
     var googleAccount: UserAccount = TestDataFactory.googleAccount()
 
+    // Código esperado para validar en verifyPasswordResetCode (si es nulo, acepta cualquier código no vacío)
+    var expectedResetCode: String? = null
+
+    // Correo verificado tras el código de recuperación
+    var verifiedResetEmail: String? = null
+
     // Registros de las llamadas para que las pruebas comprueben qué se envió
     val passwordResetEmails = mutableListOf<String>()
+    val emailLinkRequests = mutableListOf<String>()
+    val uploadedDocuments = mutableListOf<Pair<String, ByteArray>>()
     val recyclerRoleRequests = mutableListOf<String>()
+    val completedRecyclerRegistrations = mutableListOf<String>()
     val businessRoleRequests = mutableListOf<String>()
 
     private val accounts = mutableMapOf<String, StoredAccount>()
@@ -70,6 +79,24 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun sendPasswordResetEmail(email: String): Result<Unit> =
         result { passwordResetEmails += email }
 
+    // Verifica el código OTP de 6 dígitos para la recuperación de contraseña
+    override suspend fun verifyPasswordResetCode(email: String, code: String): Result<Unit> =
+        result {
+            require(code.isNotBlank()) { "Código de verificación vacío" }
+            require(expectedResetCode == null || expectedResetCode == code) { "Código de verificación inválido" }
+            verifiedResetEmail = email
+        }
+
+    // Actualiza la contraseña tras la recuperación o con sesión activa
+    override suspend fun updatePassword(newPassword: String): Result<Unit> =
+        result {
+            val targetEmail = verifiedResetEmail
+                ?: (session.value as? AuthSession.Authenticated)?.user?.email
+                ?: error("No existe una sesión activa ni un correo verificado para actualizar contraseña")
+            val stored = accounts[targetEmail] ?: error("Cuenta no encontrada")
+            accounts[targetEmail] = stored.copy(password = newPassword)
+        }
+
     // Guarda la nueva clave y apaga la obligación de cambiarla
     override suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit> =
         result {
@@ -79,11 +106,33 @@ class FakeAuthRepository : AuthRepository {
             session.value = AuthSession.Authenticated(updated)
         }
 
+    // Registra la solicitud de enlace mágico al correo
+    override suspend fun signUpWithEmailLink(email: String): Result<Unit> =
+        result { emailLinkRequests += email }
+
+    // Simula la subida de un archivo al bucket institucional devolviendo una URL ficticia
+    override suspend fun uploadRegistrationDocument(fileName: String, bytes: ByteArray): Result<String> =
+        result {
+            uploadedDocuments += fileName to bytes
+            val id = (session.value as? AuthSession.Authenticated)?.user?.id ?: "temp-user"
+            "http://127.0.0.1:54321/storage/v1/object/public/institutional-docs/$id/$fileName"
+        }
+
     override suspend fun signUpCitizen(registration: CitizenRegistration): Result<UserAccount> =
         result { register(registration.email, registration.password, registration.fullName) }
 
     override suspend fun signUpRecycler(registration: RecyclerRegistration): Result<UserAccount> =
         result { register(registration.email, registration.password, registration.fullName) }
+
+    // Completa o actualiza los datos del reciclador en estado pendiente
+    override suspend fun completeRecyclerRegistration(
+        phone: String?,
+        associationName: String?,
+        companyId: String?,
+        idDocumentPdfUrl: String?
+    ): Result<Unit> = result {
+        completedRecyclerRegistrations += requireUser().id
+    }
 
     override suspend fun signUpBusiness(registration: BusinessRegistration): Result<UserAccount> =
         result { register(registration.email, registration.password, registration.fullName) }
