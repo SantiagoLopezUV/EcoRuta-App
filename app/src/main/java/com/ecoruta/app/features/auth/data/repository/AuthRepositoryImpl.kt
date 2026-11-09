@@ -1,7 +1,7 @@
 package com.ecoruta.app.features.auth.data.repository
 
 // Implementación concreta del repositorio de autenticación
-// Conecta con el SDK de Supabase Auth para registro, login, tokens y logout
+// Conecta con el SDK de Supabase Auth, Storage y PostgREST para sesiones, perfiles y credenciales
 
 import com.ecoruta.app.features.auth.data.remote.dto.BusinessDto
 import com.ecoruta.app.features.auth.data.remote.dto.CitizenDto
@@ -14,11 +14,14 @@ import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.IDToken
+import io.github.jan.supabase.auth.providers.builtin.OTP
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.contentOrNull
@@ -26,36 +29,32 @@ import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    //se trae dese NetworkModule
-    private val auth: Auth, // llamamos a la funcion provideSupabaseAuth()
-    private val postgrest: Postgrest  // llamado la funcion provideSupabasePostgrest()
-) : AuthRepository
-{
+    private val auth: Auth,
+    private val postgrest: Postgrest,
+    private val storage: Storage? = null
+) : AuthRepository {
+
+    // Registra las credenciales en Supabase Auth y retorna la cuenta inicial creada
     override suspend fun signUpWithEmail(
         email: String,
         password: String
     ): Result<UserAccount> = runCatching {
-        // Ejecuta el registro en Supabase Auth con credenciales de correo
-        val userInfo = auth.signUpWith(Email)
-        {
+        val userInfo = auth.signUpWith(Email) {
             this.email = email
             this.password = password
-        } ?:
-        auth.currentUserOrNull() // si supabase no devuelve el usuario, salta y busca si ya se guardo en la sesión local con auth.currentUserOrNull()
-          ?:
-        error("No se pudo obtener la información de la cuenta tras el registro") // Si la sesión local tambien es null, salta y ejecuta error, con una excepción para que runCatching atrape el fallo limpiamente
+        } ?: auth.currentUserOrNull()
+          ?: error("No se pudo obtener la información de la cuenta tras el registro")
 
-        // Transforma la respuesta del SDK al modelo de dominio
         UserAccount(
             id = userInfo.id,
             email = userInfo.email ?: email,
-            fullName = null, // el nombre inicia nulo porque en este paso solo se capturan credenciales y el nombre se completa desde el perfil
+            fullName = null,
             isEmailConfirmed = userInfo.emailConfirmedAt != null,
             mustChangePassword = false
         )
     }
 
-    // Inicia sesión validando el correo y la contraseña contra el servidor de supabase
+    // Inicia sesión validando credenciales y consultando la bandera de contraseña temporal del perfil
     override suspend fun signInWithEmail(
         email: String,
         password: String
@@ -66,16 +65,22 @@ class AuthRepositoryImpl @Inject constructor(
             this.email = email
             this.password = password
         }
-        // Confirma que el usuario haya quedado registrado en la sesión local
         val userInfo = auth.currentUserOrNull()
             ?: error("No se encontró la sesión del usuario tras iniciar sesión")
-        // retorna el modelo de dominio con los datos básicos de la cuenta
+
+        // Consulta en la tabla profiles la bandera de cambio obligatorio de clave y el nombre
+        val profile = runCatching {
+            postgrest.from("profiles")
+                .select { filter { eq("id", userInfo.id) } }
+                .decodeSingleOrNull<ProfileDto>()
+        }.getOrNull()
+
         UserAccount(
             id = userInfo.id,
             email = userInfo.email ?: email,
-            fullName = null, // inicia vacío y se completa despues al consultar la tabla de perfiles
+            fullName = profile?.fullName,
             isEmailConfirmed = userInfo.emailConfirmedAt != null,
-            mustChangePassword = false
+            mustChangePassword = profile?.mustChangePassword ?: false
         )
     }
 
@@ -85,7 +90,7 @@ class AuthRepositoryImpl @Inject constructor(
         rawNonce: String?
     ): Result<UserAccount> = authenticateWithGoogle(idToken, rawNonce)
 
-    // Registra al usuario asociado
+    // Registra al usuario asociado mediante credenciales de Google
     override suspend fun signUpWithGoogle(
         idToken: String,
         rawNonce: String?
@@ -96,8 +101,7 @@ class AuthRepositoryImpl @Inject constructor(
         idToken: String,
         rawNonce: String?
     ): Result<UserAccount> = runCatching {
-        auth.signInWith(IDToken)
-        {
+        auth.signInWith(IDToken) {
             this.idToken = idToken
             this.provider = Google
             this.nonce = rawNonce
@@ -117,38 +121,33 @@ class AuthRepositoryImpl @Inject constructor(
 
     // Cierra la sesión activa en el servidor y limpia los tokens guardados en el teléfono
     override suspend fun signOut(): Result<Unit> = runCatching {
-        // notifica a Supabase para invalidar la sesión y borrar las credenciales locales
         auth.signOut()
     }
 
-    // Consulta en memoria el usuario actual sin necesidad de suscribirse a un flujo continuo
+    // Consulta en memoria el usuario actual y su perfil para determinar si está en modo visitante
     override suspend fun getCurrentUser(): UserAccount? {
-        // Si no hay una sesión activa en el dispositivo, retorna nulo para el modo visitante
         val userInfo = auth.currentUserOrNull() ?: return null
-        // Construye el modelo con los datos del usuario que están en memoria
+        val profile = runCatching {
+            postgrest.from("profiles")
+                .select { filter { eq("id", userInfo.id) } }
+                .decodeSingleOrNull<ProfileDto>()
+        }.getOrNull()
         return UserAccount(
             id = userInfo.id,
             email = userInfo.email.orEmpty(),
-            fullName = null,
+            fullName = profile?.fullName,
             isEmailConfirmed = userInfo.emailConfirmedAt != null,
-            mustChangePassword = false
+            mustChangePassword = profile?.mustChangePassword ?: false
         )
     }
 
-    // escucha en tiempo real los cambios de sesión para actualizar las pantallas y el grafo de rutas
-    override fun observeAuthState(): Flow<AuthSession>
-    {
-        // Convierte el estado interno de Supabase en los tres estados limpios de la aplicación
-        // transforma el flujo de estado de sesión del SDK al modelo sellado de dominio
+    // Escucha en tiempo real los cambios de sesión para actualizar las pantallas y el grafo de rutas
+    override fun observeAuthState(): Flow<AuthSession> {
         return auth.sessionStatus.map { status ->
-            when (status)
-            {
-                // cuando hay un usuario logueado con sesión válida y vigente
-                is SessionStatus.Authenticated ->
-                {
+            when (status) {
+                is SessionStatus.Authenticated -> {
                     val user = status.session.user
-                    if (user != null)
-                    {
+                    if (user != null) {
                         AuthSession.Authenticated(
                             user = UserAccount(
                                 id = user.id,
@@ -162,45 +161,87 @@ class AuthRepositoryImpl @Inject constructor(
                         AuthSession.Loading
                     }
                 }
-                is SessionStatus.Initializing -> AuthSession.Loading // La app está leyendo el almacenamiento interno para ver si había sesión guardada
-                is SessionStatus.NotAuthenticated -> AuthSession.Unauthenticated  // El usuario cerró sesión voluntariamente o nunca ha iniciado sesión
-                is SessionStatus.RefreshFailure -> AuthSession.Unauthenticated // El token venció y no se pudo renovar por falta de conexión o porque se acabo
+                is SessionStatus.Initializing -> AuthSession.Loading
+                is SessionStatus.NotAuthenticated -> AuthSession.Unauthenticated
+                is SessionStatus.RefreshFailure -> AuthSession.Unauthenticated
             }
         }
     }
 
-    // Solicita a Supabase el envío del correo de recuperación de contraseña
+    // Solicita a Supabase el envío del correo de recuperación de contraseña con código OTP
     override suspend fun sendPasswordResetEmail(
         email: String
-    ): Result<Unit>  = runCatching{
-        // dispara la peticion al servidor con el correo
+    ): Result<Unit> = runCatching {
         auth.resetPasswordForEmail(email = email)
     }
 
+    // Verifica el código OTP de 6 dígitos enviado por correo para la recuperación de contraseña
+    override suspend fun verifyPasswordResetCode(
+        email: String,
+        code: String
+    ): Result<Unit> = runCatching {
+        auth.verifyEmailOtp(
+            type = OtpType.Email.RECOVERY,
+            email = email,
+            token = code
+        )
+    }
+
+    // Actualiza la contraseña del usuario en el servidor tras la verificación del código de recuperación
+    override suspend fun updatePassword(
+        newPassword: String
+    ): Result<Unit> = runCatching {
+        auth.updateUser {
+            password = newPassword
+        }
+    }
+
+    // Actualiza la contraseña temporal en el primer inicio de sesión y desactiva la bandera en perfiles
     override suspend fun updateFirstLoginPassword(
         newPassword: String
     ): Result<Unit> = runCatching {
-        // obtener el id del usuario en la sesion actual
-        val userId = auth.currentUserOrNull()
-            ?.id
+        val userId = auth.currentUserOrNull()?.id
             ?: error("No existe una sesión activa para actualizar la contraseña")
         auth.updateUser {
             password = newPassword
         }
-        // actualiza el registro del perfil en la BD para desactivar la bandera
         postgrest.from("profiles").update(
-            {
-                set("must_change_password", false)
-            }
+            mapOf("must_change_password" to false)
         ) {
             filter {
-                eq("id",userId)
+                eq("id", userId)
             }
         }
     }
 
-    // Función privada para el registro en Supabase Auth y la inserción del perfil
-    // abarca el registro de todos los perfiles
+    // Envía un enlace mágico o código de verificación al correo para registro o acceso sin contraseña inicial
+    override suspend fun signUpWithEmailLink(
+        email: String
+    ): Result<Unit> = runCatching {
+        auth.signInWith(OTP) {
+            this.email = email
+            this.createUser = true
+        }
+    }
+
+    // Sube un documento de soporte (cédula de reciclador o RUT de comercio) al almacenamiento institucional
+    override suspend fun uploadRegistrationDocument(
+        fileName: String,
+        bytes: ByteArray
+    ): Result<String> = runCatching {
+        val s = storage ?: error("El servicio de almacenamiento no está configurado")
+        val userId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para subir el documento de registro")
+        val safeName = fileName.replace(" ", "_")
+        val path = "$userId/$safeName"
+        val bucket = s.from("institutional-docs")
+        bucket.upload(path, bytes) {
+            upsert = true
+        }
+        bucket.publicUrl(path)
+    }
+
+    // Función privada para el registro en Supabase Auth y la inserción del perfil base
     private suspend fun registerProfile(
         email: String,
         password: String,
@@ -209,12 +250,9 @@ class AuthRepositoryImpl @Inject constructor(
         roleCode: String,
         insertRoleData: suspend (userId: String) -> Unit
     ): Result<UserAccount> = runCatching {
-        //Registra credenciales en Supabase Auth reutilizando la función signUpWithEmail
         val account = signUpWithEmail(email, password).getOrThrow()
 
-        // Inserta el registro base en la tabla profiles
-        postgrest.from("profiles")
-            .insert(
+        postgrest.from("profiles").insert(
             ProfileDto(
                 id = account.id,
                 documentId = documentNumber,
@@ -224,9 +262,7 @@ class AuthRepositoryImpl @Inject constructor(
                 mustChangePassword = false
             )
         )
-        //Inserta los datos complementarios de cada rol
         insertRoleData(account.id)
-        //Retorna la cuenta autenticada con su nombre completo
         account.copy(fullName = fullName)
     }
 
@@ -240,8 +276,7 @@ class AuthRepositoryImpl @Inject constructor(
         documentNumber = registration.documentNumber,
         roleCode = "citizen"
     ) { userId ->
-        postgrest.from("citizens")
-            .insert(
+        postgrest.from("citizens").insert(
             CitizenDto(
                 profileId = userId,
                 phone = registration.phone,
@@ -260,14 +295,41 @@ class AuthRepositoryImpl @Inject constructor(
         documentNumber = registration.documentNumber,
         roleCode = "recycler"
     ) { userId ->
-        postgrest.from("recyclers")
-            .insert(
+        postgrest.from("recyclers").insert(
             RecyclerDto(
                 profileId = userId,
                 phone = registration.phone,
                 associationName = registration.associationName,
                 companyId = registration.companyId,
                 idDocumentPdfUrl = registration.idDocumentPdfUrl,
+                status = "pendiente"
+            )
+        )
+    }
+
+    // Completa o actualiza los datos del reciclador en estado pendiente, modalidad, empresa y soporte
+    override suspend fun completeRecyclerRegistration(
+        phone: String?,
+        associationName: String?,
+        companyId: String?,
+        idDocumentPdfUrl: String?
+    ): Result<Unit> = runCatching {
+        val userId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para completar el registro de reciclador")
+
+        postgrest.from("profiles").update(
+            mapOf("role_code" to "recycler")
+        ) {
+            filter { eq("id", userId) }
+        }
+
+        postgrest.from("recyclers").upsert(
+            RecyclerDto(
+                profileId = userId,
+                phone = phone,
+                associationName = associationName,
+                companyId = companyId,
+                idDocumentPdfUrl = idDocumentPdfUrl,
                 status = "pendiente"
             )
         )
@@ -283,8 +345,7 @@ class AuthRepositoryImpl @Inject constructor(
         documentNumber = registration.documentNumber,
         roleCode = "business"
     ) { userId ->
-        postgrest.from("businesses")
-            .insert(
+        postgrest.from("businesses").insert(
             BusinessDto(
                 profileId = userId,
                 businessName = registration.businessName,
@@ -306,8 +367,7 @@ class AuthRepositoryImpl @Inject constructor(
         val userId = auth.currentUserOrNull()?.id
             ?: error("No existe una sesión activa para radicar la postulación")
 
-        postgrest.from("recyclers")
-            .insert(
+        postgrest.from("recyclers").upsert(
             RecyclerDto(
                 profileId = userId,
                 phone = phone,
@@ -328,9 +388,14 @@ class AuthRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         val userId = auth.currentUserOrNull()?.id
             ?: error("No existe una sesión activa para radicar la postulación")
-        // insertar el comercio a la tabla
-        postgrest.from("businesses")
-            .insert(
+
+        postgrest.from("profiles").update(
+            mapOf("role_code" to "business")
+        ) {
+            filter { eq("id", userId) }
+        }
+
+        postgrest.from("businesses").upsert(
             BusinessDto(
                 profileId = userId,
                 businessName = businessName,
