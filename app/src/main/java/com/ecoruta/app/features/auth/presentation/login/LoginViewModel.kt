@@ -9,8 +9,7 @@ import com.ecoruta.app.R
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.jan.supabase.exceptions.HttpRequestException
-import java.io.IOException
+import io.github.jan.supabase.auth.exception.AuthRestException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -90,21 +89,24 @@ class LoginViewModel @Inject constructor(
                         }
                 }
                 .onFailure { error ->
-                    // Sin conexión se muestra el aviso general y cualquier rechazo del servidor marca las credenciales
-                    if (error.isConnectionError()) {
-                        _uiState.update { it.copy(isSubmitting = false, noticeRes = R.string.login_error_generic) }
-                    } else {
+                    // Solo la clave o el correo equivocados marcan las credenciales y cualquier otro fallo muestra el aviso general
+                    if (error.isInvalidCredentials()) {
                         _uiState.update { it.copy(isSubmitting = false, showInvalidCredentials = true) }
+                    } else {
+                        _uiState.update { it.copy(isSubmitting = false, noticeRes = R.string.login_error_generic) }
                     }
                 }
         }
     }
 
-    // Reconoce los fallos de red tanto del cliente http como del sistema
-    private fun Throwable.isConnectionError(): Boolean =
-        this is IOException || this is HttpRequestException
+    // Reconoce el rechazo del servidor por correo o contraseña incorrectos
+    // Se compara el código crudo porque esta versión del cliente no trae ese código en su lista conocida
+    private fun Throwable.isInvalidCredentials(): Boolean =
+        this is AuthRestException && error == INVALID_CREDENTIALS_CODE
 
     private companion object {
+        const val INVALID_CREDENTIALS_CODE = "invalid_credentials"
+
         // Exige texto antes y después de la arroba y un dominio con punto, sin espacios
         val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
     }

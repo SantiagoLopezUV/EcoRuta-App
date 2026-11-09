@@ -6,6 +6,7 @@ import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
 import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import io.github.jan.supabase.auth.exception.AuthRestException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -61,7 +62,10 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun signInWithEmail(email: String, password: String): Result<UserAccount> =
         result {
             val stored = accounts[email]
-            require(stored != null && stored.password == password) { "Credenciales inválidas" }
+            // Rechaza la clave equivocada con el mismo error que lanza el servicio real
+            if (stored == null || stored.password != password) {
+                throw AuthRestException("invalid_credentials", "Credenciales inválidas", 400)
+            }
             // Como en el servicio real, la sesión ya quedó abierta cuando falla la lectura del perfil
             startSession(stored.user)
             profileReadError?.let { throw it }
