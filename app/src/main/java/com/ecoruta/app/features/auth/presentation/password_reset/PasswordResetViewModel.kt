@@ -2,13 +2,14 @@ package com.ecoruta.app.features.auth.presentation.password_reset
 
 // ViewModel para la recuperación de contraseña
 // Gestiona el envío de correo OTP, validación de código y actualización de clave
-// Por ahora solo cubre el paso del correo porque el repositorio aún no verifica el código ni guarda la clave nueva
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecoruta.app.R
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.auth.exception.AuthErrorCode
+import io.github.jan.supabase.auth.exception.AuthRestException
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -65,8 +66,107 @@ class PasswordResetViewModel @Inject constructor(
         }
     }
 
+    // Guarda solo los dígitos del código hasta su largo máximo y borra los errores anteriores
+    fun onCodeChange(code: String) {
+        val digits = code.filter { it.isDigit() }.take(RECOVERY_CODE_LENGTH)
+        _uiState.update { it.copy(code = digits, codeErrorRes = null, noticeRes = null) }
+    }
+
+    // Valida que el código tenga seis dígitos y pide al servidor verificarlo con el correo del primer paso
+    fun onSubmitCode() {
+        val current = _uiState.value
+        if (current.isVerifyingCode) return
+
+        if (!CODE_REGEX.matches(current.code)) {
+            _uiState.update { it.copy(codeErrorRes = R.string.recovery_error_code_incomplete) }
+            return
+        }
+
+        // La carga se marca antes de lanzar la corrutina para bloquear un segundo envío
+        _uiState.update { it.copy(isVerifyingCode = true, codeErrorRes = null, noticeRes = null) }
+        viewModelScope.launch {
+            authRepository.verifyPasswordResetCode(current.email.trim(), current.code)
+                .onSuccess {
+                    _uiState.update { it.copy(isVerifyingCode = false, isCodeVerified = true) }
+                }
+                .onFailure { error ->
+                    // Solo el rechazo del código marca el campo y cualquier otro fallo muestra el aviso general
+                    if (error.isInvalidCode()) {
+                        _uiState.update {
+                            it.copy(isVerifyingCode = false, codeErrorRes = R.string.recovery_error_code_incorrect)
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(isVerifyingCode = false, noticeRes = R.string.recovery_error_request_failed)
+                        }
+                    }
+                }
+        }
+    }
+
+    // Guarda la nueva contraseña y borra su error anterior
+    fun onNewPasswordChange(value: String) {
+        _uiState.update { it.copy(newPassword = value, newPasswordErrorRes = null, noticeRes = null) }
+    }
+
+    // Guarda la confirmación y borra su error anterior
+    fun onConfirmPasswordChange(value: String) {
+        _uiState.update { it.copy(confirmPassword = value, confirmPasswordErrorRes = null, noticeRes = null) }
+    }
+
+    // Muestra u oculta el texto de cada campo de contraseña
+    fun onToggleNewPasswordVisibility() {
+        _uiState.update { it.copy(isNewPasswordVisible = !it.isNewPasswordVisible) }
+    }
+
+    fun onToggleConfirmPasswordVisibility() {
+        _uiState.update { it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible) }
+    }
+
+    // Valida la nueva contraseña y su confirmación y pide al servidor guardarla
+    fun onSave() {
+        val current = _uiState.value
+        if (current.isSavingPassword) return
+
+        val newPasswordError = if (isStrong(current.newPassword)) null else R.string.recovery_error_password_invalid
+        val confirmPasswordError =
+            if (current.confirmPassword == current.newPassword) null else R.string.recovery_error_password_mismatch
+        if (newPasswordError != null || confirmPasswordError != null) {
+            _uiState.update {
+                it.copy(newPasswordErrorRes = newPasswordError, confirmPasswordErrorRes = confirmPasswordError)
+            }
+            return
+        }
+
+        // La carga se marca antes de lanzar la corrutina para bloquear un segundo envío
+        _uiState.update {
+            it.copy(isSavingPassword = true, newPasswordErrorRes = null, confirmPasswordErrorRes = null, noticeRes = null)
+        }
+        viewModelScope.launch {
+            authRepository.updatePassword(current.newPassword)
+                .onSuccess {
+                    _uiState.update { it.copy(isSavingPassword = false, isPasswordUpdated = true) }
+                }
+                .onFailure {
+                    _uiState.update {
+                        it.copy(isSavingPassword = false, noticeRes = R.string.recovery_error_request_failed)
+                    }
+                }
+        }
+    }
+
+    // El servidor responde con el mismo código de error cuando el código es incorrecto o ya venció
+    private fun Throwable.isInvalidCode(): Boolean =
+        this is AuthRestException && errorCode == AuthErrorCode.OtpExpired
+
+    // Aplica las mismas reglas que muestra la lista de requisitos del registro
+    private fun isStrong(password: String): Boolean =
+        password.length >= MIN_PASSWORD_LENGTH && password.any { it.isLetter() } && password.any { it.isDigit() }
+
     private companion object {
         // Exige texto antes y después de la arroba y un dominio con punto, sin espacios
         val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+        val CODE_REGEX = Regex("^\\d{$RECOVERY_CODE_LENGTH}$")
+        const val MIN_PASSWORD_LENGTH = 8
     }
 }
