@@ -20,6 +20,8 @@ data class PasswordRecoveryUiState(
     val isCodeExpired: Boolean = false,
     val isVerifyingCode: Boolean = false,
     val resendSecondsLeft: Int = 0,
+    // Se activa cuando el servidor acepta el código y se puede pasar a la nueva contraseña
+    val isCodeVerified: Boolean = false,
     // Datos correspondientes al paso de definición de la nueva contraseña
     val newPassword: String = "",
     val confirmPassword: String = "",
@@ -28,6 +30,10 @@ data class PasswordRecoveryUiState(
     @StringRes val newPasswordErrorRes: Int? = null,
     @StringRes val confirmPasswordErrorRes: Int? = null,
     val isSavingPassword: Boolean = false,
+    // Se activa cuando el servidor guarda la nueva contraseña y se puede mostrar la confirmación
+    val isPasswordUpdated: Boolean = false,
+    // Aviso general cuando falla la verificación del código o el guardado por un motivo distinto al código
+    @StringRes val noticeRes: Int? = null,
 )
 
 typealias PasswordResetUiState = PasswordRecoveryUiState

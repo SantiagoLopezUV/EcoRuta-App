@@ -204,6 +204,9 @@ fun RecoveryCodeScreen(
                     }
                 }
 
+                // Aviso general cuando la verificación falla por un motivo distinto al código
+                state.noticeRes?.let { EcoErrorMessage(text = stringResource(it)) }
+
                 EcoPrimaryButton(
                     text = stringResource(
                         if (state.isCodeExpired) R.string.recovery_request_new_code else R.string.recovery_verify_continue,
@@ -307,6 +310,8 @@ fun ResetPasswordScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { save() }),
                 )
+                // Aviso general cuando el servidor no pudo guardar la nueva contraseña
+                state.noticeRes?.let { EcoErrorMessage(text = stringResource(it)) }
             }
 
             Column(
