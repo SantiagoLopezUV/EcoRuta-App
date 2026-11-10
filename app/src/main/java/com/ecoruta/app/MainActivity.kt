@@ -12,8 +12,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ecoruta.app.core.navigation.EcoRutaNavHost
 import com.ecoruta.app.core.network.supabase.supabase
 import com.ecoruta.app.core.ui.theme.EcoRutaTheme
+import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.auth.handleDeeplinks
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
