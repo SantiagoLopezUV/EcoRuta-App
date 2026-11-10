@@ -101,3 +101,6 @@ class ForceChangePasswordViewModel @Inject constructor(
         const val MIN_PASSWORD_LENGTH = 8
     }
 }
+
+typealias OperatorActivationViewModel = ForceChangePasswordViewModel
+

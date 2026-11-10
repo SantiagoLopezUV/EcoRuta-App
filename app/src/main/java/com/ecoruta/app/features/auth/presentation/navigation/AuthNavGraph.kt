@@ -3,11 +3,14 @@ package com.ecoruta.app.features.auth.presentation.navigation
 // Subgrafo de navegación para autenticación, registro y gestión de contraseñas
 // Conecta las vistas de inicio de sesión, recuperación de cuenta y cambio de clave
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,9 +21,11 @@ import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.ui.components.WebOnlyAccessScreen
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordActions
+import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordEvent
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordScreen
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordUiState
+import com.ecoruta.app.features.auth.presentation.first_login.ForceChangePasswordViewModel
 import com.ecoruta.app.features.auth.presentation.first_login.PasswordChangedScreen
 import com.ecoruta.app.features.auth.presentation.login.LoginActions
 import com.ecoruta.app.features.auth.presentation.login.LoginScreen
@@ -38,6 +43,8 @@ import com.ecoruta.app.features.auth.presentation.register.CitizenEmailConfirmat
 import com.ecoruta.app.features.auth.presentation.register.CitizenProfileActions
 import com.ecoruta.app.features.auth.presentation.register.CitizenProfileScreen
 import com.ecoruta.app.features.auth.presentation.register.CitizenRegistrationUiState
+import com.ecoruta.app.features.auth.presentation.register.RegisterViewModel
+import com.ecoruta.app.features.auth.presentation.register.RegistrationEvent
 import com.ecoruta.app.features.auth.presentation.register.RegistrationType
 import com.ecoruta.app.features.auth.presentation.register.RegistrationTypeScreen
 import com.ecoruta.app.features.profile.presentation.UserRole
@@ -157,45 +164,81 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
                 onLoginClick = backToLogin,
             )
         }
-        composable(EcoRutaDestination.CITIZEN_REGISTRATION_ACCOUNT) {
-            var state by remember { mutableStateOf(CitizenRegistrationUiState()) }
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_ACCOUNT) { entry ->
+            val parentEntry = remember(entry) {
+                runCatching { navController.getBackStackEntry(EcoRutaDestination.RECORD) }.getOrNull()
+            }
+            val viewModel: RegisterViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(viewModel) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        is RegistrationEvent.Step1Valid -> {
+                            navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { launchSingleTop = true }
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+
             CitizenAccountScreen(
                 state = state,
                 actions = CitizenAccountActions(
-                    onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
-                    onEmailChange = { state = state.copy(email = it, emailErrorRes = null) },
+                    onFullNameChange = viewModel::onFullNameChange,
+                    onEmailChange = viewModel::onEmailChange,
                     onGoogleClick = { navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { launchSingleTop = true } },
-                    onContinue = { navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { launchSingleTop = true } },
+                    onContinue = viewModel::onStep1Submit,
                     onChangeRegistrationType = { navController.popBackStack() },
                 ),
             )
         }
-        composable(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) {
-            var state by remember { mutableStateOf(CitizenRegistrationUiState()) }
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_PROFILE) { entry ->
+            val parentEntry = remember(entry) {
+                runCatching { navController.getBackStackEntry(EcoRutaDestination.RECORD) }.getOrNull()
+            }
+            val viewModel: RegisterViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(viewModel) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        is RegistrationEvent.AccountCreated -> {
+                            navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) {
+                                popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
+                                launchSingleTop = true
+                            }
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+
             CitizenProfileScreen(
                 state = state,
                 actions = CitizenProfileActions(
-                    onDocumentTypeChange = { state = state.copy(documentType = it, documentErrorRes = null) },
-                    onDocumentNumberChange = { state = state.copy(documentNumber = it, documentErrorRes = null) },
-                    onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
-                    onNeighborhoodChange = { state = state.copy(neighborhood = it, neighborhoodErrorRes = null) },
-                    onDataPolicyChange = { state = state.copy(acceptedDataPolicy = it) },
+                    onDocumentTypeChange = viewModel::onDocumentTypeChange,
+                    onDocumentNumberChange = viewModel::onDocumentNumberChange,
+                    onPhoneChange = viewModel::onPhoneChange,
+                    onNeighborhoodChange = viewModel::onNeighborhoodChange,
+                    onDataPolicyChange = viewModel::onDataPolicyChange,
                     onViewPolicyClick = {},
-                    onCreateAccount = {
-                        navController.navigate(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) {
-                            popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
-                            launchSingleTop = true
-                        }
-                    },
+                    onCreateAccount = { viewModel.onCreateAccount() },
                     onBack = { navController.popBackStack() },
                 ),
             )
         }
-        composable(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) {
+        composable(EcoRutaDestination.CITIZEN_REGISTRATION_CONFIRMATION) { entry ->
+            val parentEntry = remember(entry) {
+                runCatching { navController.getBackStackEntry(EcoRutaDestination.RECORD) }.getOrNull()
+            }
+            val viewModel: RegisterViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
             CitizenEmailConfirmationScreen(
-                email = "ciudadano@ecoruta.co",
-                isResending = false,
-                onResendClick = {},
+                email = state.email.ifBlank { "ciudadano@ecoruta.co" },
+                isResending = state.isResendingEmail,
+                onResendClick = viewModel::onResendEmail,
                 onGoToLogin = backToLogin,
             )
         }
@@ -214,23 +257,34 @@ private fun NavGraphBuilder.changePasswordDestinations(navController: NavHostCon
     composable(EcoRutaDestination.CHANGE_PASSWORD, arguments = arguments) { entry ->
         val mode = ChangePasswordMode.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_MODE).orEmpty())
         val role = UserRole.valueOf(entry.arguments?.getString(EcoRutaDestination.ARG_ROLE).orEmpty())
-        var state by remember { mutableStateOf(ChangePasswordUiState()) }
+        val viewModel: ForceChangePasswordViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(viewModel) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is ChangePasswordEvent.Done -> {
+                        navController.navigate(EcoRutaDestination.passwordChanged(mode, role)) {
+                            popUpTo(EcoRutaDestination.CHANGE_PASSWORD) { inclusive = true }
+                        }
+                    }
+                    is ChangePasswordEvent.ShowNotice -> Unit
+                }
+            }
+        }
+
         ChangePasswordScreen(
             mode = mode,
             role = role,
             state = state,
             actions = ChangePasswordActions(
-                onCurrentChange = { state = state.copy(currentPassword = it, currentErrorRes = null) },
-                onNewChange = { state = state.copy(newPassword = it, newErrorRes = null) },
-                onConfirmChange = { state = state.copy(confirmPassword = it, confirmErrorRes = null) },
-                onToggleCurrentVisibility = { state = state.copy(isCurrentVisible = !state.isCurrentVisible) },
-                onToggleNewVisibility = { state = state.copy(isNewVisible = !state.isNewVisible) },
-                onToggleConfirmVisibility = { state = state.copy(isConfirmVisible = !state.isConfirmVisible) },
-                onSave = {
-                    navController.navigate(EcoRutaDestination.passwordChanged(mode, role)) {
-                        popUpTo(EcoRutaDestination.CHANGE_PASSWORD) { inclusive = true }
-                    }
-                },
+                onCurrentChange = viewModel::onCurrentChange,
+                onNewChange = viewModel::onNewChange,
+                onConfirmChange = viewModel::onConfirmChange,
+                onToggleCurrentVisibility = viewModel::onToggleCurrentVisibility,
+                onToggleNewVisibility = viewModel::onToggleNewVisibility,
+                onToggleConfirmVisibility = viewModel::onToggleConfirmVisibility,
+                onSave = viewModel::onSave,
                 onBack = { navController.popBackStack() },
             ),
         )
