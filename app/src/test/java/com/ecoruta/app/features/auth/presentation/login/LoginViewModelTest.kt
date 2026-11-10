@@ -208,6 +208,33 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun profileReadError_showsGenericNoticeNotInvalidCredentials() = runTest {
+        authRepository.profileReadError = IllegalStateException("No se encontró el perfil")
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_generic, state.noticeRes)
+        assertFalse(state.showInvalidCredentials)
+        assertNull(state.signedInRole)
+        assertFalse(state.isSubmitting)
+    }
+
+    @Test
+    fun invalidCredentialsError_stillShowsInvalidCredentials() = runTest {
+        viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
+        viewModel.onPasswordChange("ClaveEquivocada")
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.showInvalidCredentials)
+        assertNull(state.noticeRes)
+        assertEquals(1, countingRepository.signInCalls)
+    }
+
+    @Test
     fun profileError_showsGenericNoticeWithoutRole() = runTest {
         profileRepository.error = IOException("Sin conexión")
         fillValidCredentials()
