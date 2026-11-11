@@ -62,6 +62,8 @@ import com.ecoruta.app.core.ui.theme.EcoSubtitle
 import com.ecoruta.app.core.ui.theme.EcoTextStyles
 import com.ecoruta.app.core.ui.theme.EcoTitle
 import com.ecoruta.app.core.ui.theme.EcoWhite
+import com.ecoruta.app.features.bulky_waste.presentation.orientation.AuthorizedManagersSection
+import com.ecoruta.app.features.bulky_waste.presentation.orientation.OrientationUiState
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -259,7 +261,13 @@ private fun RadioMark(selected: Boolean) {
 // Segundo paso del flujo que muestra las recomendaciones de disposición según el residuo seleccionado
 
 @Composable
-fun DebrisGuideScreen(selectedType: DebrisType?, onContinue: () -> Unit, onBack: () -> Unit) {
+fun DebrisGuideScreen(
+    selectedType: DebrisType?,
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    orientation: OrientationUiState? = null,
+    onRetryOrientation: () -> Unit = {},
+) {
     EcoWizardLayout(
         step = 2,
         totalSteps = DEBRIS_STEPS,
@@ -290,6 +298,8 @@ fun DebrisGuideScreen(selectedType: DebrisType?, onContinue: () -> Unit, onBack:
             body = stringResource(R.string.debris_guide_rcd_body),
             highlighted = selectedType == DebrisType.RENOVATION_DEBRIS,
         )
+        // Lista los gestores autorizados que reciben el residuo elegido cuando hay datos de orientación
+        orientation?.let { AuthorizedManagersSection(state = it, onRetry = onRetryOrientation) }
         Column(
             modifier = Modifier
                 .fillMaxWidth()

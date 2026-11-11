@@ -388,6 +388,9 @@
     <string name="debris_guide_your_selection">Tu selección · %1$s</string>
     <string name="debris_guide_care_title">Cuidemos Tuluá</string>
     <string name="debris_guide_care_body">No deseches residuos en vías públicas ni cauces de agua. Guárdalos dentro del predio.</string>
+    <string name="debris_managers_title">Gestores autorizados para tu residuo</string>
+    <string name="debris_managers_empty">Aún no hay gestores autorizados registrados para este tipo de residuo.</string>
+    <string name="debris_managers_error">No pudimos cargar los gestores autorizados. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="debris_choose_date">Elegir fecha preferida</string>
     <string name="debris_schedule_title">Agendar fecha</string>
     <string name="debris_schedule_description">Elige una fecha preferida. El retiro solo se programa cuando sea confirmado.</string>
