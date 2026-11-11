@@ -170,6 +170,9 @@
     <string name="registration_error_document_invalid">Ingresa un documento válido.</string>
     <string name="registration_error_document_registered">Este documento ya está registrado. Revisa el documento o inicia sesión si ya tienes una cuenta.</string>
     <string name="registration_error_phone_invalid">Ingresa un celular válido de 10 dígitos, como 300 123 4567.</string>
+    <string name="registration_error_no_connection">No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="registration_error_already_registered">Este correo o esta cédula ya están registrados.</string>
+    <string name="registration_error_policy_required">Debes aceptar la política de tratamiento de datos para crear tu cuenta.</string>
     <string name="document_cc_short">C. C.</string>
     <string name="document_ti_short">T. I.</string>
     <string name="document_ce_short">C. E.</string>

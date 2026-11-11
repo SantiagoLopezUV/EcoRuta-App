@@ -249,7 +249,9 @@ private fun NavGraphBuilder.registrationGraph(navController: NavHostController) 
                                 launchSingleTop = true
                             }
                         }
-                        else -> Unit
+                        // El ViewModel deja el motivo en el estado y la pantalla lo muestra sobre el botón
+                        is RegistrationEvent.Error -> Unit
+                        is RegistrationEvent.Step1Valid -> Unit
                     }
                 }
             }

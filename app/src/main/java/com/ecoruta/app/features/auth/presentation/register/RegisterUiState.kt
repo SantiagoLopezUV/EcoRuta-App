@@ -46,6 +46,9 @@ data class CitizenRegistrationUiState(
     @StringRes val documentErrorRes: Int? = null,
     @StringRes val phoneErrorRes: Int? = null,
     @StringRes val neighborhoodErrorRes: Int? = null,
+    @StringRes val dataPolicyErrorRes: Int? = null,
+    // Mensaje que explica por qué el servidor no pudo crear la cuenta
+    @StringRes val submitErrorRes: Int? = null,
     val isCreatingAccount: Boolean = false,
     // Estado de envío en la pantalla de confirmación por correo
     val isResendingEmail: Boolean = false,

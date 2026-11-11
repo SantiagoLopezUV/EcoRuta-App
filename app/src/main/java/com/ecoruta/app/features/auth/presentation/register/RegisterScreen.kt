@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.ecoruta.app.R
 import com.ecoruta.app.core.ui.components.EcoBottomActionBar
 import com.ecoruta.app.core.ui.components.EcoCheckboxRow
+import com.ecoruta.app.core.ui.components.EcoErrorMessage
 import com.ecoruta.app.core.ui.components.EcoPrimaryButton
 import com.ecoruta.app.core.ui.components.EcoSecondaryButton
 import com.ecoruta.app.core.ui.components.EcoSelectionCard
@@ -329,6 +330,8 @@ fun CitizenProfileScreen(
         progress = 1f,
         modifier = modifier,
         bottomActions = {
+            // Muestra por qué el servidor no pudo crear la cuenta para que el usuario pueda corregir o reintentar
+            state.submitErrorRes?.let { EcoErrorMessage(text = stringResource(it)) }
             EcoCheckboxRow(
                 checked = state.acceptedDataPolicy,
                 onCheckedChange = actions.onDataPolicyChange,
@@ -336,13 +339,14 @@ fun CitizenProfileScreen(
                 linkText = stringResource(R.string.registration_view_policy),
                 onLinkClick = actions.onViewPolicyClick,
             )
+            // Avisa junto a la casilla cuando se intenta crear la cuenta sin aceptar la política
+            state.dataPolicyErrorRes?.let { EcoErrorMessage(text = stringResource(it)) }
             EcoPrimaryButton(
                 text = stringResource(R.string.registration_create_account),
                 onClick = {
                     focusManager.clearFocus()
                     actions.onCreateAccount()
                 },
-                enabled = state.acceptedDataPolicy,
                 isLoading = state.isCreatingAccount,
                 trailingIconRes = R.drawable.ic_arrow_right,
             )
