@@ -99,6 +99,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    // Limpia las banderas de navegación cuando la pantalla ya las atendió para no repetir el salto al volver
+    fun onNavigationHandled() {
+        _uiState.update { it.copy(signedInRole = null, passwordChangeRole = null, webOnlyAccess = false) }
+    }
+
     // Reconoce el rechazo del servidor por correo o contraseña incorrectos
     // Se compara el código crudo porque esta versión del cliente no trae ese código en su lista conocida
     private fun Throwable.isInvalidCredentials(): Boolean =

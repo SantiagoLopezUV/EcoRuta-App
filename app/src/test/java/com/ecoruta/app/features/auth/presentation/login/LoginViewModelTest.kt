@@ -288,4 +288,19 @@ class LoginViewModelTest {
         assertNull(state.noticeRes)
         assertEquals(2, countingRepository.signInCalls)
     }
+
+    @Test
+    fun navigationHandled_clearsNavigationFlagsAndKeepsFields() = runTest {
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        viewModel.onNavigationHandled()
+
+        val state = viewModel.uiState.value
+        assertNull(state.signedInRole)
+        assertNull(state.passwordChangeRole)
+        assertFalse(state.webOnlyAccess)
+        assertEquals(TestDataFactory.DEFAULT_EMAIL, state.email)
+    }
 }
