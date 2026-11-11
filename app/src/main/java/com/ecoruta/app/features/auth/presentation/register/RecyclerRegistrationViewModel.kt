@@ -2,11 +2,12 @@ package com.ecoruta.app.features.auth.presentation.register
 
 // ViewModel para el formulario de registro del reciclador independiente o vinculado a una empresa
 // Guarda los campos, valida cada uno y avisa cuando el formulario queda listo para enviarse
-// Por ahora no crea la cuenta ni maneja la cédula en PDF porque eso depende del repositorio y del selector de archivos
+// Por ahora no crea la cuenta ni sube la cédula en PDF porque eso depende del repositorio
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecoruta.app.R
+import com.ecoruta.app.core.ui.components.PickedDocument
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Avisos de una sola vez que el grafo de navegación consumirá cuando se conecte este ViewModel
+// Avisos de una sola vez que consume el grafo de navegación
 sealed interface RecyclerRegistrationEvent {
     data object FormValid : RecyclerRegistrationEvent
 }
@@ -55,6 +56,16 @@ class RecyclerRegistrationViewModel @Inject constructor() : ViewModel() {
     // Guarda el celular escrito y borra su error anterior
     fun onPhoneChange(phone: String) {
         _uiState.update { it.copy(phone = phone, phoneErrorRes = null) }
+    }
+
+    // Guarda la cédula en PDF que eligió el usuario y borra su error anterior
+    fun onIdDocumentPicked(document: PickedDocument) {
+        _uiState.update { it.copy(idDocument = document, idDocumentErrorRes = null) }
+    }
+
+    // Quita la cédula adjunta para que el usuario pueda elegir otra
+    fun onIdDocumentRemoved() {
+        _uiState.update { it.copy(idDocument = null) }
     }
 
     // Valida todos los campos a la vez y avisa si el formulario quedó listo
