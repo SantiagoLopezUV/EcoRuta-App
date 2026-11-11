@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -30,9 +31,6 @@ import com.ecoruta.app.features.profile.presentation.RecyclerApplicationUiState
 import com.ecoruta.app.features.profile.presentation.components.CompanySearchScreen
 import com.ecoruta.app.features.profile.presentation.components.SelectedCompanyScreen
 
-// Correo de ejemplo mostrado mientras el registro no está conectado al backend
-private const val SampleRecyclerEmail = "ana.torres@example.com"
-
 // Empresas gestoras de ejemplo para la búsqueda del reciclador vinculado
 private val SampleRecyclerCompanies = listOf(
     Company("EMP-01", "Asorecicladores del Oriente", "Asociación"),
@@ -44,7 +42,7 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
     // Empresa elegida en la búsqueda, compartida con la pantalla de empresa seleccionada y la activación
     var selectedCompany by mutableStateOf<Company?>(null)
 
-    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_REGISTRATION) {
+    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_REGISTRATION) { entry ->
         val goToConfirmation = {
             navController.navigate(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMATION) {
                 popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
@@ -52,6 +50,7 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
             }
         }
         RecyclerRegistrationForm(
+            viewModel = sharedRecyclerRegistrationViewModel(navController, entry),
             type = RegistrationType.INDEPENDENT_RECYCLER,
             onValid = goToConfirmation,
             onGoogleClick = goToConfirmation,
@@ -59,10 +58,12 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
         )
     }
 
-    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMATION) {
+    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMATION) { entry ->
+        val viewModel = sharedRecyclerRegistrationViewModel(navController, entry)
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         RecyclerEmailConfirmationScreen(
             type = RegistrationType.INDEPENDENT_RECYCLER,
-            email = SampleRecyclerEmail,
+            email = state.email.trim(),
             // Sin backend, reenviar el enlace simula que el reciclador abrió el correo de confirmación
             onResendClick = {
                 navController.navigate(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMED) {
@@ -73,10 +74,12 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
         )
     }
 
-    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMED) {
+    composable(EcoRutaDestination.INDEPENDENT_RECYCLER_CONFIRMED) { entry ->
+        val viewModel = sharedRecyclerRegistrationViewModel(navController, entry)
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         RecyclerEmailConfirmedScreen(
             type = RegistrationType.INDEPENDENT_RECYCLER,
-            email = SampleRecyclerEmail,
+            email = state.email.trim(),
             onContinue = {
                 navController.navigate(EcoRutaDestination.DELIVERY_MAP) {
                     popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = true }
@@ -85,8 +88,9 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
         )
     }
 
-    composable(EcoRutaDestination.COMPANY_RECYCLER_REGISTRATION) {
+    composable(EcoRutaDestination.COMPANY_RECYCLER_REGISTRATION) { entry ->
         RecyclerRegistrationForm(
+            viewModel = sharedRecyclerRegistrationViewModel(navController, entry),
             type = RegistrationType.COMPANY_RECYCLER,
             onValid = {
                 navController.navigate(EcoRutaDestination.COMPANY_RECYCLER_CONFIRMATION) {
@@ -99,10 +103,12 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
         )
     }
 
-    composable(EcoRutaDestination.COMPANY_RECYCLER_CONFIRMATION) {
+    composable(EcoRutaDestination.COMPANY_RECYCLER_CONFIRMATION) { entry ->
+        val viewModel = sharedRecyclerRegistrationViewModel(navController, entry)
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         RecyclerEmailConfirmationScreen(
             type = RegistrationType.COMPANY_RECYCLER,
-            email = SampleRecyclerEmail,
+            email = state.email.trim(),
             // Sin backend, reenviar el enlace simula que el reciclador validó su correo
             onResendClick = {
                 navController.navigate(EcoRutaDestination.COMPANY_RECYCLER_EMAIL_VALIDATED) {
@@ -113,10 +119,12 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
         )
     }
 
-    composable(EcoRutaDestination.COMPANY_RECYCLER_EMAIL_VALIDATED) {
+    composable(EcoRutaDestination.COMPANY_RECYCLER_EMAIL_VALIDATED) { entry ->
+        val viewModel = sharedRecyclerRegistrationViewModel(navController, entry)
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         RecyclerEmailConfirmedScreen(
             type = RegistrationType.COMPANY_RECYCLER,
-            email = SampleRecyclerEmail,
+            email = state.email.trim(),
             onContinue = {
                 navController.navigate(EcoRutaDestination.COMPANY_RECYCLER_COMPANY_SEARCH) {
                     popUpTo(EcoRutaDestination.COMPANY_RECYCLER_EMAIL_VALIDATED)
@@ -167,15 +175,28 @@ fun NavGraphBuilder.recyclerRegistrationGraph(navController: NavHostController) 
     }
 }
 
+// Comparte el ViewModel del registro entre el formulario y las confirmaciones usando la entrada del grafo de registro
+// Si esa entrada ya no está en la pila, usa un ViewModel propio de la pantalla
+@Composable
+private fun sharedRecyclerRegistrationViewModel(
+    navController: NavHostController,
+    entry: NavBackStackEntry,
+): RecyclerRegistrationViewModel {
+    val parentEntry = remember(entry) {
+        runCatching { navController.getBackStackEntry(EcoRutaDestination.RECORD) }.getOrNull()
+    }
+    return if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+}
+
 // Conecta el formulario de reciclador con su ViewModel y avanza cuando los datos quedan validados
 @Composable
 private fun RecyclerRegistrationForm(
+    viewModel: RecyclerRegistrationViewModel,
     type: RegistrationType,
     onValid: () -> Unit,
     onGoogleClick: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val viewModel: RecyclerRegistrationViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pickIdDocument = rememberPdfPicker(viewModel::onIdDocumentPicked)
 

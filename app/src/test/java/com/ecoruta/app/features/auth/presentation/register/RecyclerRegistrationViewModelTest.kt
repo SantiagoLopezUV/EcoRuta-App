@@ -90,6 +90,16 @@ class RecyclerRegistrationViewModelTest {
         assertEquals(R.string.login_error_email_invalid, viewModel.uiState.value.emailErrorRes)
     }
 
+    // La confirmación lee el correo del mismo ViewModel, así que debe seguir en el estado después de enviar
+    @Test
+    fun submitAndGoogleClick_keepTypedEmailForConfirmation() {
+        fillValidForm()
+        viewModel.onSubmit()
+        viewModel.onGoogleClick()
+
+        assertEquals("ana@correo.com", viewModel.uiState.value.email)
+    }
+
     @Test
     fun emailWithSpaces_isTrimmedAndAccepted() {
         fillValidForm()
