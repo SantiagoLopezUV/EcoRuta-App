@@ -40,6 +40,7 @@ class StoreDetailsViewModelTest {
         viewModel.onCategoryChange(StoreCategory.STATIONERY_BOOKSTORE)
         viewModel.onAddressChange("Calle 27 # 30-15")
         viewModel.onPhoneChange("602 234 5678")
+        viewModel.onRutPicked("rut_papeleria.pdf")
         viewModel.onDataPolicyChange(true)
     }
 
@@ -84,6 +85,34 @@ class StoreDetailsViewModelTest {
         assertEquals(R.string.store_application_error_category, state.categoryErrorRes)
         assertEquals(R.string.store_registration_error_address, state.addressErrorRes)
         assertEquals(R.string.store_registration_error_phone, state.phoneErrorRes)
+        assertEquals(R.string.store_application_error_rut, state.rutErrorRes)
+    }
+
+    @Test
+    fun pickingRut_storesNameAndClearsError() {
+        viewModel.onDataPolicyChange(true)
+        viewModel.onSubmit()
+
+        viewModel.onRutPicked("rut.pdf")
+
+        assertEquals("rut.pdf", viewModel.uiState.value.rutFileName)
+        assertNull(viewModel.uiState.value.rutErrorRes)
+    }
+
+    @Test
+    fun validFormWithoutRut_showsRutErrorAndDoesNotEmit() = runTest {
+        val events = mutableListOf<StoreDetailsEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        fillValidForm()
+        viewModel.onRemovePdf()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.rutFileName)
+        assertEquals(R.string.store_application_error_rut, viewModel.uiState.value.rutErrorRes)
+        assertTrue(events.isEmpty())
+        collector.cancel()
     }
 
     @Test
@@ -155,6 +184,7 @@ class StoreDetailsViewModelTest {
         viewModel.onCategoryChange(StoreCategory.OTHER)
         viewModel.onAddressChange("C")
         viewModel.onPhoneChange("3")
+        viewModel.onRutPicked("rut.pdf")
 
         assertFalse(viewModel.uiState.value.hasErrors)
     }

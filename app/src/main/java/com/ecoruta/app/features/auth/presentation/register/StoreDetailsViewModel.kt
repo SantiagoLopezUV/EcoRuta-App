@@ -2,7 +2,7 @@ package com.ecoruta.app.features.auth.presentation.register
 
 // ViewModel para el segundo paso del registro del comercio con los datos del establecimiento
 // Guarda los campos, valida cada uno y avisa cuando la solicitud queda lista para enviarse
-// Por ahora no envía la solicitud ni maneja el RUT en PDF porque eso depende del repositorio y del selector de archivos
+// Por ahora no envía la solicitud ni sube el RUT en PDF porque eso depende del repositorio
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Avisos de una sola vez que el grafo de navegación consumirá cuando se conecte este ViewModel
+// Avisos de una sola vez que consume el grafo de navegación
 sealed interface StoreDetailsEvent {
     data object FormValid : StoreDetailsEvent
 }
@@ -64,6 +64,16 @@ class StoreDetailsViewModel @Inject constructor() : ViewModel() {
         _uiState.update { it.copy(phone = phone, phoneErrorRes = null) }
     }
 
+    // Guarda el nombre del RUT en PDF que eligió el gerente y borra su error anterior
+    fun onRutPicked(fileName: String) {
+        _uiState.update { it.copy(rutFileName = fileName, rutErrorRes = null) }
+    }
+
+    // Quita el RUT adjunto para que el gerente pueda elegir otro
+    fun onRemovePdf() {
+        _uiState.update { it.copy(rutFileName = null) }
+    }
+
     // Guarda si el gerente aceptó la política de tratamiento de datos
     fun onDataPolicyChange(accepted: Boolean) {
         _uiState.update { it.copy(acceptedDataPolicy = accepted) }
@@ -85,6 +95,8 @@ class StoreDetailsViewModel @Inject constructor() : ViewModel() {
         val categoryError = if (current.category == null) R.string.store_application_error_category else null
         val addressError = if (current.address.isBlank()) R.string.store_registration_error_address else null
         val phoneError = validatePhone(current.phone)
+        // El RUT en PDF es obligatorio para enviar la solicitud a revisión
+        val rutError = if (current.rutFileName == null) R.string.store_application_error_rut else null
 
         _uiState.update {
             it.copy(
@@ -93,10 +105,11 @@ class StoreDetailsViewModel @Inject constructor() : ViewModel() {
                 categoryErrorRes = categoryError,
                 addressErrorRes = addressError,
                 phoneErrorRes = phoneError,
+                rutErrorRes = rutError,
             )
         }
 
-        val isValid = listOf(nameError, idError, categoryError, addressError, phoneError).all { it == null }
+        val isValid = listOf(nameError, idError, categoryError, addressError, phoneError, rutError).all { it == null }
         if (isValid) {
             viewModelScope.launch { _events.send(StoreDetailsEvent.FormValid) }
         }

@@ -6,29 +6,31 @@ package com.ecoruta.app.features.auth.presentation.navigation
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.EcoRutaDestination
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.ui.components.rememberPdfPicker
 import com.ecoruta.app.features.auth.presentation.register.ResendLinkStatus
 import com.ecoruta.app.features.auth.presentation.register.StoreDetailsActions
 import com.ecoruta.app.features.auth.presentation.register.StoreDetailsScreen
-import com.ecoruta.app.features.auth.presentation.register.StoreDetailsUiState
+import com.ecoruta.app.features.auth.presentation.register.StoreDetailsEvent
+import com.ecoruta.app.features.auth.presentation.register.StoreDetailsViewModel
 import com.ecoruta.app.features.auth.presentation.register.StoreEmailConfirmationScreen
 import com.ecoruta.app.features.auth.presentation.register.StoreEmailConfirmationUiState
 import com.ecoruta.app.features.auth.presentation.register.StoreEmailConfirmedScreen
 import com.ecoruta.app.features.auth.presentation.register.StoreOwnerAccountActions
 import com.ecoruta.app.features.auth.presentation.register.StoreOwnerAccountScreen
-import com.ecoruta.app.features.auth.presentation.register.StoreOwnerAccountUiState
+import com.ecoruta.app.features.auth.presentation.register.StoreOwnerAccountEvent
+import com.ecoruta.app.features.auth.presentation.register.StoreOwnerAccountViewModel
 import com.ecoruta.app.features.auth.presentation.register.StoreRequestStatusScreen
 import com.ecoruta.app.features.auth.presentation.register.StoreRequestStatusUiState
 import kotlinx.coroutines.delay
@@ -52,20 +54,28 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
         route = EcoRutaDestination.STORE_REGISTRATION,
     ) {
         composable(EcoRutaDestination.STORE_REGISTRATION_ACCOUNT) {
-            var state by remember { mutableStateOf(StoreOwnerAccountUiState()) }
+            val viewModel: StoreOwnerAccountViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            // Con la cuenta validada pasa a la confirmación por correo usando el correo limpio que entrega el ViewModel
+            LaunchedEffect(viewModel) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        is StoreOwnerAccountEvent.FormValid ->
+                            navController.navigate(EcoRutaDestination.storeRegistrationConfirmation(event.email)) {
+                                popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
+                                launchSingleTop = true
+                            }
+                    }
+                }
+            }
             StoreOwnerAccountScreen(
                 state = state,
                 actions = StoreOwnerAccountActions(
-                    onFullNameChange = { state = state.copy(fullName = it, fullNameErrorRes = null) },
-                    onEmailChange = { state = state.copy(email = it, emailErrorRes = null) },
-                    onContinue = {
-                        navController.navigate(EcoRutaDestination.storeRegistrationConfirmation(state.email.trim())) {
-                            popUpTo(EcoRutaDestination.RECORD_TYPE_SELECTION)
-                            launchSingleTop = true
-                        }
-                    },
+                    onFullNameChange = viewModel::onFullNameChange,
+                    onEmailChange = viewModel::onEmailChange,
+                    onContinue = viewModel::onContinue,
                     onBack = { navController.popBackStack() },
-                    onRetry = { state = state.copy(isOffline = false) },
+                    onRetry = viewModel::onRetry,
                 ),
             )
         }
@@ -73,7 +83,7 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
         composable(EcoRutaDestination.STORE_REGISTRATION_CONFIRMATION, arguments = emailArgument) { entry ->
             val email = entry.arguments?.getString(EcoRutaDestination.ARG_EMAIL).orEmpty()
             var resendStatus by rememberSaveable { mutableStateOf(ResendLinkStatus.IDLE) }
-            // Temporal hasta que exista el ViewModel, simula el envío del enlace y luego que el gerente lo abrió
+            // Sin ViewModel para el reenvío, se simula el envío del enlace y luego que el gerente lo abrió
             LaunchedEffect(resendStatus) {
                 when (resendStatus) {
                     ResendLinkStatus.SENDING -> {
@@ -109,34 +119,37 @@ fun NavGraphBuilder.storeRegistrationGraph(navController: NavHostController) {
         }
 
         composable(EcoRutaDestination.STORE_REGISTRATION_DETAILS) {
-            var state by remember { mutableStateOf(StoreDetailsUiState()) }
+            val viewModel: StoreDetailsViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             // El selector del sistema se registra aquí para que la pantalla solo reciba el nombre del RUT
-            val pickRut = rememberPdfPicker { document -> state = state.copy(rutFileName = document.name, rutErrorRes = null) }
-            StoreDetailsScreen(
-                state = state,
-                actions = StoreDetailsActions(
-                    onNameChange = { state = state.copy(name = it, nameErrorRes = null) },
-                    onIdTypeChange = { state = state.copy(idType = it, idErrorRes = null) },
-                    onIdNumberChange = { state = state.copy(idNumber = it, idErrorRes = null) },
-                    onCategoryChange = { state = state.copy(category = it, categoryErrorRes = null) },
-                    onAddressChange = { state = state.copy(address = it, addressErrorRes = null) },
-                    onPhoneChange = { state = state.copy(phone = it, phoneErrorRes = null) },
-                    onPickPdf = pickRut,
-                    onRemovePdf = { state = state.copy(rutFileName = null) },
-                    onDataPolicyChange = { state = state.copy(acceptedDataPolicy = it) },
-                    onViewPolicyClick = {},
-                    onSubmit = {
-                        // Temporal hasta que exista el ViewModel, sin RUT adjunto se marca el campo en vez de enviar
-                        if (state.rutFileName == null) {
-                            state = state.copy(rutErrorRes = R.string.store_application_error_rut)
-                        } else {
+            val pickRut = rememberPdfPicker { document -> viewModel.onRutPicked(document.name) }
+            // Con los datos validados la solicitud pasa a revisión y el registro sale de la pila
+            LaunchedEffect(viewModel) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        StoreDetailsEvent.FormValid ->
                             navController.navigate(EcoRutaDestination.STORE_REGISTRATION_IN_REVIEW) {
                                 popUpTo(EcoRutaDestination.RECORD) { inclusive = true }
                             }
-                        }
-                    },
+                    }
+                }
+            }
+            StoreDetailsScreen(
+                state = state,
+                actions = StoreDetailsActions(
+                    onNameChange = viewModel::onNameChange,
+                    onIdTypeChange = viewModel::onIdTypeChange,
+                    onIdNumberChange = viewModel::onIdNumberChange,
+                    onCategoryChange = viewModel::onCategoryChange,
+                    onAddressChange = viewModel::onAddressChange,
+                    onPhoneChange = viewModel::onPhoneChange,
+                    onPickPdf = pickRut,
+                    onRemovePdf = viewModel::onRemovePdf,
+                    onDataPolicyChange = viewModel::onDataPolicyChange,
+                    onViewPolicyClick = {},
+                    onSubmit = viewModel::onSubmit,
                     onBack = { navController.popBackStack() },
-                    onRetry = { state = state.copy(isOffline = false) },
+                    onRetry = viewModel::onRetry,
                 ),
             )
         }
