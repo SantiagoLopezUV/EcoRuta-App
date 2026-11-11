@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 // Avisos de una sola vez que consume el grafo de navegación
 sealed interface RecyclerRegistrationEvent {
     data object FormValid : RecyclerRegistrationEvent
+
+    // La cédula está adjunta y el registro con Google puede seguir
+    data object GoogleSignUpAllowed : RecyclerRegistrationEvent
 }
 
 @HiltViewModel
@@ -96,6 +99,19 @@ class RecyclerRegistrationViewModel @Inject constructor() : ViewModel() {
             viewModelScope.launch { _events.send(RecyclerRegistrationEvent.FormValid) }
         }
     }
+
+    // Antes de registrarse con Google solo exige la cédula, porque Google aporta el nombre y el correo
+    fun onGoogleClick() {
+        val current = _uiState.value
+        if (current.isCreatingAccount) return
+
+        val idDocumentError = validateIdDocument(current.idDocument != null)
+        _uiState.update { it.copy(idDocumentErrorRes = idDocumentError) }
+
+        if (idDocumentError == null) {
+            viewModelScope.launch { _events.send(RecyclerRegistrationEvent.GoogleSignUpAllowed) }
+        }
+    }
 }
 
 // Errores de cada campo del formulario de reciclador, vacíos cuando el campo es válido
@@ -143,7 +159,7 @@ private fun validateDocument(documentType: DocumentType, documentNumber: String)
 }
 
 // La cédula en PDF es obligatoria en los dos registros de reciclador
-private fun validateIdDocument(hasIdDocument: Boolean): Int? =
+internal fun validateIdDocument(hasIdDocument: Boolean): Int? =
     if (hasIdDocument) null else R.string.recycler_registration_error_pdf
 
 // Se ignoran los espacios para aceptar el celular escrito como 300 123 4567

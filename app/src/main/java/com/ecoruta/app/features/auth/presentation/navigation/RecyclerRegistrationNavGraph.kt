@@ -183,6 +183,7 @@ private fun RecyclerRegistrationForm(
         viewModel.events.collect { event ->
             when (event) {
                 RecyclerRegistrationEvent.FormValid -> onValid()
+                RecyclerRegistrationEvent.GoogleSignUpAllowed -> onGoogleClick()
             }
         }
     }
@@ -198,7 +199,8 @@ private fun RecyclerRegistrationForm(
             onPickIdDocument = pickIdDocument,
             onIdDocumentRemoved = viewModel::onIdDocumentRemoved,
             onPhoneChange = viewModel::onPhoneChange,
-            onGoogleClick = onGoogleClick,
+            // El botón de Google pasa primero por la validación de la cédula en el ViewModel
+            onGoogleClick = viewModel::onGoogleClick,
             onSubmit = viewModel::onSubmit,
             onBack = onBack,
         ),

@@ -215,6 +215,28 @@ class RecyclerRegistrationViewModelTest {
     }
 
     @Test
+    fun googleClickWithoutIdDocument_showsPdfErrorAndDoesNotContinue() = runTest {
+        val events = mutableListOf<RecyclerRegistrationEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        viewModel.onGoogleClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recycler_registration_error_pdf, state.idDocumentErrorRes)
+        assertNull(state.fullNameErrorRes)
+        assertNull(state.emailErrorRes)
+        assertTrue(events.isEmpty())
+        collector.cancel()
+    }
+
+    @Test
+    fun idDocumentRule_allowsGoogleSignUpOnlyWithPdf() {
+        assertNull(validateIdDocument(hasIdDocument = true))
+        assertEquals(R.string.recycler_registration_error_pdf, validateIdDocument(hasIdDocument = false))
+    }
+
+    @Test
     fun validFieldsWithoutIdDocument_isInvalidWithPdfError() {
         val errors = validateRecyclerForm(
             fullName = "Ana Gómez",
