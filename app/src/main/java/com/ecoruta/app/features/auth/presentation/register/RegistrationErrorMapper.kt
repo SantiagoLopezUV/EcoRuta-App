@@ -5,6 +5,10 @@ package com.ecoruta.app.features.auth.presentation.register
 
 import androidx.annotation.StringRes
 import com.ecoruta.app.R
+import io.github.jan.supabase.auth.exception.AuthErrorCode
+import io.github.jan.supabase.auth.exception.AuthRestException
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -17,6 +21,11 @@ fun registrationErrorMessage(error: Throwable): Int {
 
     if (chain.any { it.isNetworkFailure() }) return R.string.registration_error_no_connection
 
+    // Auth avisa con un código propio cuando el correo ya tiene una cuenta
+    if (chain.any { it is AuthRestException && it.errorCode in EMAIL_TAKEN_CODES }) {
+        return R.string.registration_error_email_registered
+    }
+
     val text = chain.joinToString(" ") { it.message.orEmpty() }.lowercase()
     if (DUPLICATE_HINTS.none { it in text }) return R.string.login_error_generic
 
@@ -28,14 +37,20 @@ fun registrationErrorMessage(error: Throwable): Int {
     }
 }
 
+// El cliente de Supabase cambia la falla de red por su propia excepción sin guardar la causa original
+// Ktor deja pasar su excepción de tiempo agotado sin envolverla
 private fun Throwable.isNetworkFailure(): Boolean =
-    this is UnknownHostException ||
+    this is HttpRequestException ||
+        this is HttpRequestTimeoutException ||
+        this is UnknownHostException ||
         this is ConnectException ||
         this is NoRouteToHostException ||
         this is InterruptedIOException ||
         javaClass.simpleName.contains("Timeout")
 
 private const val MAX_CAUSE_DEPTH = 10
+
+private val EMAIL_TAKEN_CODES = setOf(AuthErrorCode.UserAlreadyExists, AuthErrorCode.EmailExists)
 
 private val DUPLICATE_HINTS = listOf(
     "already registered",
