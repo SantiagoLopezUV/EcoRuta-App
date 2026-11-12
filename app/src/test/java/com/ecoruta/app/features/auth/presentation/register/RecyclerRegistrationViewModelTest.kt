@@ -69,6 +69,7 @@ class RecyclerRegistrationViewModelTest {
         assertEquals(R.string.login_error_email_invalid, state.emailErrorRes)
         assertEquals(R.string.registration_error_field_required, state.documentErrorRes)
         assertEquals(R.string.registration_error_field_required, state.phoneErrorRes)
+        assertEquals(R.string.recycler_registration_error_pdf, state.idDocumentErrorRes)
     }
 
     @Test
@@ -87,6 +88,16 @@ class RecyclerRegistrationViewModelTest {
         viewModel.onSubmit()
 
         assertEquals(R.string.login_error_email_invalid, viewModel.uiState.value.emailErrorRes)
+    }
+
+    // La confirmación lee el correo del mismo ViewModel, así que debe seguir en el estado después de enviar
+    @Test
+    fun submitAndGoogleClick_keepTypedEmailForConfirmation() {
+        fillValidForm()
+        viewModel.onSubmit()
+        viewModel.onGoogleClick()
+
+        assertEquals("ana@correo.com", viewModel.uiState.value.email)
     }
 
     @Test
@@ -168,8 +179,9 @@ class RecyclerRegistrationViewModelTest {
         assertNull(viewModel.uiState.value.documentErrorRes)
     }
 
+    // El mismo ViewModel atiende el registro independiente y el vinculado, así que la regla vale para ambos
     @Test
-    fun validForm_hasNoErrorsAndEmitsFormValid() = runTest {
+    fun validFieldsWithoutIdDocument_showsPdfErrorAndDoesNotEmitFormValid() = runTest {
         val events = mutableListOf<RecyclerRegistrationEvent>()
         val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
 
@@ -182,8 +194,71 @@ class RecyclerRegistrationViewModelTest {
         assertNull(state.emailErrorRes)
         assertNull(state.documentErrorRes)
         assertNull(state.phoneErrorRes)
-        assertEquals(listOf(RecyclerRegistrationEvent.FormValid), events)
+        assertEquals(R.string.recycler_registration_error_pdf, state.idDocumentErrorRes)
+        assertTrue(events.isEmpty())
         collector.cancel()
+    }
+
+    @Test
+    fun removingIdDocument_keepsPdfRequiredOnNextSubmit() {
+        fillValidForm()
+        viewModel.onIdDocumentRemoved()
+        viewModel.onSubmit()
+
+        assertEquals(R.string.recycler_registration_error_pdf, viewModel.uiState.value.idDocumentErrorRes)
+    }
+
+    // La regla pura recibe si hay cédula porque el archivo elegido usa un tipo de Android que no existe en la JVM
+    @Test
+    fun validFieldsWithIdDocument_isValidWithoutErrors() {
+        val errors = validateRecyclerForm(
+            fullName = "Ana Gómez",
+            email = "ana@correo.com",
+            documentType = DocumentType.CITIZENSHIP_ID,
+            documentNumber = "1116234567",
+            hasIdDocument = true,
+            phone = "300 123 4567",
+        )
+
+        assertTrue(errors.isValid)
+        assertNull(errors.idDocumentErrorRes)
+    }
+
+    @Test
+    fun googleClickWithoutIdDocument_showsPdfErrorAndDoesNotContinue() = runTest {
+        val events = mutableListOf<RecyclerRegistrationEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        viewModel.onGoogleClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.recycler_registration_error_pdf, state.idDocumentErrorRes)
+        assertNull(state.fullNameErrorRes)
+        assertNull(state.emailErrorRes)
+        assertTrue(events.isEmpty())
+        collector.cancel()
+    }
+
+    @Test
+    fun idDocumentRule_allowsGoogleSignUpOnlyWithPdf() {
+        assertNull(validateIdDocument(hasIdDocument = true))
+        assertEquals(R.string.recycler_registration_error_pdf, validateIdDocument(hasIdDocument = false))
+    }
+
+    @Test
+    fun validFieldsWithoutIdDocument_isInvalidWithPdfError() {
+        val errors = validateRecyclerForm(
+            fullName = "Ana Gómez",
+            email = "ana@correo.com",
+            documentType = DocumentType.CITIZENSHIP_ID,
+            documentNumber = "1116234567",
+            hasIdDocument = false,
+            phone = "300 123 4567",
+        )
+
+        assertFalse(errors.isValid)
+        assertEquals(R.string.recycler_registration_error_pdf, errors.idDocumentErrorRes)
     }
 
     @Test
