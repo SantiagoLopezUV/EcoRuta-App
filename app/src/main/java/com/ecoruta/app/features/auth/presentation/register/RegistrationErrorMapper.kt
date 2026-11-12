@@ -27,7 +27,7 @@ fun registrationErrorMessage(error: Throwable): Int {
     }
 
     val text = chain.joinToString(" ") { it.message.orEmpty() }.lowercase()
-    if (DUPLICATE_HINTS.none { it in text }) return R.string.login_error_generic
+    if (DUPLICATE_HINTS.none { it in text }) return R.string.registration_error_generic
 
     // Si el servidor dice qué dato está repetido se usa el mensaje específico de ese dato
     return when {
