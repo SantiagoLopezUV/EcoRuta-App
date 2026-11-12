@@ -182,6 +182,9 @@ fun LoginContent(
                     EcoErrorMessage(text = stringResource(R.string.login_error_invalid_credentials))
                 }
 
+                // Muestra el aviso que dejó el último intento, como la falta de conexión
+                state.noticeRes?.let { EcoErrorMessage(text = stringResource(it)) }
+
                 EcoPrimaryButton(
                     text = stringResource(R.string.login_submit),
                     onClick = {
