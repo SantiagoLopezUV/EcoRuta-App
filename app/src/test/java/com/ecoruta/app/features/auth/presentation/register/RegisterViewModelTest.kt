@@ -3,6 +3,8 @@ package com.ecoruta.app.features.auth.presentation.register
 import com.ecoruta.app.R
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
+import com.ecoruta.app.core.testing.TestDataFactory
+import java.net.UnknownHostException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -143,7 +145,7 @@ class RegisterViewModelTest {
     // --- Paso 2: onCreateAccount ---
 
     @Test
-    fun createAccount_withoutAcceptingPolicy_doesNothing() = runTest {
+    fun createAccount_withoutAcceptingPolicy_showsPolicyErrorAndSkipsRepository() = runTest {
         val events = mutableListOf<RegistrationEvent>()
         val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
 
@@ -151,13 +153,27 @@ class RegisterViewModelTest {
         viewModel.onDocumentNumberChange("1116234567")
         viewModel.onPhoneChange("3001234567")
         viewModel.onNeighborhoodChange("El Paraíso")
-        // onDataPolicyChange(true) NOT called
+        // La casilla de la política queda sin marcar
         viewModel.onCreateAccount()
         advanceUntilIdle()
 
         assertTrue(events.isEmpty())
         assertFalse(viewModel.uiState.value.isCreatingAccount)
+        assertEquals(R.string.registration_error_policy_required, viewModel.uiState.value.dataPolicyErrorRes)
+        // Si el repositorio se hubiera llamado, el correo ya estaría ocupado y este registro fallaría
+        val retry = fakeRepository.signUpCitizen(TestDataFactory.citizenRegistration(email = "carlos@correo.com"))
+        assertTrue(retry.isSuccess)
         collector.cancel()
+    }
+
+    @Test
+    fun acceptingPolicyAfterError_clearsPolicyError() {
+        fillStep1()
+        viewModel.onCreateAccount()
+
+        viewModel.onDataPolicyChange(true)
+
+        assertNull(viewModel.uiState.value.dataPolicyErrorRes)
     }
 
     @Test
@@ -264,8 +280,59 @@ class RegisterViewModelTest {
         val errors = events.filterIsInstance<RegistrationEvent.Error>()
         assertEquals(1, errors.size)
         assertEquals(R.string.login_error_generic, errors.first().messageRes)
+        assertEquals(R.string.login_error_generic, viewModel.uiState.value.submitErrorRes)
         assertFalse(viewModel.uiState.value.isCreatingAccount)
         collector.cancel()
+    }
+
+    @Test
+    fun createAccount_withoutConnection_emitsConnectionError() = runTest {
+        val events = mutableListOf<RegistrationEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        fakeRepository.error = UnknownHostException("Unable to resolve host 10.0.2.2")
+        fillStep1()
+        fillStep2()
+        viewModel.onCreateAccount()
+        advanceUntilIdle()
+
+        val errors = events.filterIsInstance<RegistrationEvent.Error>()
+        assertEquals(listOf(RegistrationEvent.Error(R.string.registration_error_no_connection)), errors)
+        assertEquals(R.string.registration_error_no_connection, viewModel.uiState.value.submitErrorRes)
+        assertFalse(viewModel.uiState.value.isCreatingAccount)
+        collector.cancel()
+    }
+
+    @Test
+    fun createAccount_withRegisteredEmail_emitsDuplicateError() = runTest {
+        val events = mutableListOf<RegistrationEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        fakeRepository.addAccount(TestDataFactory.userAccount(email = "carlos@correo.com"))
+        fillStep1()
+        fillStep2()
+        viewModel.onCreateAccount()
+        advanceUntilIdle()
+
+        val errors = events.filterIsInstance<RegistrationEvent.Error>()
+        assertEquals(listOf(RegistrationEvent.Error(R.string.registration_error_email_registered)), errors)
+        assertTrue(events.none { it is RegistrationEvent.AccountCreated })
+        collector.cancel()
+    }
+
+    @Test
+    fun createAccount_retryAfterError_clearsSubmitError() = runTest {
+        fakeRepository.error = UnknownHostException("sin red")
+        fillStep1()
+        fillStep2()
+        viewModel.onCreateAccount()
+        advanceUntilIdle()
+
+        fakeRepository.error = null
+        viewModel.onCreateAccount()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.submitErrorRes)
     }
 
     @Test

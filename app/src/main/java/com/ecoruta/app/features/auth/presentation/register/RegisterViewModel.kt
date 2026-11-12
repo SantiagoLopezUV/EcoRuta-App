@@ -61,7 +61,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onDataPolicyChange(accepted: Boolean) {
-        _uiState.update { it.copy(acceptedDataPolicy = accepted) }
+        _uiState.update { it.copy(acceptedDataPolicy = accepted, dataPolicyErrorRes = null) }
     }
 
     fun onStep1Submit() {
@@ -86,21 +86,24 @@ class RegisterViewModel @Inject constructor(
     fun onCreateAccount(password: String = "") {
         val current = _uiState.value
         if (current.isCreatingAccount) return
-        if (!current.acceptedDataPolicy) return
 
         val documentError = validateDocument(current.documentType, current.documentNumber)
         val phoneError = validatePhone(current.phone)
         val neighborhoodError = validateNeighborhood(current.neighborhood)
+        // Sin la política aceptada no se crea la cuenta y se avisa junto a la casilla
+        val policyError = if (current.acceptedDataPolicy) null else R.string.registration_error_policy_required
 
         _uiState.update {
             it.copy(
                 documentErrorRes = documentError,
                 phoneErrorRes = phoneError,
                 neighborhoodErrorRes = neighborhoodError,
+                dataPolicyErrorRes = policyError,
+                submitErrorRes = null,
             )
         }
 
-        val isValid = listOf(documentError, phoneError, neighborhoodError).all { it == null }
+        val isValid = listOf(documentError, phoneError, neighborhoodError, policyError).all { it == null }
         if (!isValid) return
 
         _uiState.update { it.copy(isCreatingAccount = true) }
@@ -122,8 +125,11 @@ class RegisterViewModel @Inject constructor(
                 onSuccess = {
                     _events.send(RegistrationEvent.AccountCreated(registration.email))
                 },
-                onFailure = {
-                    _events.send(RegistrationEvent.Error(R.string.login_error_generic))
+                onFailure = { error ->
+                    // Deja el motivo en el estado para que la pantalla lo muestre y el botón vuelva a quedar activo
+                    val messageRes = registrationErrorMessage(error)
+                    _uiState.update { it.copy(submitErrorRes = messageRes) }
+                    _events.send(RegistrationEvent.Error(messageRes))
                 },
             )
         }
