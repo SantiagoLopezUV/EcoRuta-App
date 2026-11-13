@@ -13,6 +13,8 @@ import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import com.ecoruta.app.features.reports.data.repository.ReportRepositoryImpl
 import com.ecoruta.app.features.reports.domain.repository.ReportRepository
+import com.ecoruta.app.features.routes.data.repository.NeighborhoodRouteRepositoryImpl
+import com.ecoruta.app.features.routes.domain.repository.NeighborhoodRouteRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,4 +59,11 @@ abstract class RepositoryModule {
     abstract fun bindBulkyWasteRepository(
         impl: BulkyWasteRepositoryImpl
     ): BulkyWasteRepository
+
+    // Vincula la interfaz de rutas y radar de proximidad con su implementación
+    @Binds
+    @Singleton
+    abstract fun bindNeighborhoodRouteRepository(
+        impl: NeighborhoodRouteRepositoryImpl
+    ): NeighborhoodRouteRepository
 }
