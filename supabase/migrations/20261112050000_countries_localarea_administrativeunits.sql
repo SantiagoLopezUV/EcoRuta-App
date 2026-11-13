@@ -4,28 +4,47 @@ DECLARE
   _department_id uuid;
   _city_id uuid;
 BEGIN
-  -- 1. Insertar el País y capturar su UUID
-  -- (Asegúrate de que los ISO codes sean de 2 y 3 caracteres exactos)
+  -- Insertar pais base
   INSERT INTO public.countries (name, iso_code_alpha_2, iso_code_alpha_3)
   VALUES ('Colombia', 'CO', 'COL')
+  ON CONFLICT (iso_code_alpha_2) DO UPDATE SET name = EXCLUDED.name
   RETURNING id INTO _country_id;
 
-  -- 2. Insertar el Departamento (Actúa como nodo raíz, parent_id es NULL)
-  -- IMPORTANTE: El 'unit_type' debe ir obligatoriamente en minúsculas por tu constraint.
-  INSERT INTO public.administrative_units (country_id, parent_id, name, unit_type)
-  VALUES (_country_id, NULL, 'Valle del Cauca', 'department')
-  RETURNING id INTO _department_id;
+  IF _country_id IS NULL THEN
+    SELECT id INTO _country_id FROM public.countries WHERE iso_code_alpha_2 = 'CO';
+  END IF;
 
-  -- 3. Insertar la Ciudad (Hija del departamento, usamos su UUID en parent_id)
-  INSERT INTO public.administrative_units (country_id, parent_id, name, unit_type)
-  VALUES (_country_id, _department_id, 'Tulua', 'municipality')
-  RETURNING id INTO _city_id;
+  -- Insertar departamento raiz
+  SELECT id INTO _department_id
+  FROM public.administrative_units
+  WHERE country_id = _country_id
+    AND parent_id IS NULL
+    AND unit_type = 'department'
+    AND lower(btrim(name)) = lower(btrim('Valle del Cauca'));
 
-  -- 4. Insertar el listado de Barrios asociados a la ciudad
-  -- IMPORTANTE: El 'area_type' también debe ir en minúsculas por tu constraint.
+  IF _department_id IS NULL THEN
+    INSERT INTO public.administrative_units (country_id, parent_id, name, unit_type)
+    VALUES (_country_id, NULL, 'Valle del Cauca', 'department')
+    RETURNING id INTO _department_id;
+  END IF;
+
+  -- Insertar municipio
+  SELECT id INTO _city_id
+  FROM public.administrative_units
+  WHERE country_id = _country_id
+    AND parent_id = _department_id
+    AND unit_type = 'municipality'
+    AND lower(btrim(name)) = lower(btrim('Tulua'));
+
+  IF _city_id IS NULL THEN
+    INSERT INTO public.administrative_units (country_id, parent_id, name, unit_type)
+    VALUES (_country_id, _department_id, 'Tulua', 'municipality')
+    RETURNING id INTO _city_id;
+  END IF;
+
+  -- Insertar barrios asociados
   INSERT INTO public.local_areas (administrative_unit_id, name, area_type)
   VALUES
-
     (_city_id, 'Alameda I y II', 'neighborhood'),
     (_city_id, 'Alvernia', 'neighborhood'),
     (_city_id, 'Asoagrin', 'neighborhood'),
@@ -111,6 +130,7 @@ BEGIN
     (_city_id, 'Villa del Lago', 'neighborhood'),
     (_city_id, 'Villa del Sur', 'neighborhood'),
     (_city_id, 'Villa Liliana', 'neighborhood'),
-    (_city_id, 'Villanueva', 'neighborhood');
+    (_city_id, 'Villanueva', 'neighborhood')
+  ON CONFLICT (administrative_unit_id, area_type, lower(btrim(name))) DO NOTHING;
 
 END $$;
