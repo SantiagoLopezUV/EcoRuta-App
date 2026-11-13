@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -23,6 +24,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ecoruta.app.core.network.supabase.supabase
 import com.ecoruta.app.core.ui.components.PendingScreen
 import com.ecoruta.app.core.ui.components.SplashScreen
 import com.ecoruta.app.features.auth.presentation.navigation.authGraph
@@ -36,6 +38,8 @@ import com.ecoruta.app.features.gamification.presentation.navigation.merchantGra
 import com.ecoruta.app.features.profile.presentation.navigation.profileGraph
 import com.ecoruta.app.features.reports.presentation.navigation.reportsGraph
 import com.ecoruta.app.features.routes.presentation.navigation.routesGraph
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.launch
 
 // Curva de animación para la transición desde la pantalla de carga hacia el inicio
@@ -53,6 +57,26 @@ fun EcoRutaNavHost(
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()
             snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    // Redirige al inicio del ciudadano cuando se valida la sesión mediante el enlace del correo
+    LaunchedEffect(navController) {
+        supabase.auth.sessionStatus.collect { status ->
+            if (status is SessionStatus.Authenticated) {
+                val currentRoute = navController.currentDestination?.route.orEmpty()
+                val isAuthOrRegistrationRoute = currentRoute.startsWith("registro") ||
+                    currentRoute == EcoRutaDestination.LOGIN ||
+                    currentRoute == EcoRutaDestination.RECORD ||
+                    currentRoute == EcoRutaDestination.RECOVERY ||
+                    currentRoute.startsWith("recuperar")
+                if (isAuthOrRegistrationRoute) {
+                    navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
+                        popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            }
         }
     }
 
