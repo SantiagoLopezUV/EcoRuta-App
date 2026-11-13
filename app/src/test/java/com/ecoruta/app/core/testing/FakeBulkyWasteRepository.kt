@@ -11,6 +11,9 @@ import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisType
 
 class FakeBulkyWasteRepository : BulkyWasteRepository {
 
+    // Identificador del ciudadano autenticado para simular aislamiento RLS (Row-Level Security)
+    var currentUserId: String = "citizen-test-01"
+
     // Permite forzar excepciones simuladas para probar control de errores en los ViewModels
     var error: Throwable? = null
 
@@ -77,7 +80,7 @@ class FakeBulkyWasteRepository : BulkyWasteRepository {
         val newId = "req-${requests.size + 101}"
         val created = BulkyWasteRequest(
             id = newId,
-            citizenId = "citizen-test-01",
+            citizenId = currentUserId,
             type = type,
             description = description,
             latitude = latitude,
@@ -93,7 +96,9 @@ class FakeBulkyWasteRepository : BulkyWasteRepository {
     }
 
     override suspend fun getMyRequests(): Result<List<BulkyWasteRequest>> = result {
-        requests.sortedByDescending { it.createdAtMillis }
+        requests
+            .filter { it.citizenId == currentUserId }
+            .sortedByDescending { it.createdAtMillis }
     }
 
     override suspend fun getRequestById(requestId: String): Result<BulkyWasteRequest> = result {
@@ -108,6 +113,9 @@ class FakeBulkyWasteRepository : BulkyWasteRepository {
         if (index < 0) error("Solicitud de escombros no encontrada con id: $requestId")
 
         val current = requests[index]
+        require(current.citizenId == currentUserId) {
+            "No autorizado para cancelar una solicitud perteneciente a otro ciudadano"
+        }
         require(current.canCancel) {
             "Solo se pueden cancelar solicitudes en estado pendiente (estado actual: ${current.status})"
         }
