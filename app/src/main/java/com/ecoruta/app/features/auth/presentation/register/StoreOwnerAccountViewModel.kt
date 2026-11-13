@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Avisos de una sola vez que el grafo de navegación consumirá cuando se conecte este ViewModel
+// Avisos de una sola vez que consume el grafo de navegación
 sealed interface StoreOwnerAccountEvent {
     // Lleva el correo limpio porque la pantalla de confirmación lo recibe como argumento
     data class FormValid(val email: String) : StoreOwnerAccountEvent
