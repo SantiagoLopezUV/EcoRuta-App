@@ -3,10 +3,13 @@ package com.ecoruta.app.features.bulky_waste.presentation.navigation
 // Subgrafo de navegación para solicitudes de retiro de escombros y voluminosos
 // Conecta el agendamiento en tres pasos, el seguimiento y la vista sin sesión
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,6 +21,7 @@ import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
 import com.ecoruta.app.core.ui.components.GuestServiceActions
+import com.ecoruta.app.features.bulky_waste.presentation.orientation.OrientationViewModel
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DayMillis
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisGuideScreen
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisRequest
@@ -82,10 +86,17 @@ fun NavGraphBuilder.debrisGraph(navController: NavHostController) {
             )
         }
         composable(EcoRutaDestination.DEBRIS_GUIDE) {
+            // El tipo sigue fijo porque el formulario del paso uno aún no comparte el tipo elegido con este paso
+            val selectedType = DebrisType.RENOVATION_DEBRIS
+            val viewModel: OrientationViewModel = hiltViewModel()
+            val orientation by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(selectedType) { viewModel.onTypeSelected(selectedType) }
             DebrisGuideScreen(
-                selectedType = DebrisType.RENOVATION_DEBRIS,
+                selectedType = selectedType,
                 onContinue = { navController.navigate(EcoRutaDestination.DEBRIS_DATE) { launchSingleTop = true } },
                 onBack = { navController.popBackStack() },
+                orientation = orientation,
+                onRetryOrientation = viewModel::onRetry,
             )
         }
         composable(EcoRutaDestination.DEBRIS_DATE) {
