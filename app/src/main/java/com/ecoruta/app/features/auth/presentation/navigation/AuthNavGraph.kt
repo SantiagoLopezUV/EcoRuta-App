@@ -33,7 +33,7 @@ import com.ecoruta.app.features.auth.presentation.first_login.ForceChangePasswor
 import com.ecoruta.app.features.auth.presentation.first_login.PasswordChangedScreen
 import com.ecoruta.app.features.auth.presentation.login.LoginActions
 import com.ecoruta.app.features.auth.presentation.login.LoginScreen
-import com.ecoruta.app.features.auth.presentation.login.LoginUiState
+import com.ecoruta.app.features.auth.presentation.login.LoginViewModel
 import com.ecoruta.app.features.auth.presentation.password_reset.PasswordRecoveryEvent
 import com.ecoruta.app.features.auth.presentation.password_reset.PasswordResetViewModel
 import com.ecoruta.app.features.auth.presentation.password_reset.PasswordUpdatedScreen
@@ -59,19 +59,34 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
     fun navigateTo(route: String) = navController.navigate(route) { launchSingleTop = true }
 
     composable(EcoRutaDestination.LOGIN) {
-        var state by remember { mutableStateOf(LoginUiState()) }
+        val viewModel: LoginViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        // Lleva al inicio del rol, al cambio de clave provisional o al aviso de acceso web según lo que resolvió el ViewModel
+        LaunchedEffect(state.signedInRole, state.passwordChangeRole, state.webOnlyAccess) {
+            val signedInRole = state.signedInRole
+            val passwordChangeRole = state.passwordChangeRole
+            when {
+                signedInRole != null -> navController.navigate(EcoRutaDestination.homeForRole(signedInRole)) {
+                    popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = true }
+                }
+                passwordChangeRole != null -> navigateTo(
+                    EcoRutaDestination.changePassword(ChangePasswordMode.FIRST_LOGIN, passwordChangeRole),
+                )
+                state.webOnlyAccess -> navigateTo(EcoRutaDestination.WEB_ONLY_ACCESS)
+                else -> return@LaunchedEffect
+            }
+            viewModel.onNavigationHandled()
+        }
+
         LoginScreen(
             state = state,
             actions = LoginActions(
-                onEmailChange = { state = state.copy(email = it, emailErrorRes = null, showInvalidCredentials = false) },
-                onPasswordChange = { state = state.copy(password = it, passwordErrorRes = null, showInvalidCredentials = false) },
-                onTogglePasswordVisibility = { state = state.copy(isPasswordVisible = !state.isPasswordVisible) },
+                onEmailChange = viewModel::onEmailChange,
+                onPasswordChange = viewModel::onPasswordChange,
+                onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
                 onForgotPasswordClick = { navigateTo(EcoRutaDestination.RECOVERY) },
-                onSubmit = {
-                    navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
-                        popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = true }
-                    }
-                },
+                onSubmit = viewModel::onSubmit,
                 onGoogleClick = {
                     navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
                         popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = true }
