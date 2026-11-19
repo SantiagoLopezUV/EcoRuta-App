@@ -10,8 +10,9 @@ import kotlinx.serialization.Serializable
 data class ProfileDto(
     @SerialName("id") val id: String,
     @SerialName("document_id") val documentId: String? = null,
-    @SerialName("role_code") val roleCode: String,
-    @SerialName("full_name") val fullName: String,
-    @SerialName("email") val email: String,
+    @SerialName("role_code") val roleCode: String? = null,
+    @SerialName("full_name") val fullName: String? = null,
+    @SerialName("email") val email: String? = null,
+    @SerialName("phone") val phone: String? = null,
     @SerialName("must_change_password") val mustChangePassword: Boolean = false
 )

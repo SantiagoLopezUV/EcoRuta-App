@@ -43,10 +43,13 @@ interface AuthRepository {
     suspend fun updatePassword(newPassword: String): Result<Unit>
 
     // Actualiza la contraseña en el primer inicio de sesión y desactiva la bandera
-    suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit>
+    suspend fun updateFirstLoginPassword(currentPassword: String, newPassword: String): Result<Unit>
 
     // Envía un enlace mágico o código de verificación al correo para registro o acceso sin contraseña inicial
     suspend fun signUpWithEmailLink(email: String): Result<Unit>
+
+    // Reenvía el correo de confirmación de registro a la dirección indicada
+    suspend fun resendSignUpConfirmationEmail(email: String): Result<Unit>
 
     // Sube un documento de soporte (cédula de reciclador o RUT de comercio) al almacenamiento institucional
     suspend fun uploadRegistrationDocument(fileName: String, bytes: ByteArray): Result<String>

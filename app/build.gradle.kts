@@ -24,7 +24,7 @@ fun getEnvProperty(key: String): String {
     val raw = localProperties.getProperty(key) ?: System.getenv(key) ?: ""
     return raw.trim().removeSurrounding("\"")
 }
-// si no se definine Cloud, o Phone en SUPABASE_ENV, toma por defecto el local
+// si no se define Cloud, Phone o USB en SUPABASE_ENV, toma por defecto el local
 val activeEnv = getEnvProperty("SUPABASE_ENV").ifEmpty { "LOCAL" }.uppercase()
 
 // Se pasa por parametro la variable de entorno que se necesita, la cual viene de local.properties
@@ -40,7 +40,12 @@ val (activeUrl, activeKey) = when (activeEnv)
         getEnvProperty("SUPABASE_URL_PHONE"),
         getEnvProperty("SUPABASE_ANON_KEY_PHONE")
     )
-    else -> Pair( // Local por defecto
+    "USB" -> Pair(
+        getEnvProperty("SUPABASE_URL_USB").ifEmpty { "http://127.0.0.1:54321" },
+        getEnvProperty("SUPABASE_ANON_KEY_USB")
+            .ifEmpty { getEnvProperty("SUPABASE_ANON_KEY_PHONE").ifEmpty { getEnvProperty("SUPABASE_ANON_KEY_LOCAL") } }
+    )
+    else -> Pair( // Local por defecto (Emulador Android Studio)
         getEnvProperty("SUPABASE_URL_LOCAL"),
         getEnvProperty("SUPABASE_ANON_KEY_LOCAL")
     )
@@ -148,4 +153,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// Asegurar que cualquier cambio en local.properties invalide el caché y regenere BuildConfig automáticamente
+tasks.matching { it.name.startsWith("generate") && it.name.endsWith("BuildConfig") }.configureEach {
+    inputs.file(localPropertiesFile)
 }

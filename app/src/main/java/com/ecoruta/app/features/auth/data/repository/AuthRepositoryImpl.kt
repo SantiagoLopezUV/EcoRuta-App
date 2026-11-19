@@ -13,6 +13,7 @@ import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
 import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordUiState
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.Google
@@ -24,8 +25,10 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -59,9 +62,8 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         password: String
     ): Result<UserAccount> = runCatching {
-        // auntentica las credenciales del usuario con supabase auth
-        auth.signInWith(Email)
-        {
+        // Autentica las credenciales del usuario con supabase auth
+        auth.signInWith(Email) {
             this.email = email
             this.password = password
         }
@@ -69,7 +71,6 @@ class AuthRepositoryImpl @Inject constructor(
             ?: error("No se encontró la sesión del usuario tras iniciar sesión")
 
         // Consulta en la tabla profiles la bandera de cambio obligatorio de clave y el nombre
-        // Si la lectura falla o no hay perfil, el inicio de sesión falla para no saltarse el cambio de clave
         val profile = postgrest.from("profiles")
             .select { filter { eq("id", userInfo.id) } }
             .decodeSingleOrNull<ProfileDto>()
@@ -198,18 +199,30 @@ class AuthRepositoryImpl @Inject constructor(
 
     // Actualiza la contraseña temporal en el primer inicio de sesión y desactiva la bandera en perfiles
     override suspend fun updateFirstLoginPassword(
+        currentPassword: String,
         newPassword: String
     ): Result<Unit> = runCatching {
-        val userId = auth.currentUserOrNull()?.id
+        val user = auth.currentUserOrNull()
             ?: error("No existe una sesión activa para actualizar la contraseña")
+        val email = user.email
+            ?: error("El usuario no tiene un correo asociado")
+        // reautentica para comprobar que la clave actual o temporal sea correcta
+        auth.signInWith(Email){
+            this.email = email
+            this.password = currentPassword
+        }
+        //actualiza la nueva contraseña y pone en false la bandera
         auth.updateUser {
             password = newPassword
+            data = buildJsonObject {
+                put("must_change_password", false)
+            }
         }
         postgrest.from("profiles").update(
             mapOf("must_change_password" to false)
         ) {
             filter {
-                eq("id", userId)
+                eq("id", user.id)
             }
         }
     }
@@ -224,7 +237,17 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    // Sube un documento de soporte (cédula de reciclador o RUT de comercio) al almacenamiento institucional
+    // Reenvía el correo de confirmación de registro a la dirección indicada
+    override suspend fun resendSignUpConfirmationEmail(
+        email: String
+    ): Result<Unit> = runCatching {
+        auth.resendEmail(
+            type = OtpType.Email.SIGNUP,
+            email = email
+        )
+    }
+
+    // Sube un documento de soporte al almacenamiento institucional
     override suspend fun uploadRegistrationDocument(
         fileName: String,
         bytes: ByteArray
@@ -241,32 +264,66 @@ class AuthRepositoryImpl @Inject constructor(
         bucket.publicUrl(path)
     }
 
-    // Función privada para el registro en Supabase Auth y la inserción del perfil base
+    // Registra al usuario en Supabase Auth con metadata para triggers y sincroniza perfil
     private suspend fun registerProfile(
         email: String,
         password: String,
         fullName: String,
         documentNumber: String,
         roleCode: String,
+        extraMetadata: Map<String, String?> = emptyMap(),
         insertRoleData: suspend (userId: String) -> Unit
     ): Result<UserAccount> = runCatching {
-        val account = signUpWithEmail(email, password).getOrThrow()
+        val metadata = buildJsonObject {
+            put("full_name", fullName)
+            put("document_id", documentNumber)
+            put("role_code", roleCode)
+            put("must_change_password", true)
+            extraMetadata.forEach { (key, value) ->
+                if (!value.isNullOrBlank()) {
+                    put(key, value)
+                }
+            }
+        }
 
-        postgrest.from("profiles").insert(
-            ProfileDto(
-                id = account.id,
-                documentId = documentNumber,
-                roleCode = roleCode,
-                fullName = fullName,
-                email = email,
-                mustChangePassword = false
-            )
+        val userInfo = auth.signUpWith(Email) {
+            this.email = email
+            this.password = password
+            this.data = metadata
+        } ?: auth.currentUserOrNull()
+          ?: error("No se pudo obtener la información de la cuenta tras el registro")
+
+        val isConfirmed = userInfo.emailConfirmedAt != null
+        val account = UserAccount(
+            id = userInfo.id,
+            email = userInfo.email ?: email,
+            fullName = fullName,
+            isEmailConfirmed = isConfirmed,
+            mustChangePassword = true
         )
-        insertRoleData(account.id)
-        account.copy(fullName = fullName)
+
+        // Respalda la persistencia en tablas públicas si la sesión ya se encuentra activa
+        if (isConfirmed && auth.currentSessionOrNull() != null) {
+            runCatching {
+                postgrest.from("profiles").upsert(
+                    ProfileDto(
+                        id = account.id,
+                        documentId = documentNumber,
+                        roleCode = roleCode,
+                        fullName = fullName,
+                        email = email,
+                        phone = extraMetadata["phone"],
+                        mustChangePassword = true
+                    )
+                )
+                insertRoleData(account.id)
+            }
+        }
+
+        account
     }
 
-    // Registro de ciudadano creando cuenta en Supabase Auth, perfil y fila en tabla citizens
+    // Registro de ciudadano creando cuenta en Supabase Auth y perfil asociado
     override suspend fun signUpCitizen(
         registration: CitizenRegistration
     ): Result<UserAccount> = registerProfile(
@@ -274,12 +331,15 @@ class AuthRepositoryImpl @Inject constructor(
         password = registration.password,
         fullName = registration.fullName,
         documentNumber = registration.documentNumber,
-        roleCode = "citizen"
+        roleCode = "citizen",
+        extraMetadata = mapOf(
+            "phone" to registration.phone,
+            "neighborhood" to registration.neighborhood
+        )
     ) { userId ->
-        postgrest.from("citizens").insert(
+        postgrest.from("citizens").upsert(
             CitizenDto(
                 profileId = userId,
-                phone = registration.phone,
                 neighborhood = registration.neighborhood
             )
         )
@@ -293,9 +353,15 @@ class AuthRepositoryImpl @Inject constructor(
         password = registration.password,
         fullName = registration.fullName,
         documentNumber = registration.documentNumber,
-        roleCode = "recycler"
+        roleCode = "recycler",
+        extraMetadata = mapOf(
+            "phone" to registration.phone,
+            "association_name" to registration.associationName,
+            "company_id" to registration.companyId,
+            "id_document_pdf_url" to registration.idDocumentPdfUrl
+        )
     ) { userId ->
-        postgrest.from("recyclers").insert(
+        postgrest.from("recyclers").upsert(
             RecyclerDto(
                 profileId = userId,
                 phone = registration.phone,
@@ -343,9 +409,15 @@ class AuthRepositoryImpl @Inject constructor(
         password = registration.password,
         fullName = registration.fullName,
         documentNumber = registration.documentNumber,
-        roleCode = "business"
+        roleCode = "business",
+        extraMetadata = mapOf(
+            "business_name" to registration.businessName,
+            "category" to registration.category,
+            "address" to registration.address,
+            "rut_pdf_url" to registration.rutPdfUrl
+        )
     ) { userId ->
-        postgrest.from("businesses").insert(
+        postgrest.from("businesses").upsert(
             BusinessDto(
                 profileId = userId,
                 businessName = registration.businessName,

@@ -9,6 +9,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CitizenDto(
     @SerialName("profile_id") val profileId: String,
-    @SerialName("phone") val phone: String? = null,
     @SerialName("neighborhood") val neighborhood: String? = null
 )

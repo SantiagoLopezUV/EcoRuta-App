@@ -70,6 +70,16 @@ class AuthExtensionsRepositoryTest {
     }
 
     @Test
+    fun resendSignUpConfirmationEmail_registersResendRequest() = runBlocking {
+        val email = "nuevo.ciudadano@example.com"
+
+        val result = repository.resendSignUpConfirmationEmail(email)
+
+        assertTrue(result.isSuccess)
+        assertEquals(listOf(email), repository.resentSignUpConfirmationEmails)
+    }
+
+    @Test
     fun uploadRegistrationDocument_storesBytesAndReturnsUrl() = runBlocking {
         val bytes = "Fake PDF Content".toByteArray()
         val fileName = "rut_comercio.pdf"

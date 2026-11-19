@@ -81,13 +81,16 @@ class ForceChangePasswordViewModel @Inject constructor(
         // La carga se marca antes de lanzar la corrutina para bloquear un segundo envío
         _uiState.update { it.copy(isSaving = true) }
         viewModelScope.launch {
-            authRepository.updateFirstLoginPassword(current.newPassword)
+            authRepository.updateFirstLoginPassword(current.currentPassword, current.newPassword)
                 .onSuccess {
                     _uiState.update { it.copy(isSaving = false) }
                     _events.send(ChangePasswordEvent.Done)
                 }
                 .onFailure {
-                    _uiState.update { it.copy(isSaving = false) }
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            currentErrorRes = R.string.change_password_error_wrong_temporary) }
                     _events.send(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed))
                 }
         }

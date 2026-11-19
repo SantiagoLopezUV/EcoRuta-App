@@ -37,6 +37,7 @@ class FakeAuthRepository : AuthRepository {
     val recyclerRoleRequests = mutableListOf<String>()
     val completedRecyclerRegistrations = mutableListOf<String>()
     val businessRoleRequests = mutableListOf<String>()
+    val resentSignUpConfirmationEmails = mutableListOf<String>()
 
     private val accounts = mutableMapOf<String, StoredAccount>()
     private val session = MutableStateFlow<AuthSession>(AuthSession.Unauthenticated)
@@ -109,7 +110,9 @@ class FakeAuthRepository : AuthRepository {
         }
 
     // Guarda la nueva clave y apaga la obligación de cambiarla
-    override suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit> =
+    override suspend fun updateFirstLoginPassword(
+        currentPassword: String,
+        newPassword: String): Result<Unit> =
         result {
             val user = requireUser()
             val updated = user.copy(mustChangePassword = false)
@@ -120,6 +123,10 @@ class FakeAuthRepository : AuthRepository {
     // Registra la solicitud de enlace mágico al correo
     override suspend fun signUpWithEmailLink(email: String): Result<Unit> =
         result { emailLinkRequests += email }
+
+    // Reenvía el correo de confirmación de registro a la dirección indicada
+    override suspend fun resendSignUpConfirmationEmail(email: String): Result<Unit> =
+        result { resentSignUpConfirmationEmails += email }
 
     // Simula la subida de un archivo al bucket institucional devolviendo una URL ficticia
     override suspend fun uploadRegistrationDocument(fileName: String, bytes: ByteArray): Result<String> =
