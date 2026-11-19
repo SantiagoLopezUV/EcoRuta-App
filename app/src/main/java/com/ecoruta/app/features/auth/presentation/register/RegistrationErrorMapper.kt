@@ -2,6 +2,7 @@ package com.ecoruta.app.features.auth.presentation.register
 
 // Traduce la falla del registro de ciudadano en el texto que se le muestra al usuario
 // Distingue falta de conexión, datos ya registrados y cualquier otro error
+// El criterio de falla de red también lo usa el inicio de sesión
 
 import androidx.annotation.StringRes
 import com.ecoruta.app.R
@@ -16,10 +17,9 @@ import java.net.UnknownHostException
 
 @StringRes
 fun registrationErrorMessage(error: Throwable): Int {
-    // Recorre la causa original porque el cliente suele envolver la falla de red en otra excepción
-    val chain = generateSequence(error) { it.cause }.take(MAX_CAUSE_DEPTH).toList()
+    val chain = error.causeChain()
 
-    if (chain.any { it.isNetworkFailure() }) return R.string.registration_error_no_connection
+    if (isConnectionFailure(error)) return R.string.registration_error_no_connection
 
     // Auth avisa con un código propio cuando el correo ya tiene una cuenta
     if (chain.any { it is AuthRestException && it.errorCode in EMAIL_TAKEN_CODES }) {
@@ -27,7 +27,7 @@ fun registrationErrorMessage(error: Throwable): Int {
     }
 
     val text = chain.joinToString(" ") { it.message.orEmpty() }.lowercase()
-    if (DUPLICATE_HINTS.none { it in text }) return R.string.login_error_generic
+    if (DUPLICATE_HINTS.none { it in text }) return R.string.registration_error_generic
 
     // Si el servidor dice qué dato está repetido se usa el mensaje específico de ese dato
     return when {
@@ -36,6 +36,13 @@ fun registrationErrorMessage(error: Throwable): Int {
         else -> R.string.registration_error_already_registered
     }
 }
+
+// Indica si la falla o alguna de sus causas se debe a no poder comunicarse con el servidor
+fun isConnectionFailure(error: Throwable): Boolean = error.causeChain().any { it.isNetworkFailure() }
+
+// Recorre la causa original porque el cliente suele envolver la falla de red en otra excepción
+private fun Throwable.causeChain(): List<Throwable> =
+    generateSequence(this) { it.cause }.take(MAX_CAUSE_DEPTH).toList()
 
 // El cliente de Supabase cambia la falla de red por su propia excepción sin guardar la causa original
 // Ktor deja pasar su excepción de tiempo agotado sin envolverla
