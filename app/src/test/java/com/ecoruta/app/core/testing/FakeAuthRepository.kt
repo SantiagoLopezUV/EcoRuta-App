@@ -110,7 +110,9 @@ class FakeAuthRepository : AuthRepository {
         }
 
     // Guarda la nueva clave y apaga la obligación de cambiarla
-    override suspend fun updateFirstLoginPassword(newPassword: String): Result<Unit> =
+    override suspend fun updateFirstLoginPassword(
+        currentPassword: String,
+        newPassword: String): Result<Unit> =
         result {
             val user = requireUser()
             val updated = user.copy(mustChangePassword = false)

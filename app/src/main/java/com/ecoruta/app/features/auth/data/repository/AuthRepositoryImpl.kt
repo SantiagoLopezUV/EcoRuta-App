@@ -13,6 +13,7 @@ import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
 import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordUiState
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.Google
@@ -198,10 +199,19 @@ class AuthRepositoryImpl @Inject constructor(
 
     // Actualiza la contraseña temporal en el primer inicio de sesión y desactiva la bandera en perfiles
     override suspend fun updateFirstLoginPassword(
+        currentPassword: String,
         newPassword: String
     ): Result<Unit> = runCatching {
-        val userId = auth.currentUserOrNull()?.id
+        val user = auth.currentUserOrNull()
             ?: error("No existe una sesión activa para actualizar la contraseña")
+        val email = user.email
+            ?: error("El usuario no tiene un correo asociado")
+        // reautentica para comprobar que la clave actual o temporal sea correcta
+        auth.signInWith(Email){
+            this.email = email
+            this.password = currentPassword
+        }
+        //actualiza la nueva contraseña y pone en false la bandera
         auth.updateUser {
             password = newPassword
             data = buildJsonObject {
@@ -212,7 +222,7 @@ class AuthRepositoryImpl @Inject constructor(
             mapOf("must_change_password" to false)
         ) {
             filter {
-                eq("id", userId)
+                eq("id", user.id)
             }
         }
     }
@@ -268,6 +278,7 @@ class AuthRepositoryImpl @Inject constructor(
             put("full_name", fullName)
             put("document_id", documentNumber)
             put("role_code", roleCode)
+            put("must_change_password", true)
             extraMetadata.forEach { (key, value) ->
                 if (!value.isNullOrBlank()) {
                     put(key, value)
@@ -288,7 +299,7 @@ class AuthRepositoryImpl @Inject constructor(
             email = userInfo.email ?: email,
             fullName = fullName,
             isEmailConfirmed = isConfirmed,
-            mustChangePassword = false
+            mustChangePassword = true
         )
 
         // Respalda la persistencia en tablas públicas si la sesión ya se encuentra activa
@@ -302,7 +313,7 @@ class AuthRepositoryImpl @Inject constructor(
                         fullName = fullName,
                         email = email,
                         phone = extraMetadata["phone"],
-                        mustChangePassword = false
+                        mustChangePassword = true
                     )
                 )
                 insertRoleData(account.id)
@@ -329,7 +340,6 @@ class AuthRepositoryImpl @Inject constructor(
         postgrest.from("citizens").upsert(
             CitizenDto(
                 profileId = userId,
-                phone = registration.phone,
                 neighborhood = registration.neighborhood
             )
         )
