@@ -1,6 +1,3 @@
--- Garantiza la columna de telefono en ciudadanos
-ALTER TABLE public.citizens
-  ADD COLUMN IF NOT EXISTS phone text;
 
 -- Crea automáticamente el perfil y la entidad correspondiente al registrar un usuario en auth.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -48,7 +45,7 @@ BEGIN
     v_full_name,
     NEW.email,
     v_phone,
-    COALESCE((NEW.raw_user_meta_data->>'must_change_password')::boolean, false)
+    COALESCE((NEW.raw_user_meta_data->>'must_change_password')::boolean, true)
   )
   ON CONFLICT (id) DO UPDATE SET
     document_id = COALESCE(EXCLUDED.document_id, public.profiles.document_id),
@@ -62,15 +59,12 @@ BEGIN
 
     INSERT INTO public.citizens (
       profile_id,
-      phone,
       neighborhood
     ) VALUES (
       NEW.id,
-      v_phone,
       v_neighborhood
     )
     ON CONFLICT (profile_id) DO UPDATE SET
-      phone = COALESCE(EXCLUDED.phone, public.citizens.phone),
       neighborhood = COALESCE(EXCLUDED.neighborhood, public.citizens.neighborhood);
 
   ELSIF v_role_code = 'recycler' THEN

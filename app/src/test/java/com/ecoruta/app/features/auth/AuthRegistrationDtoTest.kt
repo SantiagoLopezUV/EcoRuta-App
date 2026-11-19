@@ -62,7 +62,6 @@ class AuthRegistrationDtoTest {
     fun testRecyclerDtoPendingStatus() {
         val dto = RecyclerDto(
             profileId = "user-123",
-            phone = "3154829103",
             associationName = "Asociación Tulueña de Reciclaje"
         )
 
@@ -103,13 +102,11 @@ class AuthRegistrationDtoTest {
     fun testCitizenDtoSerialization() {
         val dto = CitizenDto(
             profileId = "user-789",
-            phone = "3123456789",
             neighborhood = "progresar"
         )
 
         val encoded = json.encodeToString(dto)
 
         assertTrue(encoded.contains("\"neighborhood\":\"progresar\""))
-        assertTrue(encoded.contains("\"phone\":\"3123456789\""))
     }
 }
