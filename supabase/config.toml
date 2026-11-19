@@ -233,7 +233,7 @@ secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1m0s"
 # Number of characters used in the email OTP.
-otp_length = 8
+otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
@@ -339,7 +339,7 @@ skip_nonce_check = false
 email_optional = false
 
 [auth.external.google]
-client_id = "30917291390-c19jpfo1seoaajpltgl5h4upg6b1nmtc.apps.googleusercontent.com3,30917291390-16ki8tkltlun7otfbjkshre203a5s97n.apps.googleusercontent.com"
+client_id = "30917291390-c19jpfo1seoaajpltgl5h4upg6b1nmtc.apps.googleusercontent.com,30917291390-16ki8tkltlun7otfbjkshre203a5s97n.apps.googleusercontent.com"
 enabled = true
 
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.

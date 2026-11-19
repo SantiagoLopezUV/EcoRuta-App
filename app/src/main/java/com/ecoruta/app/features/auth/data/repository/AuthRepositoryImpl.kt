@@ -224,6 +224,16 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    // Reenvía el correo de confirmación de registro a la dirección indicada
+    override suspend fun resendSignUpConfirmationEmail(
+        email: String
+    ): Result<Unit> = runCatching {
+        auth.resendEmail(
+            type = OtpType.Email.SIGNUP,
+            email = email
+        )
+    }
+
     // Sube un documento de soporte al almacenamiento institucional
     override suspend fun uploadRegistrationDocument(
         fileName: String,
@@ -288,6 +298,7 @@ class AuthRepositoryImpl @Inject constructor(
                         roleCode = roleCode,
                         fullName = fullName,
                         email = email,
+                        phone = extraMetadata["phone"],
                         mustChangePassword = false
                     )
                 )

@@ -48,6 +48,9 @@ interface AuthRepository {
     // Envía un enlace mágico o código de verificación al correo para registro o acceso sin contraseña inicial
     suspend fun signUpWithEmailLink(email: String): Result<Unit>
 
+    // Reenvía el correo de confirmación de registro a la dirección indicada
+    suspend fun resendSignUpConfirmationEmail(email: String): Result<Unit>
+
     // Sube un documento de soporte (cédula de reciclador o RUT de comercio) al almacenamiento institucional
     suspend fun uploadRegistrationDocument(fileName: String, bytes: ByteArray): Result<String>
 

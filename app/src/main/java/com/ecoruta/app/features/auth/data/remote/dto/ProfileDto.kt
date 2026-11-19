@@ -13,5 +13,6 @@ data class ProfileDto(
     @SerialName("role_code") val roleCode: String,
     @SerialName("full_name") val fullName: String,
     @SerialName("email") val email: String,
+    @SerialName("phone") val phone: String? = null,
     @SerialName("must_change_password") val mustChangePassword: Boolean = false
 )

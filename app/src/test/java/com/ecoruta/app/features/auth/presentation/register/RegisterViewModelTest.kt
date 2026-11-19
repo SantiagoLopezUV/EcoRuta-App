@@ -360,7 +360,7 @@ class RegisterViewModelTest {
         viewModel.onResendEmail()
         advanceUntilIdle()
 
-        assertTrue(fakeRepository.passwordResetEmails.contains("carlos@correo.com"))
+        assertTrue(fakeRepository.resentSignUpConfirmationEmails.contains("carlos@correo.com"))
         assertFalse(viewModel.uiState.value.isResendingEmail)
     }
 
@@ -369,7 +369,7 @@ class RegisterViewModelTest {
         viewModel.onResendEmail()
         advanceUntilIdle()
 
-        assertTrue(fakeRepository.passwordResetEmails.isEmpty())
+        assertTrue(fakeRepository.resentSignUpConfirmationEmails.isEmpty())
     }
 }
 

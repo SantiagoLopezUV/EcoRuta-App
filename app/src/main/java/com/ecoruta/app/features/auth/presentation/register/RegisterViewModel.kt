@@ -135,13 +135,14 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
+    // Solicita el reenvío del correo de confirmación de registro
     fun onResendEmail() {
         val current = _uiState.value
         if (current.isResendingEmail || current.email.isBlank()) return
 
         _uiState.update { it.copy(isResendingEmail = true) }
         viewModelScope.launch {
-            authRepository.sendPasswordResetEmail(current.email.trim())
+            authRepository.resendSignUpConfirmationEmail(current.email.trim())
             _uiState.update { it.copy(isResendingEmail = false) }
         }
     }

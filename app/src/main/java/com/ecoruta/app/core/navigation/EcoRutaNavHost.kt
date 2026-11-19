@@ -35,16 +35,27 @@ import com.ecoruta.app.features.driver.presentation.navigation.driverGraph
 import com.ecoruta.app.features.education.presentation.navigation.educationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.gamificationGraph
 import com.ecoruta.app.features.gamification.presentation.navigation.merchantGraph
+import com.ecoruta.app.features.profile.domain.model.UserRole
 import com.ecoruta.app.features.profile.presentation.navigation.profileGraph
 import com.ecoruta.app.features.reports.presentation.navigation.reportsGraph
 import com.ecoruta.app.features.routes.presentation.navigation.routesGraph
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 // Curva de animación para la transición desde la pantalla de carga hacia el inicio
 private val SplashExitEasing = CubicBezierEasing(0f, 0.676f, 0.695f, 0.213f)
 private const val SPLASH_TRANSITION_MS = 300
+
+// Obtiene la ruta inicial según el rol configurado en los metadatos del usuario
+private fun resolveHomeDestination(): String {
+    val rawRole = runCatching {
+        supabase.auth.currentUserOrNull()?.userMetadata?.get("role_code")?.jsonPrimitive?.contentOrNull
+    }.getOrNull()
+    return EcoRutaDestination.homeForRole(UserRole.fromCode(rawRole))
+}
 
 // Contenedor principal de navegación que ensambla los subgrafos modulares de cada funcionalidad
 @Composable
@@ -60,7 +71,7 @@ fun EcoRutaNavHost(
         }
     }
 
-    // Redirige al inicio del ciudadano cuando se valida la sesión mediante el enlace del correo
+    // Redirige al inicio del rol correspondiente cuando se valida la sesión mediante el enlace del correo
     LaunchedEffect(navController) {
         supabase.auth.sessionStatus.collect { status ->
             if (status is SessionStatus.Authenticated) {
@@ -71,7 +82,8 @@ fun EcoRutaNavHost(
                     currentRoute == EcoRutaDestination.RECOVERY ||
                     currentRoute.startsWith("recuperar")
                 if (isAuthOrRegistrationRoute) {
-                    navController.navigate(EcoRutaDestination.CITIZEN_HOME) {
+                    val targetHome = resolveHomeDestination()
+                    navController.navigate(targetHome) {
                         popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = false }
                         launchSingleTop = true
                     }
@@ -91,7 +103,15 @@ fun EcoRutaNavHost(
             ) {
                 SplashScreen(
                     onSplashFinished = {
-                        navController.navigate(EcoRutaDestination.GUEST_USER) {
+                        val destination = runCatching {
+                            if (supabase.auth.currentSessionOrNull() != null) {
+                                resolveHomeDestination()
+                            } else {
+                                EcoRutaDestination.GUEST_USER
+                            }
+                        }.getOrDefault(EcoRutaDestination.GUEST_USER)
+
+                        navController.navigate(destination) {
                             popUpTo(EcoRutaDestination.SPLASH) { inclusive = true }
                         }
                     },

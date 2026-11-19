@@ -1,3 +1,7 @@
+-- Garantiza la columna de telefono en ciudadanos
+ALTER TABLE public.citizens
+  ADD COLUMN IF NOT EXISTS phone text;
+
 -- Crea automáticamente el perfil y la entidad correspondiente al registrar un usuario en auth.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
@@ -26,6 +30,7 @@ BEGIN
     split_part(NEW.email, '@', 1)
   );
   v_document_id := NULLIF(TRIM(NEW.raw_user_meta_data->>'document_id'), '');
+  v_phone := NULLIF(TRIM(NEW.raw_user_meta_data->>'phone'), '');
 
   -- Inserta o actualiza el perfil base sin restricción de RLS
   INSERT INTO public.profiles (
@@ -34,6 +39,7 @@ BEGIN
     role_code,
     full_name,
     email,
+    phone,
     must_change_password
   ) VALUES (
     NEW.id,
@@ -41,16 +47,17 @@ BEGIN
     v_role_code,
     v_full_name,
     NEW.email,
+    v_phone,
     false
   )
   ON CONFLICT (id) DO UPDATE SET
     document_id = COALESCE(EXCLUDED.document_id, public.profiles.document_id),
     full_name = EXCLUDED.full_name,
-    email = EXCLUDED.email;
+    email = EXCLUDED.email,
+    phone = COALESCE(EXCLUDED.phone, public.profiles.phone);
 
   -- Inserta registro en la tabla de rol correspondiente
   IF v_role_code = 'citizen' THEN
-    v_phone := NULLIF(TRIM(NEW.raw_user_meta_data->>'phone'), '');
     v_neighborhood := NULLIF(TRIM(NEW.raw_user_meta_data->>'neighborhood'), '');
 
     INSERT INTO public.citizens (
