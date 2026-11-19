@@ -204,6 +204,9 @@ class AuthRepositoryImpl @Inject constructor(
             ?: error("No existe una sesión activa para actualizar la contraseña")
         auth.updateUser {
             password = newPassword
+            data = buildJsonObject {
+                put("must_change_password", false)
+            }
         }
         postgrest.from("profiles").update(
             mapOf("must_change_password" to false)

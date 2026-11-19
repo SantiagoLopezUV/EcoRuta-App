@@ -48,7 +48,7 @@ BEGIN
     v_full_name,
     NEW.email,
     v_phone,
-    false
+    COALESCE((NEW.raw_user_meta_data->>'must_change_password')::boolean, false)
   )
   ON CONFLICT (id) DO UPDATE SET
     document_id = COALESCE(EXCLUDED.document_id, public.profiles.document_id),

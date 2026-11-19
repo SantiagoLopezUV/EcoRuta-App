@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ecoruta.app.core.network.supabase.supabase
 import com.ecoruta.app.core.ui.components.PendingScreen
 import com.ecoruta.app.core.ui.components.SplashScreen
+import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordMode
 import com.ecoruta.app.features.auth.presentation.navigation.authGraph
 import com.ecoruta.app.features.bulky_waste.presentation.navigation.debrisGraph
 import com.ecoruta.app.features.circular_economy.presentation.navigation.circularEconomyGraph
@@ -49,12 +50,21 @@ import kotlinx.serialization.json.jsonPrimitive
 private val SplashExitEasing = CubicBezierEasing(0f, 0.676f, 0.695f, 0.213f)
 private const val SPLASH_TRANSITION_MS = 300
 
-// Obtiene la ruta inicial según el rol configurado en los metadatos del usuario
+// Obtiene la ruta inicial según el rol y la obligación de cambio de contraseña
 private fun resolveHomeDestination(): String {
+    val user = supabase.auth.currentUserOrNull()
     val rawRole = runCatching {
-        supabase.auth.currentUserOrNull()?.userMetadata?.get("role_code")?.jsonPrimitive?.contentOrNull
+        user?.userMetadata?.get("role_code")?.jsonPrimitive?.contentOrNull
     }.getOrNull()
-    return EcoRutaDestination.homeForRole(UserRole.fromCode(rawRole))
+    val role = UserRole.fromCode(rawRole)
+    val mustChange = runCatching {
+        user?.userMetadata?.get("must_change_password")?.jsonPrimitive?.contentOrNull?.toBooleanStrictOrNull()
+    }.getOrNull() == true
+    return if (mustChange) {
+        EcoRutaDestination.changePassword(ChangePasswordMode.FIRST_LOGIN, role)
+    } else {
+        EcoRutaDestination.homeForRole(role)
+    }
 }
 
 // Contenedor principal de navegación que ensambla los subgrafos modulares de cada funcionalidad
@@ -71,17 +81,13 @@ fun EcoRutaNavHost(
         }
     }
 
-    // Redirige al inicio del rol correspondiente cuando se valida la sesión mediante el enlace del correo
+    // Redirige al inicio cuando se valida la sesión mediante el enlace del correo en el registro
     LaunchedEffect(navController) {
         supabase.auth.sessionStatus.collect { status ->
             if (status is SessionStatus.Authenticated) {
                 val currentRoute = navController.currentDestination?.route.orEmpty()
-                val isAuthOrRegistrationRoute = currentRoute.startsWith("registro") ||
-                    currentRoute == EcoRutaDestination.LOGIN ||
-                    currentRoute == EcoRutaDestination.RECORD ||
-                    currentRoute == EcoRutaDestination.RECOVERY ||
-                    currentRoute.startsWith("recuperar")
-                if (isAuthOrRegistrationRoute) {
+                val isRegistrationRoute = currentRoute.startsWith("registro")
+                if (isRegistrationRoute) {
                     val targetHome = resolveHomeDestination()
                     navController.navigate(targetHome) {
                         popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = false }
