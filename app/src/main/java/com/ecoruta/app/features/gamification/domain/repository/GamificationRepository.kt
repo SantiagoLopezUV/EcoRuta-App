@@ -6,7 +6,6 @@ package com.ecoruta.app.features.gamification.domain.repository
 import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
 import com.ecoruta.app.features.gamification.domain.model.EcoPointsLedger
 import com.ecoruta.app.features.gamification.domain.model.RedeemedBenefitCoupon
-import com.ecoruta.app.features.gamification.presentation.benefits.RedeemedCoupon
 
 interface GamificationRepository {
 
@@ -20,11 +19,11 @@ interface GamificationRepository {
     suspend fun getAvailableCoupons(): Result<List<BenefitCoupon>>
 
     // Canjea un cupón de forma atómica debitando los EcoPuntos del ciudadano
-    suspend fun redeemCoupon(couponId: String): Result<RedeemedCoupon>
+    suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon>
 
     // Consulta el historial de cupones canjeados del ciudadano autenticado
-    suspend fun getMyCoupons(): Result<List<RedeemedCoupon>>
+    suspend fun getMyCoupons(): Result<List<RedeemedBenefitCoupon>>
 
     // Consulta el detalle de un cupón canjeado por su identificador
-    suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedCoupon>
+    suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedBenefitCoupon>
 }

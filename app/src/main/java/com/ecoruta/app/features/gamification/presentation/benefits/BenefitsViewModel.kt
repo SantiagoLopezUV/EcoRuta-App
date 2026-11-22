@@ -136,10 +136,17 @@ class BenefitsViewModel @Inject constructor(
         _redemptionState.update { it.copy(isRedeeming = true, error = null) }
         viewModelScope.launch {
             gamificationRepository.redeemCoupon(coupon.id).fold(
-                onSuccess = { redeemed ->
+                onSuccess = { domainRedeemed ->
                     val newBalance = (_redemptionState.value.balance ?: 0) - coupon.pointsCost
+                    val redeemedCoupon = RedeemedCoupon(
+                        id = domainRedeemed.id,
+                        coupon = coupon,
+                        code = domainRedeemed.code,
+                        redeemedAtMillis = domainRedeemed.redeemedAtMillis,
+                        pointsSpent = coupon.pointsCost,
+                    )
                     val receipt = RedemptionReceipt(
-                        redeemedCoupon = redeemed,
+                        redeemedCoupon = redeemedCoupon,
                         balanceAfter = newBalance,
                     )
                     _redemptionState.update {

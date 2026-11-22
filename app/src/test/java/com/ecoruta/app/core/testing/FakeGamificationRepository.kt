@@ -8,9 +8,6 @@ import com.ecoruta.app.features.gamification.domain.model.EcoPointsLedger
 import com.ecoruta.app.features.gamification.domain.model.PointsTransaction
 import com.ecoruta.app.features.gamification.domain.model.RedeemedBenefitCoupon
 import com.ecoruta.app.features.gamification.domain.repository.GamificationRepository
-import com.ecoruta.app.features.gamification.presentation.benefits.Coupon
-import com.ecoruta.app.features.gamification.presentation.benefits.CouponCategory
-import com.ecoruta.app.features.gamification.presentation.benefits.RedeemedCoupon
 
 class FakeGamificationRepository : GamificationRepository {
 
@@ -55,22 +52,15 @@ class FakeGamificationRepository : GamificationRepository {
 
     // Cupones canjeados en memoria del ciudadano autenticado
     val redeemedCoupons = mutableListOf(
-        RedeemedCoupon(
+        RedeemedBenefitCoupon(
             id = "RED-01",
-            coupon = Coupon(
-                id = "CUP-01",
-                businessName = "Café del Río",
-                title = "20 % de descuento en bebidas calientes",
-                subtitle = "Válido de lunes a viernes",
-                category = CouponCategory.FOOD,
-                pointsCost = 450,
-                availableQuantity = 18,
-                validUntilMillis = 1_795_996_800_000L,
-                conditions = listOf("Un cupón por compra"),
-            ),
+            couponId = "CUP-01",
+            businessName = "Café del Río",
+            title = "20 % de descuento en bebidas calientes",
             code = "ECO-CAFE-8492",
             redeemedAtMillis = 1_760_050_000_000L,
             pointsSpent = 450,
+            validUntilMillis = 1_795_996_800_000L,
         ),
     )
 
@@ -84,7 +74,7 @@ class FakeGamificationRepository : GamificationRepository {
         availableCoupons.filter { it.availableQuantity > 0 }.toList()
     }
 
-    override suspend fun redeemCoupon(couponId: String): Result<RedeemedCoupon> = result {
+    override suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon> = result {
         require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
         val coupon = availableCoupons.find { it.id == couponId }
             ?: error("Cupón no encontrado con id: $couponId")
@@ -95,33 +85,25 @@ class FakeGamificationRepository : GamificationRepository {
 
         balance -= coupon.pointsCost
 
-        val uiCoupon = Coupon(
-            id = coupon.id,
+        val redeemed = RedeemedBenefitCoupon(
+            id = "RED-${redeemedCoupons.size + 1}",
+            couponId = coupon.id,
             businessName = coupon.businessName,
             title = coupon.title,
-            subtitle = coupon.subtitle,
-            category = CouponCategory.FOOD,
-            pointsCost = coupon.pointsCost,
-            availableQuantity = coupon.availableQuantity,
-            validUntilMillis = coupon.validUntilMillis,
-            conditions = coupon.conditions,
-        )
-        val redeemed = RedeemedCoupon(
-            id = "RED-${redeemedCoupons.size + 1:02d}",
-            coupon = uiCoupon,
             code = "ECO-${coupon.businessName.take(4).uppercase()}-${(1000..9999).random()}",
             redeemedAtMillis = System.currentTimeMillis(),
             pointsSpent = coupon.pointsCost,
+            validUntilMillis = coupon.validUntilMillis,
         )
         redeemedCoupons.add(redeemed)
         redeemed
     }
 
-    override suspend fun getMyCoupons(): Result<List<RedeemedCoupon>> = result {
+    override suspend fun getMyCoupons(): Result<List<RedeemedBenefitCoupon>> = result {
         redeemedCoupons.sortedByDescending { it.redeemedAtMillis }
     }
 
-    override suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedCoupon> = result {
+    override suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedBenefitCoupon> = result {
         require(redeemedCouponId.isNotBlank()) { "El identificador del cupón canjeado no puede estar vacío" }
         redeemedCoupons.find { it.id == redeemedCouponId }
             ?: error("Cupón canjeado no encontrado con id: $redeemedCouponId")
