@@ -5,6 +5,7 @@ package com.ecoruta.app.features.circular_economy.presentation.publish
 
 import android.net.Uri
 import androidx.annotation.StringRes
+import com.ecoruta.app.features.profile.domain.model.UserRole
 
 enum class MaterialType {
     PET,
@@ -62,6 +63,7 @@ sealed interface RecyclingHomeUiState {
     data class Loaded(
         val ecoPoints: Int?,
         val publications: List<RecyclingPublication>,
+        val activeRole: UserRole = UserRole.CIUDADANO,
         val isSample: Boolean = false,
     ) : RecyclingHomeUiState
     data object Error : RecyclingHomeUiState
