@@ -279,8 +279,8 @@ class RegisterViewModelTest {
 
         val errors = events.filterIsInstance<RegistrationEvent.Error>()
         assertEquals(1, errors.size)
-        assertEquals(R.string.login_error_generic, errors.first().messageRes)
-        assertEquals(R.string.login_error_generic, viewModel.uiState.value.submitErrorRes)
+        assertEquals(R.string.registration_error_generic, errors.first().messageRes)
+        assertEquals(R.string.registration_error_generic, viewModel.uiState.value.submitErrorRes)
         assertFalse(viewModel.uiState.value.isCreatingAccount)
         collector.cancel()
     }
