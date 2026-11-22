@@ -11,6 +11,8 @@ import com.ecoruta.app.features.education.data.repository.EducationRepositoryImp
 import com.ecoruta.app.features.education.domain.repository.EducationRepository
 import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
+import com.ecoruta.app.features.circular_economy.data.repository.CircularEconomyRepositoryImpl
+import com.ecoruta.app.features.circular_economy.domain.repository.CircularEconomyRepository
 import com.ecoruta.app.features.reports.data.repository.ReportRepositoryImpl
 import com.ecoruta.app.features.reports.domain.repository.ReportRepository
 import dagger.Binds
@@ -57,4 +59,11 @@ abstract class RepositoryModule {
     abstract fun bindBulkyWasteRepository(
         impl: BulkyWasteRepositoryImpl
     ): BulkyWasteRepository
+
+    // Vincula la interfaz de economía circular con la implementación de Supabase
+    @Binds
+    @Singleton
+    abstract fun bindCircularEconomyRepository(
+        impl: CircularEconomyRepositoryImpl
+    ): CircularEconomyRepository
 }

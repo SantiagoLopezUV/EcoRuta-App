@@ -16,6 +16,8 @@ data class Profile(
     val ecoPoints: Int = 0,
     val photoUrl: String? = null,
     val phone: String? = null,
+    // Presente solo cuando el usuario tiene el rol COMERCIO aprobado
+    val businessId: String? = null,
 )
 
 // Resumen ligero de roles de un usuario para operaciones de conmutación

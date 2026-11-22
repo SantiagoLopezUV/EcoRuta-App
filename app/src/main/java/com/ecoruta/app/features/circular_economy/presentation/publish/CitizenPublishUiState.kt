@@ -5,6 +5,7 @@ package com.ecoruta.app.features.circular_economy.presentation.publish
 
 import android.net.Uri
 import androidx.annotation.StringRes
+import com.ecoruta.app.features.profile.domain.model.UserRole
 
 enum class MaterialType {
     PET,
@@ -62,6 +63,9 @@ sealed interface RecyclingHomeUiState {
     data class Loaded(
         val ecoPoints: Int?,
         val publications: List<RecyclingPublication>,
+        val activeRole: UserRole = UserRole.CIUDADANO,
+        // Presente solo cuando activeRole == COMERCIO; se adjunta a cada publicación creada
+        val businessId: String? = null,
         val isSample: Boolean = false,
     ) : RecyclingHomeUiState
     data object Error : RecyclingHomeUiState
@@ -77,6 +81,8 @@ data class PublishMaterialUiState(
     @StringRes val addressError: Int? = null,
     val photo: Uri? = null,
     val isPublishing: Boolean = false,
+    // Presente cuando el usuario publica en modo comercio; vincula la publicación al negocio
+    val businessId: String? = null,
 )
 
 typealias CitizenPublishUiState = PublishMaterialUiState
