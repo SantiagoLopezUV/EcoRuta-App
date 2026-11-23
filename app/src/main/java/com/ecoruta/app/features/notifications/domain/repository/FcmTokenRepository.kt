@@ -1,4 +1,4 @@
-package com.ecoruta.app.features.notifications.domain.repositorys
+package com.ecoruta.app.features.notifications.domain.repository
 
 interface FcmTokenRepository {
     suspend fun registerToken(
