@@ -70,7 +70,7 @@ fun ListingDto.toDomain(): RecyclableListing {
 }
 
 // Parsea fechas ISO 8601 a milisegundos de época de forma segura
-private fun parseDateToMillis(rawDate: String?): Long? {
+internal fun parseDateToMillis(rawDate: String?): Long? {
     if (rawDate.isNullOrBlank()) return null
     val formats = listOf(
         "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX",
