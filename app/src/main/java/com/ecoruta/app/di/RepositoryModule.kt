@@ -7,6 +7,8 @@ import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.bulky_waste.data.repository.BulkyWasteRepositoryImpl
 import com.ecoruta.app.features.bulky_waste.domain.repository.BulkyWasteRepository
+import com.ecoruta.app.features.circular_economy.data.repository.CircularEconomyRepositoryImpl
+import com.ecoruta.app.features.circular_economy.domain.repository.CircularEconomyRepository
 import com.ecoruta.app.features.education.data.repository.EducationRepositoryImpl
 import com.ecoruta.app.features.education.domain.repository.EducationRepository
 import com.ecoruta.app.features.gamification.data.repository.GamificationRepositoryImpl
@@ -75,4 +77,11 @@ abstract class RepositoryModule {
     abstract fun bindNeighborhoodRouteRepository(
         impl: NeighborhoodRouteRepositoryImpl
     ): NeighborhoodRouteRepository
+
+    // Vincula la interfaz de economía circular y reciclaje con la implementación de Supabase
+    @Binds
+    @Singleton
+    abstract fun bindCircularEconomyRepository(
+        impl: CircularEconomyRepositoryImpl
+    ): CircularEconomyRepository
 }
