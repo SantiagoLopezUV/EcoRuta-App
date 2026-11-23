@@ -9,8 +9,8 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
 kotlinxSerialization = "1.7.3"
-googleServices = "4.5.0"
-firebaseBom = "35.1.0"
+googleServices = "4.6.0"
+firebaseBom = "35.2.0"
 
 
 # Dependency injection & navigation
