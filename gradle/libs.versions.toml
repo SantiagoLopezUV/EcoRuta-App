@@ -1,5 +1,5 @@
 [versions]
-# Core, Gradle, and Kotlin stable
+# Core, Gradle, and Kotlin stable, Firebase
 agp = "9.3.3"
 kotlin = "2.2.10"
 ksp = "2.2.10-2.0.2"
@@ -9,6 +9,9 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
 kotlinxSerialization = "1.7.3"
+googleServices = "4.5.0"
+firebaseBom = "35.1.0"
+
 
 # Dependency injection & navigation
 hilt = "2.55"
@@ -101,6 +104,9 @@ androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
 
+# Firebase Cloud Messaging
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -118,3 +124,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 room = { id = "androidx.room", version.ref = "room" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+
