@@ -1,11 +1,13 @@
 package com.ecoruta.app.features.circular_economy
 
 // Pruebas unitarias para las operaciones del repositorio de economía circular y mapeo DTO
-// Valida inserción de ofertas, consulta de listados y conversión de coordenadas PostGIS
+// Valida inserción de ofertas, consulta de listados, código QR dinámico y conversión PostGIS
 
 import com.ecoruta.app.core.testing.FakeCircularEconomyRepository
 import com.ecoruta.app.features.circular_economy.data.remote.dto.ListingDto
+import com.ecoruta.app.features.circular_economy.data.remote.dto.PickupQrDto
 import com.ecoruta.app.features.circular_economy.data.remote.dto.toDomain
+import com.ecoruta.app.features.circular_economy.domain.model.DeliveryToken
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -13,8 +15,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class CircularEconomyRepositoryTest
-{
+class CircularEconomyRepositoryTest {
+
     private lateinit var repository: FakeCircularEconomyRepository
 
     @Before
@@ -82,6 +84,47 @@ class CircularEconomyRepositoryTest
     }
 
     @Test
+    fun getListing_success_returnsMatchingListing() = runTest {
+        val result = repository.getListing("LST-01")
+
+        assertTrue("Debe retornar exitosamente el listing solicitado", result.isSuccess)
+        val listing = result.getOrNull()
+        assertNotNull(listing)
+        assertEquals("LST-01", listing?.id)
+        assertEquals("PET", listing?.material)
+    }
+
+    @Test
+    fun getListing_notFound_returnsFailure() = runTest {
+        val result = repository.getListing("NON-EXISTENT")
+
+        assertTrue("Debe retornar fallo cuando no se encuentra el listing", result.isFailure)
+    }
+
+    @Test
+    fun requestDeliveryCode_success_returnsDeliveryToken() = runTest {
+        repository.nextToken = DeliveryToken(token = "ECO-QR-9999", expiresAtMillis = 1_800_000_000_000L)
+
+        val result = repository.requestDeliveryCode("LST-01")
+
+        assertTrue("Debe obtener exitosamente el token de entrega", result.isSuccess)
+        val token = result.getOrNull()
+        assertNotNull(token)
+        assertEquals("ECO-QR-9999", token?.token)
+        assertEquals(1_800_000_000_000L, token?.expiresAtMillis)
+    }
+
+    @Test
+    fun requestDeliveryCode_withError_returnsFailure() = runTest {
+        repository.deliveryError = RuntimeException("Servicio de tokens no disponible")
+
+        val result = repository.requestDeliveryCode("LST-01")
+
+        assertTrue("Debe retornar fallo cuando ocurre un error al solicitar el token", result.isFailure)
+        assertEquals("Servicio de tokens no disponible", result.exceptionOrNull()?.message)
+    }
+
+    @Test
     fun listingDto_toDomain_mapsFieldsCorrectly() {
         val dto = ListingDto(
             id = "test-uuid-1234",
@@ -109,5 +152,22 @@ class CircularEconomyRepositoryTest
         assertEquals("Victoria", domain.neighborhood)
         assertEquals("https://example.com/glass.jpg", domain.photoUrl)
         assertEquals("owner-uuid-5678", domain.ownerId)
+    }
+
+    @Test
+    fun pickupQrDto_toDomain_mapsTokenAndExpiryCorrectly() {
+        val dto = PickupQrDto(
+            id = "pickup-uuid-001",
+            listingId = "listing-uuid-002",
+            recyclerId = "recycler-uuid-003",
+            qrCode = "ECO-PKP-ABCD1234",
+            qrExpiresAt = "2026-11-20T12:00:00Z",
+            status = "pendiente",
+        )
+
+        val domain = dto.toDomain()
+
+        assertEquals("ECO-PKP-ABCD1234", domain.token)
+        assertTrue("La marca de tiempo debe ser mayor a cero", domain.expiresAtMillis > 0)
     }
 }

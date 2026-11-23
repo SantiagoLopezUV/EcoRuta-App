@@ -1,14 +1,21 @@
 package com.ecoruta.app.core.testing
 
 // Repositorio de economía circular en memoria para pruebas unitarias sin red ni base de datos
-// Permite simular publicaciones de reciclaje para ciudadanos y comercios
+// Permite simular publicaciones de reciclaje, consulta individual y emisión de tokens QR
 
+import com.ecoruta.app.features.circular_economy.domain.model.DeliveryToken
 import com.ecoruta.app.features.circular_economy.domain.model.RecyclableListing
 import com.ecoruta.app.features.circular_economy.domain.repository.CircularEconomyRepository
 
 class FakeCircularEconomyRepository : CircularEconomyRepository {
 
     var error: Throwable? = null
+    var deliveryError: Throwable? = null
+
+    var nextToken = DeliveryToken(
+        token = "ECO-TEST-0001",
+        expiresAtMillis = System.currentTimeMillis() + 300_000L,
+    )
 
     val listings = mutableListOf(
         RecyclableListing(
@@ -81,4 +88,16 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
     // Consulta el listado en memoria de publicaciones
     override suspend fun getMyListings(): Result<List<RecyclableListing>> =
         error?.let { Result.failure(it) } ?: Result.success(listings.toList())
+
+    // Retorna una publicación individual en memoria por su identificador
+    override suspend fun getListing(id: String): Result<RecyclableListing> {
+        error?.let { return Result.failure(it) }
+        val found = listings.firstOrNull { it.id == id }
+            ?: return Result.failure(NoSuchElementException("Listing no encontrado: $id"))
+        return Result.success(found)
+    }
+
+    // Retorna el token de entrega simulado para la publicación
+    override suspend fun requestDeliveryCode(listingId: String): Result<DeliveryToken> =
+        deliveryError?.let { Result.failure(it) } ?: Result.success(nextToken)
 }
