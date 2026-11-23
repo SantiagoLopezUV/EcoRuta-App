@@ -28,9 +28,10 @@ class FcmTokenRepositoryImpl @Inject constructor(
         )
 
         postgrest.from("user_fcm_tokens").upsert(
-            tokenDto,
+            listOf(tokenDto)
+        ) {
             onConflict = "profile_id,token"
-        )
+        }
     }
 
     override suspend fun removeToken(
