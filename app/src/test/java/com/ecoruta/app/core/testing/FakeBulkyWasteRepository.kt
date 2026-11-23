@@ -6,6 +6,7 @@ package com.ecoruta.app.core.testing
 import com.ecoruta.app.features.bulky_waste.domain.model.BulkyWasteRequest
 import com.ecoruta.app.features.bulky_waste.domain.model.RcdManagerOrientation
 import com.ecoruta.app.features.bulky_waste.domain.repository.BulkyWasteRepository
+import com.ecoruta.app.features.bulky_waste.presentation.schedule.DayMillis
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisStatus
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisType
 
@@ -124,6 +125,56 @@ class FakeBulkyWasteRepository : BulkyWasteRepository {
 
     override suspend fun getAuthorizedManagers(): Result<List<RcdManagerOrientation>> = result {
         managers.toList()
+    }
+
+    // Configuración de capacidades semanales por día ISO (1=Lunes a 7=Domingo)
+    var weeklyCapacities: Map<Int, Int> = mapOf(
+        1 to 10, 2 to 10, 3 to 10, 4 to 10, 5 to 10, 6 to 10, 7 to 0
+    )
+
+    // Consulta de cupos disponibles basada en la capacidad semanal y solicitudes no canceladas
+    override suspend fun getAvailablePickupDates(
+        startDateMillis: Long,
+        daysCount: Int,
+    ): Result<Set<Long>> = result {
+        val available = mutableSetOf<Long>()
+        val calendar = java.util.Calendar.getInstance()
+
+        val startDay = DayMillis.startOfDay(startDateMillis)
+
+        val bookedCounts = requests
+            .filter { it.status != DebrisStatus.CANCELADO && it.scheduledDateMillis != null }
+            .mapNotNull { it.scheduledDateMillis?.let { ms -> DayMillis.startOfDay(ms) } }
+            .groupingBy { it }
+            .eachCount()
+
+        for (i in 0 until daysCount) {
+            val currentDayMillis = DayMillis.addDays(startDay, i)
+            calendar.timeInMillis = currentDayMillis
+
+            val calDay = calendar.get(java.util.Calendar.DAY_OF_WEEK)
+            val isoDayOfWeek = if (calDay == java.util.Calendar.SUNDAY) 7 else calDay - 1
+
+            val maxSlots = weeklyCapacities[isoDayOfWeek] ?: if (isoDayOfWeek == 7) 0 else 10
+            val booked = bookedCounts[currentDayMillis] ?: 0
+
+            if (maxSlots > 0 && booked < maxSlots) {
+                available.add(currentDayMillis)
+            }
+        }
+        available
+    }
+
+    // Asigna la fecha programada a una solicitud existente en memoria
+    override suspend fun scheduleRequestDate(
+        requestId: String,
+        scheduledDateMillis: Long,
+    ): Result<Unit> = result {
+        require(requestId.isNotBlank()) { "El identificador de la solicitud no puede estar vacío" }
+        val index = requests.indexOfFirst { it.id == requestId }
+        if (index < 0) error("Solicitud de escombros no encontrada con id: $requestId")
+        val current = requests[index]
+        requests[index] = current.copy(scheduledDateMillis = scheduledDateMillis)
     }
 
     private inline fun <T> result(block: () -> T): Result<T> =

@@ -4,10 +4,13 @@ package com.ecoruta.app.features.gamification.presentation.navigation
 // Conecta el catálogo de beneficios, flujo de canje, historial de puntos y mis cupones
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,6 +24,7 @@ import com.ecoruta.app.core.ui.components.GuestServiceActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsActions
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsScreen
 import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsUiState
+import com.ecoruta.app.features.gamification.presentation.benefits.BenefitsViewModel
 import com.ecoruta.app.features.gamification.presentation.benefits.Coupon
 import com.ecoruta.app.features.gamification.presentation.benefits.CouponCategory
 import com.ecoruta.app.features.gamification.presentation.benefits.CouponRedemptionUiState
@@ -85,25 +89,17 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     }
 
     composable(EcoRutaDestination.BENEFITS) {
-        var state by remember {
-            mutableStateOf(
-                BenefitsUiState(
-                    isLoading = false,
-                    balance = 1_250,
-                    coupons = SampleCoupons,
-                    isSample = true,
-                ),
-            )
-        }
+        val viewModel: BenefitsViewModel = hiltViewModel()
+        val state by viewModel.benefitsState.collectAsStateWithLifecycle()
         BenefitsScreen(
             state = state,
             actions = BenefitsActions(
                 onBack = { navController.popBackStack() },
                 onCouponClick = { open(EcoRutaDestination.couponRedemption(it.id)) },
-                onCategorySelected = { state = state.copy(category = it) },
+                onCategorySelected = { viewModel.onCategorySelected(it) },
                 onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
                 onHistory = { open(EcoRutaDestination.ECOPOINTS_HISTORY) },
-                onRetry = {},
+                onRetry = { viewModel.loadBenefits() },
                 onTabClick = tabClick,
             ),
         )
@@ -114,59 +110,42 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
         arguments = listOf(navArgument(EcoRutaDestination.ARG_ID) { type = NavType.StringType }),
     ) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
-        val coupon = SampleCoupons.find { it.id == id } ?: SampleCoupons.first()
-        var state by remember {
-            mutableStateOf(
-                CouponRedemptionUiState(
-                    isLoading = false,
-                    coupon = coupon,
-                    balance = 1_250,
-                    isSample = true,
-                ),
-            )
+        val viewModel: BenefitsViewModel = hiltViewModel()
+        LaunchedEffect(id) {
+            viewModel.loadCouponForRedemption(id)
         }
+        val state by viewModel.redemptionState.collectAsStateWithLifecycle()
         BackHandler(enabled = state.step == RedemptionStep.CONFIRM || state.step == RedemptionStep.INSUFFICIENT) {
-            state = state.copy(step = RedemptionStep.DETAIL)
+            viewModel.onBackToDetail()
         }
         CouponRedemptionScreen(
             state = state,
             actions = CouponRedemptionActions(
                 onBack = {
                     if (state.step == RedemptionStep.CONFIRM || state.step == RedemptionStep.INSUFFICIENT) {
-                        state = state.copy(step = RedemptionStep.DETAIL)
+                        viewModel.onBackToDetail()
                     } else {
                         navController.popBackStack()
                     }
                 },
-                onRedeem = {
-                    val affordable = (state.balance ?: 0) >= coupon.pointsCost
-                    state = state.copy(step = if (affordable) RedemptionStep.CONFIRM else RedemptionStep.INSUFFICIENT)
-                },
-                onConfirm = {
-                    state = state.copy(
-                        step = RedemptionStep.REDEEMED,
-                        receipt = RedemptionReceipt(SampleRedeemedCoupons.first(), (state.balance ?: 1250) - coupon.pointsCost),
-                        redeemedWithoutBackend = true,
-                    )
-                },
-                onBackToDetail = { state = state.copy(step = RedemptionStep.DETAIL) },
+                onRedeem = { viewModel.onRedeemRequested() },
+                onConfirm = { viewModel.onConfirmRedeem() },
+                onBackToDetail = { viewModel.onBackToDetail() },
                 onMyCoupons = { navController.navigateToCitizenTab(CitizenTab.COUPONS) },
                 onBackToBenefits = ::backToBenefits,
-                onRetry = {},
+                onRetry = { viewModel.loadCouponForRedemption(id) },
                 onTabClick = tabClick,
             ),
         )
     }
 
     composable(EcoRutaDestination.ECOPOINTS_HISTORY) {
-        val movements = listOf(
-            PointsMovement("MOV-01", "Entrega de material reciclable", 1_760_100_000_000L, 80),
-            PointsMovement("MOV-02", "Canje en Café del Río", 1_760_050_000_000L, -450),
-        )
+        val viewModel: BenefitsViewModel = hiltViewModel()
+        val state by viewModel.pointsHistoryState.collectAsStateWithLifecycle()
         PointsHistoryScreen(
-            state = PointsHistoryUiState.Loaded(balance = 1_250, movements = movements, isSample = true),
+            state = state,
             onBack = { navController.popBackStack() },
-            onRetry = {},
+            onRetry = { viewModel.loadPointsHistory() },
             onTabClick = tabClick,
         )
     }
