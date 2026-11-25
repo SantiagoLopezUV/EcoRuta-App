@@ -10,7 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class EcoRutFirebaseMessagingService : FirebaseMessagingService() {
+class EcoRutaFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var fcmTokenRepository: FcmTokenRepository

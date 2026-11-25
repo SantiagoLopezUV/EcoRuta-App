@@ -11,6 +11,7 @@ composeBom = "2024.10.01"
 kotlinxSerialization = "1.7.3"
 googleServices = "4.6.0"
 firebaseBom = "35.2.0"
+coroutinesPlayServices = "1.10.2"
 
 
 # Dependency injection & navigation
@@ -107,6 +108,7 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 # Firebase Cloud Messaging
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices"}
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

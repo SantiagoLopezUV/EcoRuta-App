@@ -158,6 +158,7 @@ dependencies {
     // Firebase Cloud Messaging
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.kotlinx.coroutines.play.services)
 }
 
 // Asegurar que cualquier cambio en local.properties invalide el caché y regenere BuildConfig automáticamente
