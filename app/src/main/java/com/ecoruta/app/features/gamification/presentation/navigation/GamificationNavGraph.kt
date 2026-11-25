@@ -44,30 +44,6 @@ import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponDet
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsActions
 import com.ecoruta.app.features.gamification.presentation.my_coupons.MyCouponsScreen
 
-private val SampleCoupons = listOf(
-    Coupon(
-        id = "CUP-01",
-        businessName = "Café del Río",
-        title = "20 % de descuento en bebidas calientes",
-        subtitle = "Válido de lunes a viernes",
-        category = CouponCategory.FOOD,
-        pointsCost = 450,
-        availableQuantity = 18,
-        validUntilMillis = 1_795_996_800_000L,
-        conditions = listOf("Un cupón por compra", "Presenta el código QR en caja"),
-    ),
-)
-
-private val SampleRedeemedCoupons = listOf(
-    RedeemedCoupon(
-        id = "RED-01",
-        coupon = SampleCoupons.first(),
-        code = "ECO-CAFE-8492",
-        redeemedAtMillis = 1_760_100_000_000L,
-        pointsSpent = 450,
-    ),
-)
-
 // Registra las rutas del catálogo de beneficios, canje de cupones e historial de puntos
 fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
     fun open(route: String) = navController.navigate(route) { launchSingleTop = true }
@@ -152,26 +128,21 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
 
     listOf(EcoRutaDestination.MY_COUPONS to false, EcoRutaDestination.PROFILE_MY_COUPONS to true).forEach { (route, fromProfile) ->
         composable(route) {
-            var state by remember {
-                mutableStateOf(
-                    MyCouponsUiState(
-                        isLoading = false,
-                        coupons = SampleRedeemedCoupons,
-                        expandedId = SampleRedeemedCoupons.first().id,
-                        isSample = true,
-                    ),
-                )
+            val viewModel: BenefitsViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                viewModel.loadMyCoupons()
             }
+            val state by viewModel.myCouponsState.collectAsStateWithLifecycle()
             MyCouponsScreen(
                 state = state,
                 selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
                 actions = MyCouponsActions(
                     onBack = { navController.popBackStack() },
-                    onCategorySelected = { state = state.copy(category = it) },
-                    onToggleExpanded = { id -> state = state.copy(expandedId = if (state.expandedId == id) null else id) },
+                    onCategorySelected = { viewModel.onMyCouponsCategorySelected(it) },
+                    onToggleExpanded = { id -> viewModel.onToggleMyCouponExpanded(id) },
                     onShowQr = { open(EcoRutaDestination.myCouponDetail(it.id, fromProfile)) },
                     onGoToBenefits = { navController.navigateToCitizenTab(CitizenTab.BENEFITS) },
-                    onRetry = {},
+                    onRetry = { viewModel.loadMyCoupons() },
                     onTabClick = tabClick,
                 ),
             )
@@ -188,33 +159,32 @@ fun NavGraphBuilder.gamificationGraph(navController: NavHostController) {
             },
         ),
     ) { entry ->
+        val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
         val fromProfile = entry.arguments?.getBoolean(EcoRutaDestination.ARG_FROM_PROFILE) ?: false
+        val viewModel: BenefitsViewModel = hiltViewModel()
+        LaunchedEffect(id) {
+            viewModel.loadMyCouponDetail(id)
+        }
+        val detailState by viewModel.myCouponDetailState.collectAsStateWithLifecycle()
         MyCouponDetailScreen(
-            state = MyCouponUiState.Loaded(coupon = SampleRedeemedCoupons.first(), isSample = true),
+            state = detailState,
             selectedTab = if (fromProfile) CitizenTab.PROFILE else CitizenTab.COUPONS,
             onBack = { navController.popBackStack() },
             onBackToMyCoupons = { navController.popBackStack() },
             onBackToBenefits = ::backToBenefits,
-            onRetry = {},
+            onRetry = { viewModel.loadMyCouponDetail(id) },
             onTabClick = tabClick,
         )
     }
 
     composable(EcoRutaDestination.GUEST_BENEFITS) {
-        var state by remember {
-            mutableStateOf(
-                BenefitsUiState(
-                    isLoading = false,
-                    coupons = SampleCoupons,
-                    isSample = true,
-                ),
-            )
-        }
+        val viewModel: BenefitsViewModel = hiltViewModel()
+        val state by viewModel.benefitsState.collectAsStateWithLifecycle()
         GuestBenefitsScreen(
             state = state,
             onBack = { navController.popBackStack() },
             onLogin = { open(EcoRutaDestination.LOGIN) },
-            onCategorySelected = { state = state.copy(category = it) },
+            onCategorySelected = { viewModel.onCategorySelected(it) },
             onTabClick = { tab -> navController.navigateToPublicTab(tab) },
         )
     }

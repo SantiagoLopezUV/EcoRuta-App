@@ -30,6 +30,12 @@ class BenefitsViewModel @Inject constructor(
     private val _redemptionState = MutableStateFlow(CouponRedemptionUiState(isLoading = false))
     val redemptionState: StateFlow<CouponRedemptionUiState> = _redemptionState.asStateFlow()
 
+    private val _myCouponsState = MutableStateFlow(MyCouponsUiState(isLoading = false, coupons = emptyList(), isSample = false))
+    val myCouponsState: StateFlow<MyCouponsUiState> = _myCouponsState.asStateFlow()
+
+    private val _myCouponDetailState = MutableStateFlow<MyCouponUiState>(MyCouponUiState.Loading)
+    val myCouponDetailState: StateFlow<MyCouponUiState> = _myCouponDetailState.asStateFlow()
+
     private var currentRedemptionCouponId: String? = null
 
     init {
@@ -69,31 +75,25 @@ class BenefitsViewModel @Inject constructor(
                 )
             } ?: emptyList()
 
-            // Si el catálogo remoto aún no tiene registros en base de datos, presenta datos de muestra
-            val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
-                uiCoupons to false
-            } else {
-                DefaultSampleCoupons to true
-            }
-
+            // Catálogo real de cupones desde base de datos sin datos simulados
             _benefitsState.update {
                 it.copy(
                     isLoading = false,
                     balance = balance,
-                    coupons = couponsToShow,
-                    isSample = isSample,
+                    coupons = uiCoupons,
+                    isSample = false,
                     error = null,
                 )
             }
 
             currentRedemptionCouponId?.let { targetId ->
-                val found = couponsToShow.find { it.id == targetId }
+                val found = uiCoupons.find { it.id == targetId }
                 _redemptionState.update {
                     it.copy(
                         isLoading = false,
                         coupon = found,
                         balance = balance,
-                        isSample = isSample,
+                        isSample = false,
                         error = if (found == null) R.string.benefits_load_error else null,
                     )
                 }
@@ -135,8 +135,7 @@ class BenefitsViewModel @Inject constructor(
         if (existing != null && currentBalance != null) {
             _redemptionState.update {
                 it.copy(
-                    //se pone false para que cuando se cargue el cupon ya este en memoria se active
-                    isLoading = false,
+                    isLoading = false,//se pone false para que cuando se cargue el cupon ya este en memoria se active
                     coupon = existing,
                     balance = currentBalance,
                     step = RedemptionStep.DETAIL,
@@ -179,29 +178,23 @@ class BenefitsViewModel @Inject constructor(
                 )
             }
 
-            val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
-                uiCoupons to false
-            } else {
-                DefaultSampleCoupons to true
-            }
-
             _benefitsState.update {
                 it.copy(
                     isLoading = false,
                     balance = loadedBalance,
-                    coupons = couponsToShow,
-                    isSample = isSample,
+                    coupons = uiCoupons,
+                    isSample = false,
                     error = null,
                 )
             }
 
-            val found = couponsToShow.find { it.id == couponId }
+            val found = uiCoupons.find { it.id == couponId }
             _redemptionState.update {
                 it.copy(
                     isLoading = false,
                     coupon = found,
                     balance = loadedBalance,
-                    isSample = isSample,
+                    isSample = false,
                     error = if (found == null) R.string.benefits_load_error else null,
                 )
             }
@@ -225,9 +218,10 @@ class BenefitsViewModel @Inject constructor(
             gamificationRepository.redeemCoupon(coupon.id).fold(
                 onSuccess = { domainRedeemed ->
                     val newBalance = (_redemptionState.value.balance ?: 0) - coupon.pointsCost
+                    val resolvedBusiness = domainRedeemed.businessName.takeIf { it.isNotBlank() && it != "Comercio Aliado" } ?: coupon.businessName
                     val redeemedCoupon = RedeemedCoupon(
                         id = domainRedeemed.id,
-                        coupon = coupon,
+                        coupon = coupon.copy(businessName = resolvedBusiness),
                         code = domainRedeemed.code,
                         redeemedAtMillis = domainRedeemed.redeemedAtMillis,
                         pointsSpent = coupon.pointsCost,
@@ -246,6 +240,10 @@ class BenefitsViewModel @Inject constructor(
                     }
                     // Actualiza el saldo en la vista de beneficios
                     _benefitsState.update { it.copy(balance = newBalance) }
+                    // Agrega el cupón redimido a la billetera en memoria
+                    _myCouponsState.update { state ->
+                        state.copy(coupons = listOf(redeemedCoupon) + state.coupons.filterNot { it.id == redeemedCoupon.id })
+                    }
                 },
                 onFailure = {
                     _redemptionState.update {
@@ -254,6 +252,131 @@ class BenefitsViewModel @Inject constructor(
                             error = R.string.benefits_load_error,
                         )
                     }
+                },
+            )
+        }
+    }
+
+    // Carga los cupones canjeados del ciudadano desde Supabase sin datos simulados
+    fun loadMyCoupons() {
+        _myCouponsState.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch {
+            gamificationRepository.getMyCoupons().fold(
+                onSuccess = { redeemedList ->
+                    val availableCatalog = _benefitsState.value.coupons
+                    val uiRedeemed = redeemedList.map { rbc ->
+                        val matchingCoupon = availableCatalog.find { it.id == rbc.couponId }
+                        val resolvedBusinessName = rbc.businessName.takeIf { it.isNotBlank() && it != "Comercio Aliado" }
+                            ?: matchingCoupon?.businessName?.takeIf { it.isNotBlank() && it != "Comercio Aliado" }
+                            ?: rbc.businessName.ifBlank { "Comercio Aliado" }
+                        val resolvedTitle = rbc.title.takeIf { it.isNotBlank() && it != "Cupón Canjeado" }
+                            ?: matchingCoupon?.title?.takeIf { it.isNotBlank() }
+                            ?: rbc.title.ifBlank { "Cupón Canjeado" }
+
+                        RedeemedCoupon(
+                            id = rbc.id,
+                            coupon = matchingCoupon?.copy(
+                                businessName = resolvedBusinessName,
+                                title = resolvedTitle,
+                                validUntilMillis = rbc.validUntilMillis,
+                                pointsCost = rbc.pointsSpent,
+                            ) ?: Coupon(
+                                id = rbc.couponId,
+                                businessName = resolvedBusinessName,
+                                title = resolvedTitle,
+                                subtitle = matchingCoupon?.subtitle ?: resolvedTitle,
+                                category = matchingCoupon?.category ?: CouponCategory.FOOD,
+                                pointsCost = rbc.pointsSpent,
+                                availableQuantity = matchingCoupon?.availableQuantity ?: 0,
+                                validUntilMillis = rbc.validUntilMillis,
+                                conditions = matchingCoupon?.conditions ?: emptyList(),
+                            ),
+                            code = rbc.code,
+                            redeemedAtMillis = rbc.redeemedAtMillis,
+                            pointsSpent = rbc.pointsSpent,
+                        )
+                    }
+                    _myCouponsState.update {
+                        it.copy(
+                            isLoading = false,
+                            coupons = uiRedeemed,
+                            isSample = false,
+                            error = null,
+                        )
+                    }
+                },
+                onFailure = {
+                    _myCouponsState.update {
+                        it.copy(
+                            isLoading = false,
+                            coupons = emptyList(),
+                            isSample = false,
+                            error = null,
+                        )
+                    }
+                },
+            )
+        }
+    }
+
+    // Filtra los cupones canjeados por categoría en la billetera
+    fun onMyCouponsCategorySelected(category: CouponCategory?) {
+        _myCouponsState.update { it.copy(category = category) }
+    }
+
+    // Alterna la expansión de la tarjeta del cupón canjeado
+    fun onToggleMyCouponExpanded(id: String) {
+        _myCouponsState.update {
+            it.copy(expandedId = if (it.expandedId == id) null else id)
+        }
+    }
+
+    // Carga el detalle del cupón canjeado con su código QR
+    fun loadMyCouponDetail(redeemedId: String) {
+        _myCouponDetailState.value = MyCouponUiState.Loading
+        val existing = _myCouponsState.value.coupons.find { it.id == redeemedId }
+        if (existing != null && existing.coupon.validUntilMillis > 0L && existing.coupon.businessName.isNotBlank() && existing.coupon.businessName != "Comercio Aliado") {
+            _myCouponDetailState.value = MyCouponUiState.Loaded(coupon = existing, isSample = false)
+            return
+        }
+        viewModelScope.launch {
+            gamificationRepository.getMyCouponById(redeemedId).fold(
+                onSuccess = { rbc ->
+                    val availableCatalog = _benefitsState.value.coupons
+                    val matchingCoupon = availableCatalog.find { it.id == rbc.couponId }
+                    val resolvedBusinessName = rbc.businessName.takeIf { it.isNotBlank() && it != "Comercio Aliado" }
+                        ?: matchingCoupon?.businessName?.takeIf { it.isNotBlank() && it != "Comercio Aliado" }
+                        ?: rbc.businessName.ifBlank { "Comercio Aliado" }
+                    val resolvedTitle = rbc.title.takeIf { it.isNotBlank() && it != "Cupón Canjeado" }
+                        ?: matchingCoupon?.title?.takeIf { it.isNotBlank() }
+                        ?: rbc.title.ifBlank { "Cupón Canjeado" }
+
+                    val uiCoupon = RedeemedCoupon(
+                        id = rbc.id,
+                        coupon = matchingCoupon?.copy(
+                            businessName = resolvedBusinessName,
+                            title = resolvedTitle,
+                            validUntilMillis = rbc.validUntilMillis,
+                            pointsCost = rbc.pointsSpent,
+                        ) ?: Coupon(
+                            id = rbc.couponId,
+                            businessName = resolvedBusinessName,
+                            title = resolvedTitle,
+                            subtitle = matchingCoupon?.subtitle ?: resolvedTitle,
+                            category = matchingCoupon?.category ?: CouponCategory.FOOD,
+                            pointsCost = rbc.pointsSpent,
+                            availableQuantity = matchingCoupon?.availableQuantity ?: 0,
+                            validUntilMillis = rbc.validUntilMillis,
+                            conditions = matchingCoupon?.conditions ?: emptyList(),
+                        ),
+                        code = rbc.code,
+                        redeemedAtMillis = rbc.redeemedAtMillis,
+                        pointsSpent = rbc.pointsSpent,
+                    )
+                    _myCouponDetailState.value = MyCouponUiState.Loaded(coupon = uiCoupon, isSample = false)
+                },
+                onFailure = {
+                    _myCouponDetailState.value = MyCouponUiState.NotFound
                 },
             )
         }
