@@ -195,4 +195,18 @@ class EcoPointsViewModelTest {
         viewModel.onBackToDetail()
         assertEquals(RedemptionStep.DETAIL, viewModel.redemptionState.value.step)
     }
+
+    // Valida que al cargar un cupón para canje antes de que termine el init, cargue sin quedar bloqueado
+    @Test
+    fun testLoadCouponForRedemptionResolvesWhenCalledImmediately() = testScope.runTest {
+        val freshVm = BenefitsViewModel(repository)
+        freshVm.loadCouponForRedemption("CUP-01")
+        advanceUntilIdle()
+
+        val state = freshVm.redemptionState.value
+        assertFalse(state.isLoading)
+        assertNotNull(state.coupon)
+        assertEquals("CUP-01", state.coupon?.id)
+        assertNull(state.error)
+    }
 }

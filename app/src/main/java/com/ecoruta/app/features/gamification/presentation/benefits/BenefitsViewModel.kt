@@ -30,6 +30,8 @@ class BenefitsViewModel @Inject constructor(
     private val _redemptionState = MutableStateFlow(CouponRedemptionUiState(isLoading = false))
     val redemptionState: StateFlow<CouponRedemptionUiState> = _redemptionState.asStateFlow()
 
+    private var currentRedemptionCouponId: String? = null
+
     init {
         loadBenefits()
         loadPointsHistory()
@@ -83,6 +85,19 @@ class BenefitsViewModel @Inject constructor(
                     error = null,
                 )
             }
+
+            currentRedemptionCouponId?.let { targetId ->
+                val found = couponsToShow.find { it.id == targetId }
+                _redemptionState.update {
+                    it.copy(
+                        isLoading = false,
+                        coupon = found,
+                        balance = balance,
+                        isSample = isSample,
+                        error = if (found == null) R.string.benefits_load_error else null,
+                    )
+                }
+            }
         }
     }
 
@@ -113,63 +128,82 @@ class BenefitsViewModel @Inject constructor(
 
     // Carga el detalle del cupón para el flujo de canje y verifica si el saldo es suficiente
     fun loadCouponForRedemption(couponId: String) {
-        val coupon = _benefitsState.value.coupons.find { it.id == couponId }
-        val balance = _benefitsState.value.balance
+        currentRedemptionCouponId = couponId
+        val existing = _benefitsState.value.coupons.find { it.id == couponId }
+        val currentBalance = _benefitsState.value.balance
+
+        if (existing != null && currentBalance != null) {
+            _redemptionState.update {
+                it.copy(
+                    //se pone false para que cuando se cargue el cupon ya este en memoria se active
+                    isLoading = false,
+                    coupon = existing,
+                    balance = currentBalance,
+                    step = RedemptionStep.DETAIL,
+                    isRedeeming = false,
+                    receipt = null,
+                    error = null,
+                )
+            }
+            return
+        }
+
         _redemptionState.update {
             it.copy(
-                isLoading = coupon == null && _benefitsState.value.isLoading,
-                coupon = coupon,
-                balance = balance,
+                isLoading = true,
+                coupon = existing,
+                balance = currentBalance,
                 step = RedemptionStep.DETAIL,
                 isRedeeming = false,
                 receipt = null,
                 error = null,
             )
-        } //implementar el view model para los cupones
-        if (coupon == null && !_benefitsState.value.isLoading) {
-            viewModelScope.launch {
-                val balanceResult = gamificationRepository.getBalance()
-                val couponsResult = gamificationRepository.getAvailableCoupons()
-                val loadedBalance = balanceResult.getOrNull()
-                val domainCoupons = couponsResult.getOrNull()
-                val uiCoupons = domainCoupons?.map { bc ->
-                    Coupon(
-                        id = bc.id,
-                        businessName = bc.businessName,
-                        title = bc.title,
-                        subtitle = bc.subtitle,
-                        category = categoryFromString(bc.category),
-                        pointsCost = bc.pointsCost,
-                        availableQuantity = bc.availableQuantity,
-                        validUntilMillis = bc.validUntilMillis,
-                        conditions = bc.conditions,
-                    )
-                } ?: emptyList()
+        }
 
-                val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
-                    uiCoupons to false
-                } else {
-                    DefaultSampleCoupons to true
-                }
+        viewModelScope.launch {
+            val balanceResult = gamificationRepository.getBalance()
+            val couponsResult = gamificationRepository.getAvailableCoupons()
+            val loadedBalance = balanceResult.getOrNull() ?: 0
+            val domainCoupons = couponsResult.getOrNull().orEmpty()
+            val uiCoupons = domainCoupons.map { bc ->
+                Coupon(
+                    id = bc.id,
+                    businessName = bc.businessName,
+                    title = bc.title,
+                    subtitle = bc.subtitle,
+                    category = categoryFromString(bc.category),
+                    pointsCost = bc.pointsCost,
+                    availableQuantity = bc.availableQuantity,
+                    validUntilMillis = bc.validUntilMillis,
+                    conditions = bc.conditions,
+                )
+            }
 
-                _benefitsState.update {
-                    it.copy(
-                        isLoading = false,
-                        balance = loadedBalance,
-                        coupons = couponsToShow,
-                        isSample = isSample,
-                        error = null,
-                    )
-                }
-                val found = couponsToShow.find { it.id == couponId }
-                _redemptionState.update {
-                    it.copy(
-                        isLoading = false,
-                        coupon = found,
-                        balance = loadedBalance,
-                        error = if (found == null) R.string.benefits_load_error else null,
-                    )
-                }
+            val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
+                uiCoupons to false
+            } else {
+                DefaultSampleCoupons to true
+            }
+
+            _benefitsState.update {
+                it.copy(
+                    isLoading = false,
+                    balance = loadedBalance,
+                    coupons = couponsToShow,
+                    isSample = isSample,
+                    error = null,
+                )
+            }
+
+            val found = couponsToShow.find { it.id == couponId }
+            _redemptionState.update {
+                it.copy(
+                    isLoading = false,
+                    coupon = found,
+                    balance = loadedBalance,
+                    isSample = isSample,
+                    error = if (found == null) R.string.benefits_load_error else null,
+                )
             }
         }
     }
