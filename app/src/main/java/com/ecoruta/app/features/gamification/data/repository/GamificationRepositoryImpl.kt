@@ -3,6 +3,7 @@ package com.ecoruta.app.features.gamification.data.repository
 // Implementación del repositorio de gamificación y cupones comerciales
 // Consulta catálogo, saldo, historial de movimientos y redime cupones con operación atómica en Supabase
 
+import com.ecoruta.app.features.gamification.data.remote.dto.BusinessInfoDto
 import com.ecoruta.app.features.gamification.data.remote.dto.CitizenBalanceDto
 import com.ecoruta.app.features.gamification.data.remote.dto.CouponDto
 import com.ecoruta.app.features.gamification.data.remote.dto.CouponRedemptionDto
@@ -10,6 +11,7 @@ import com.ecoruta.app.features.gamification.data.remote.dto.CreateCouponPayload
 import com.ecoruta.app.features.gamification.data.remote.dto.EcoPointsTransactionDto
 import com.ecoruta.app.features.gamification.data.remote.dto.RedeemRpcResultDto
 import com.ecoruta.app.features.gamification.data.remote.dto.UpdateCouponPayloadDto
+import com.ecoruta.app.features.gamification.data.remote.dto.parseDateToMillis
 import com.ecoruta.app.features.gamification.data.remote.dto.toDomain
 import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
 import com.ecoruta.app.features.gamification.domain.model.EcoPointsLedger
@@ -19,6 +21,10 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.rpc
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,7 +68,7 @@ class GamificationRepositoryImpl @Inject constructor(
 
     // Consulta el catálogo de cupones activos disponibles con stock mayor a cero
     override suspend fun getAvailableCoupons(): Result<List<BenefitCoupon>> = runCatching {
-        postgrest.from("coupons")
+        val couponsDto = postgrest.from("coupons")
             .select {
                 filter {
                     eq("is_active", true)
@@ -70,7 +76,23 @@ class GamificationRepositoryImpl @Inject constructor(
                 }
             }
             .decodeList<CouponDto>()
-            .map { it.toDomain() }
+
+        if (couponsDto.isEmpty()) return@runCatching emptyList()
+
+        val businessIds = couponsDto.mapNotNull { it.businessId }.distinct()
+        val businessesMap = if (businessIds.isNotEmpty()) {
+            postgrest.from("businesses")
+                .select {
+                    filter { isIn("profile_id", businessIds) }
+                }
+                .decodeList<BusinessInfoDto>()
+                .associateBy { it.profileId }
+        } else emptyMap()
+
+        couponsDto.map { dto ->
+            val business = dto.businessId?.let { businessesMap[it] }
+            dto.toDomain(businessName = business?.businessName ?: "Comercio Aliado")
+        }
     }
 
     // Canjea un cupón debitando los puntos del ciudadano de forma atómica (RPC Supabase)
@@ -78,21 +100,51 @@ class GamificationRepositoryImpl @Inject constructor(
         val userId = auth.currentUserOrNull()?.id
             ?: error("No existe una sesión activa para canjear el cupón")
 
-        val result = postgrest.rpc("redeem_coupon", mapOf("p_coupon_id" to couponId))
-            .decodeSingleOrNull<RedeemRpcResultDto>()
+        // Obtiene información del cupón y comercio para completar el comprobante
+        val coupon = postgrest.from("coupons")
+            .select { filter { eq("id", couponId) } }
+            .decodeSingleOrNull<CouponDto>()
 
-        val redemptionId = result?.redemptionId.orEmpty()
-        val code = result?.code.orEmpty()
+        val businessName = coupon?.businessId?.let { bId ->
+            postgrest.from("businesses")
+                .select { filter { eq("profile_id", bId) } }
+                .decodeSingleOrNull<BusinessInfoDto>()?.businessName
+        } ?: "Comercio Aliado"
+
+        val response = postgrest.rpc("redeem_coupon", mapOf("p_coupon_id" to couponId))
+
+        val result = runCatching {
+            response.decodeAs<RedeemRpcResultDto>()
+        }.recoverCatching {
+            val json = response.decodeAs<JsonObject>()
+            RedeemRpcResultDto(
+                success = json["success"]?.jsonPrimitive?.booleanOrNull ?: true,
+                redemptionId = json["redemption_id"]?.jsonPrimitive?.contentOrNull,
+                code = json["code"]?.jsonPrimitive?.contentOrNull,
+                message = json["message"]?.jsonPrimitive?.contentOrNull,
+            )
+        }.recoverCatching {
+            response.decodeSingleOrNull<RedeemRpcResultDto>() ?: RedeemRpcResultDto()
+        }.getOrThrow()
+
+        val redemptionId = result.redemptionId.orEmpty()
+        val code = result.code.orEmpty()
+
+        val nowMillis = System.currentTimeMillis()
+        val oneMonthMillis = 30L * 24 * 60 * 60 * 1000L
+        val couponValidUntil = parseDateToMillis(coupon?.validUntil)
+        val maxValidity = nowMillis + oneMonthMillis
+        val effectiveValidUntil = if (couponValidUntil > 0) minOf(couponValidUntil, maxValidity) else maxValidity
 
         RedeemedBenefitCoupon(
             id = redemptionId,
             couponId = couponId,
-            businessName = "Comercio Aliado",
-            title = "",
+            businessName = businessName,
+            title = coupon?.title.orEmpty().ifBlank { "Cupón Canjeado" },
             code = code,
-            redeemedAtMillis = System.currentTimeMillis(),
-            pointsSpent = 0,
-            validUntilMillis = 0L,
+            redeemedAtMillis = nowMillis,
+            pointsSpent = coupon?.pointsCost ?: 0,
+            validUntilMillis = effectiveValidUntil,
         )
     }
 
@@ -101,24 +153,57 @@ class GamificationRepositoryImpl @Inject constructor(
         val userId = auth.currentUserOrNull()?.id
             ?: error("No existe una sesión activa para consultar mis cupones")
 
-        postgrest.from("coupon_redemptions")
+        val redemptions = postgrest.from("coupon_redemptions")
             .select {
                 filter { eq("citizen_id", userId) }
                 order("redeemed_at", Order.DESCENDING)
             }
             .decodeList<CouponRedemptionDto>()
-            .map { row ->
-                RedeemedBenefitCoupon(
-                    id = row.id,
-                    couponId = row.couponId,
-                    businessName = "Comercio Aliado",
-                    title = "",
-                    code = row.code.orEmpty(),
-                    redeemedAtMillis = parseIsoDateToMillis(row.redeemedAt),
-                    pointsSpent = 0,
-                    validUntilMillis = 0L,
-                )
+
+        if (redemptions.isEmpty()) return@runCatching emptyList()
+
+        val couponIds = redemptions.map { it.couponId }.distinct()
+        val couponsMap = postgrest.from("coupons")
+            .select {
+                filter { isIn("id", couponIds) }
             }
+            .decodeList<CouponDto>()
+            .associateBy { it.id }
+
+        val businessIds = couponsMap.values.mapNotNull { it.businessId }.distinct()
+        val businessesMap = if (businessIds.isNotEmpty()) {
+            postgrest.from("businesses")
+                .select {
+                    filter { isIn("profile_id", businessIds) }
+                }
+                .decodeList<BusinessInfoDto>()
+                .associateBy { it.profileId }
+        } else emptyMap()
+
+        val nowMillis = System.currentTimeMillis()
+        val oneMonthMillis = 30L * 24 * 60 * 60 * 1000L
+
+        redemptions.map { row ->
+            val coupon = couponsMap[row.couponId]
+            val business = coupon?.businessId?.let { businessesMap[it] }
+            val redeemedAt = parseIsoDateToMillis(row.redeemedAt)
+
+            // Vigencia máxima de 1 mes desde el momento del canje
+            val couponValidUntil = parseDateToMillis(coupon?.validUntil)
+            val maxValidity = if (redeemedAt > 0) redeemedAt + oneMonthMillis else nowMillis + oneMonthMillis
+            val effectiveValidUntil = if (couponValidUntil > 0) minOf(couponValidUntil, maxValidity) else maxValidity
+
+            RedeemedBenefitCoupon(
+                id = row.id,
+                couponId = row.couponId,
+                businessName = business?.businessName ?: "Comercio Aliado",
+                title = coupon?.title.orEmpty().ifBlank { "Cupón Canjeado" },
+                code = row.code.orEmpty(),
+                redeemedAtMillis = redeemedAt,
+                pointsSpent = coupon?.pointsCost ?: 0,
+                validUntilMillis = effectiveValidUntil,
+            )
+        }
     }
 
     // Consulta el detalle de un cupón canjeado por su identificador único
@@ -130,15 +215,32 @@ class GamificationRepositoryImpl @Inject constructor(
             .decodeSingleOrNull<CouponRedemptionDto>()
             ?: error("Cupón canjeado no encontrado con id: $redeemedCouponId")
 
+        val coupon = postgrest.from("coupons")
+            .select { filter { eq("id", row.couponId) } }
+            .decodeSingleOrNull<CouponDto>()
+
+        val businessName = coupon?.businessId?.let { bId ->
+            postgrest.from("businesses")
+                .select { filter { eq("profile_id", bId) } }
+                .decodeSingleOrNull<BusinessInfoDto>()?.businessName
+        } ?: "Comercio Aliado"
+
+        val redeemedAt = parseIsoDateToMillis(row.redeemedAt)
+        val nowMillis = System.currentTimeMillis()
+        val oneMonthMillis = 30L * 24 * 60 * 60 * 1000L
+        val couponValidUntil = parseDateToMillis(coupon?.validUntil)
+        val maxValidity = if (redeemedAt > 0) redeemedAt + oneMonthMillis else nowMillis + oneMonthMillis
+        val effectiveValidUntil = if (couponValidUntil > 0) minOf(couponValidUntil, maxValidity) else maxValidity
+
         RedeemedBenefitCoupon(
             id = row.id,
             couponId = row.couponId,
-            businessName = "Comercio Aliado",
-            title = "",
+            businessName = businessName,
+            title = coupon?.title.orEmpty().ifBlank { "Cupón Canjeado" },
             code = row.code.orEmpty(),
-            redeemedAtMillis = parseIsoDateToMillis(row.redeemedAt),
-            pointsSpent = 0,
-            validUntilMillis = 0L,
+            redeemedAtMillis = redeemedAt,
+            pointsSpent = coupon?.pointsCost ?: 0,
+            validUntilMillis = effectiveValidUntil,
         )
     }
 
@@ -167,8 +269,6 @@ class GamificationRepositoryImpl @Inject constructor(
             quantityAvailable = quantityAvailable,
             validUntil = isoValidUntil,
             isActive = true,
-            category = category.trim().ifBlank { "general" },
-            description = description.trim(),
         )
 
         val created = postgrest.from("coupons")
@@ -177,7 +277,10 @@ class GamificationRepositoryImpl @Inject constructor(
             }
             .decodeSingle<CouponDto>()
 
-        created.toDomain()
+        created.toDomain().copy(
+            category = category.ifBlank { "general" },
+            subtitle = description.ifBlank { created.title },
+        )
     }
 
     // Actualiza los campos de un cupón existente verificando propiedad del comercio
@@ -210,8 +313,6 @@ class GamificationRepositoryImpl @Inject constructor(
             quantityAvailable = quantityAvailable,
             validUntil = isoValidUntil,
             isActive = isActive,
-            category = category.trim().ifBlank { "general" },
-            description = description.trim(),
             updatedAt = isoNow,
         )
 
@@ -225,7 +326,10 @@ class GamificationRepositoryImpl @Inject constructor(
             }
             .decodeSingle<CouponDto>()
 
-        updated.toDomain()
+        updated.toDomain().copy(
+            category = category.ifBlank { "general" },
+            subtitle = description.ifBlank { updated.title },
+        )
     }
 
     // Desactiva un cupón del comercio mediante baja lógica (is_active = false)
@@ -274,9 +378,12 @@ class GamificationRepositoryImpl @Inject constructor(
     private fun parseIsoDateToMillis(isoDate: String?): Long {
         if (isoDate.isNullOrBlank()) return System.currentTimeMillis()
         return runCatching {
+            val clean = isoDate.trim().replace(' ', 'T')
+            val withoutOffset = clean.substringBefore("+").substringBefore("Z")
+            val base = withoutOffset.substringBefore(".")
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
                 .apply { timeZone = TimeZone.getTimeZone("UTC") }
-                .parse(isoDate.substringBefore("+").substringBefore("Z"))
+                .parse(base)
                 ?.time ?: System.currentTimeMillis()
         }.getOrDefault(System.currentTimeMillis())
     }

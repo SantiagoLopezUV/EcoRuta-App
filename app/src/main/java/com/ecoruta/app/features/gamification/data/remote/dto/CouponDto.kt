@@ -19,25 +19,23 @@ data class CouponDto(
     @SerialName("quantity_available") val quantityAvailable: Int = 0,
     @SerialName("valid_until") val validUntil: String? = null,
     @SerialName("is_active") val isActive: Boolean = true,
-    @SerialName("category") val category: String? = null,
-    @SerialName("description") val description: String? = null,
 )
 
-// Convierte el DTO remoto de cupón comercial a modelo de dominio
-fun CouponDto.toDomain(): BenefitCoupon = BenefitCoupon(
+// Convierte el DTO remoto de cupón comercial a modelo de dominio sin depender de columnas inexistentes
+fun CouponDto.toDomain(businessName: String = "Comercio Aliado"): BenefitCoupon = BenefitCoupon(
     id = id,
-    businessName = "Comercio Aliado",
+    businessName = businessName,
     title = title,
-    subtitle = description.orEmpty(),
+    subtitle = title,
     pointsCost = pointsCost,
     availableQuantity = quantityAvailable,
     validUntilMillis = parseDateToMillis(validUntil),
     conditions = emptyList(),
-    category = category.orEmpty(),
+    category = "general",
     isActive = isActive,
 )
 
-// DTO serializable para crear un cupón en Supabase asociado al comercio autenticado
+// DTO serializable para crear un cupón en Supabase ajustado estrictamente al esquema de la tabla coupons
 @Serializable
 data class CreateCouponPayloadDto(
     @SerialName("business_id") val businessId: String,
@@ -46,11 +44,9 @@ data class CreateCouponPayloadDto(
     @SerialName("quantity_available") val quantityAvailable: Int,
     @SerialName("valid_until") val validUntil: String? = null,
     @SerialName("is_active") val isActive: Boolean = true,
-    @SerialName("category") val category: String? = null,
-    @SerialName("description") val description: String? = null,
 )
 
-// DTO serializable para actualizar campos de un cupón existente en Supabase
+// DTO serializable para actualizar campos de un cupón existente en Supabase según columnas reales
 @Serializable
 data class UpdateCouponPayloadDto(
     @SerialName("title") val title: String? = null,
@@ -58,8 +54,6 @@ data class UpdateCouponPayloadDto(
     @SerialName("quantity_available") val quantityAvailable: Int? = null,
     @SerialName("valid_until") val validUntil: String? = null,
     @SerialName("is_active") val isActive: Boolean? = null,
-    @SerialName("category") val category: String? = null,
-    @SerialName("description") val description: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null,
 )
 
@@ -78,15 +72,30 @@ data class CouponRedemptionDto(
 
 @Serializable
 data class RedeemRpcResultDto(
+    @SerialName("success") val success: Boolean = true,
     @SerialName("redemption_id") val redemptionId: String? = null,
     @SerialName("code") val code: String? = null,
+    @SerialName("message") val message: String? = null,
 )
 
-private fun parseDateToMillis(dateStr: String?): Long = runCatching {
-    if (dateStr == null) return@runCatching 0L
-    val pattern = if (dateStr.length == 10) "yyyy-MM-dd" else "yyyy-MM-dd'T'HH:mm:ss"
-    SimpleDateFormat(pattern, Locale.US)
-        .apply { timeZone = TimeZone.getTimeZone("UTC") }
-        .parse(dateStr.substringBefore("+").substringBefore("Z"))
-        ?.time ?: 0L
+@Serializable
+data class BusinessInfoDto(
+    @SerialName("profile_id") val profileId: String,
+    @SerialName("business_name") val businessName: String,
+)
+
+internal fun parseDateToMillis(dateStr: String?): Long = runCatching {
+    if (dateStr.isNullOrBlank()) return@runCatching 0L
+    val clean = dateStr.trim().replace(' ', 'T')
+    val withoutOffset = clean.substringBefore("+").substringBefore("Z")
+    if (withoutOffset.length == 10) {
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.parse(withoutOffset)?.time ?: 0L
+    } else {
+        val base = withoutOffset.substringBefore(".")
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.parse(base)?.time ?: 0L
+    }
 }.getOrDefault(0L)
