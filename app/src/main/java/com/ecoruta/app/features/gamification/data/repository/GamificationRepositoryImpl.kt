@@ -6,8 +6,10 @@ package com.ecoruta.app.features.gamification.data.repository
 import com.ecoruta.app.features.gamification.data.remote.dto.CitizenBalanceDto
 import com.ecoruta.app.features.gamification.data.remote.dto.CouponDto
 import com.ecoruta.app.features.gamification.data.remote.dto.CouponRedemptionDto
+import com.ecoruta.app.features.gamification.data.remote.dto.CreateCouponPayloadDto
 import com.ecoruta.app.features.gamification.data.remote.dto.EcoPointsTransactionDto
 import com.ecoruta.app.features.gamification.data.remote.dto.RedeemRpcResultDto
+import com.ecoruta.app.features.gamification.data.remote.dto.UpdateCouponPayloadDto
 import com.ecoruta.app.features.gamification.data.remote.dto.toDomain
 import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
 import com.ecoruta.app.features.gamification.domain.model.EcoPointsLedger
@@ -18,6 +20,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.rpc
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
@@ -137,6 +140,135 @@ class GamificationRepositoryImpl @Inject constructor(
             pointsSpent = 0,
             validUntilMillis = 0L,
         )
+    }
+
+    // Registra un nuevo cupón de descuento en Supabase asociado al comercio autenticado
+    override suspend fun createCoupon(
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long?,
+        category: String,
+        description: String,
+    ): Result<BenefitCoupon> = runCatching {
+        val businessId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para publicar cupones comerciales")
+
+        require(title.isNotBlank()) { "El título del cupón no puede estar vacío" }
+        require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
+        require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
+
+        val isoValidUntil = formatMillisToIsoDate(validUntilMillis)
+
+        val payload = CreateCouponPayloadDto(
+            businessId = businessId,
+            title = title.trim(),
+            pointsCost = pointsCost,
+            quantityAvailable = quantityAvailable,
+            validUntil = isoValidUntil,
+            isActive = true,
+            category = category.trim().ifBlank { "general" },
+            description = description.trim(),
+        )
+
+        val created = postgrest.from("coupons")
+            .insert(payload) {
+                select()
+            }
+            .decodeSingle<CouponDto>()
+
+        created.toDomain()
+    }
+
+    // Actualiza los campos de un cupón existente verificando propiedad del comercio
+    override suspend fun updateCoupon(
+        couponId: String,
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long?,
+        category: String,
+        description: String,
+        isActive: Boolean,
+    ): Result<BenefitCoupon> = runCatching {
+        val businessId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para modificar cupones comerciales")
+
+        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
+        require(title.isNotBlank()) { "El título del cupón no puede estar vacío" }
+        require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
+        require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
+
+        val isoValidUntil = formatMillisToIsoDate(validUntilMillis)
+        val isoNow = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+
+        val payload = UpdateCouponPayloadDto(
+            title = title.trim(),
+            pointsCost = pointsCost,
+            quantityAvailable = quantityAvailable,
+            validUntil = isoValidUntil,
+            isActive = isActive,
+            category = category.trim().ifBlank { "general" },
+            description = description.trim(),
+            updatedAt = isoNow,
+        )
+
+        val updated = postgrest.from("coupons")
+            .update(payload) {
+                filter {
+                    eq("id", couponId)
+                    eq("business_id", businessId)
+                }
+                select()
+            }
+            .decodeSingle<CouponDto>()
+
+        updated.toDomain()
+    }
+
+    // Desactiva un cupón del comercio mediante baja lógica (is_active = false)
+    override suspend fun deactivateCoupon(couponId: String): Result<Unit> = runCatching {
+        val businessId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para desactivar cupones comerciales")
+
+        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
+
+        val isoNow = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+
+        postgrest.from("coupons")
+            .update(UpdateCouponPayloadDto(isActive = false, updatedAt = isoNow)) {
+                filter {
+                    eq("id", couponId)
+                    eq("business_id", businessId)
+                }
+            }
+        Unit
+    }
+
+    // Consulta todos los cupones creados por el comercio autenticado (activos e inactivos)
+    override suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>> = runCatching {
+        val businessId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para consultar cupones del comercio")
+
+        postgrest.from("coupons")
+            .select {
+                filter { eq("business_id", businessId) }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<CouponDto>()
+            .map { it.toDomain() }
+    }
+
+    //formato para la fecha del cupon
+    private fun formatMillisToIsoDate(millis: Long?): String? {
+        if (millis == null || millis <= 0L) return null
+        return SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date(millis))
     }
 
     private fun parseIsoDateToMillis(isoDate: String?): Long {

@@ -34,6 +34,33 @@ fun CouponDto.toDomain(): BenefitCoupon = BenefitCoupon(
     validUntilMillis = parseDateToMillis(validUntil),
     conditions = emptyList(),
     category = category.orEmpty(),
+    isActive = isActive,
+)
+
+// DTO serializable para crear un cupón en Supabase asociado al comercio autenticado
+@Serializable
+data class CreateCouponPayloadDto(
+    @SerialName("business_id") val businessId: String,
+    @SerialName("title") val title: String,
+    @SerialName("points_cost") val pointsCost: Int,
+    @SerialName("quantity_available") val quantityAvailable: Int,
+    @SerialName("valid_until") val validUntil: String? = null,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("category") val category: String? = null,
+    @SerialName("description") val description: String? = null,
+)
+
+// DTO serializable para actualizar campos de un cupón existente en Supabase
+@Serializable
+data class UpdateCouponPayloadDto(
+    @SerialName("title") val title: String? = null,
+    @SerialName("points_cost") val pointsCost: Int? = null,
+    @SerialName("quantity_available") val quantityAvailable: Int? = null,
+    @SerialName("valid_until") val validUntil: String? = null,
+    @SerialName("is_active") val isActive: Boolean? = null,
+    @SerialName("category") val category: String? = null,
+    @SerialName("description") val description: String? = null,
+    @SerialName("updated_at") val updatedAt: String? = null,
 )
 
 @Serializable
