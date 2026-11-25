@@ -13,6 +13,7 @@ data class BenefitCoupon(
     val validUntilMillis: Long,
     val conditions: List<String>,
     val category: String,
+    val isActive: Boolean = true,
 )
 
 data class RedeemedBenefitCoupon(

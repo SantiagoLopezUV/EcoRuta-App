@@ -26,4 +26,32 @@ interface GamificationRepository {
 
     // Consulta el detalle de un cupón canjeado por su identificador
     suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedBenefitCoupon>
+
+    // Registra un nuevo cupón de descuento asociado al comercio aliado autenticado
+    suspend fun createCoupon(
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long? = null,
+        category: String = "general",
+        description: String = "",
+    ): Result<BenefitCoupon>
+
+    // Actualiza los datos de un cupón existente verificando pertenencia al comercio
+    suspend fun updateCoupon(
+        couponId: String,
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long? = null,
+        category: String = "general",
+        description: String = "",
+        isActive: Boolean = true,
+    ): Result<BenefitCoupon>
+
+    // Desactiva un cupón del comercio aliado mediante baja lógica sin eliminar redenciones históricas
+    suspend fun deactivateCoupon(couponId: String): Result<Unit>
+
+    // Consulta todos los cupones creados por el comercio autenticado (activos e inactivos)
+    suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>>
 }
