@@ -109,6 +109,95 @@ class FakeGamificationRepository : GamificationRepository {
             ?: error("Cupón canjeado no encontrado con id: $redeemedCouponId")
     }
 
+    // Cupones propios creados por el comercio en memoria para pruebas
+    val merchantCoupons = mutableListOf<BenefitCoupon>()
+
+    override suspend fun createCoupon(
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long?,
+        category: String,
+        description: String,
+    ): Result<BenefitCoupon> = result {
+        require(title.isNotBlank()) { "El título del cupón no puede estar vacío" }
+        require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
+        require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
+
+        val created = BenefitCoupon(
+            id = "CUP-${merchantCoupons.size + 100}",
+            businessName = "Comercio de Prueba",
+            title = title,
+            subtitle = description,
+            pointsCost = pointsCost,
+            availableQuantity = quantityAvailable,
+            validUntilMillis = validUntilMillis ?: (System.currentTimeMillis() + 86400000L * 30),
+            conditions = emptyList(),
+            category = category,
+            isActive = true,
+        )
+        merchantCoupons.add(created)
+        availableCoupons.add(created)
+        created
+    }
+
+    override suspend fun updateCoupon(
+        couponId: String,
+        title: String,
+        pointsCost: Int,
+        quantityAvailable: Int,
+        validUntilMillis: Long?,
+        category: String,
+        description: String,
+        isActive: Boolean,
+    ): Result<BenefitCoupon> = result {
+        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
+        require(title.isNotBlank()) { "El título del cupón no puede estar vacío" }
+        require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
+        require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
+
+        val index = merchantCoupons.indexOfFirst { it.id == couponId }
+        val existing = if (index != -1) merchantCoupons[index] else availableCoupons.find { it.id == couponId }
+            ?: error("Cupón no encontrado con id: $couponId")
+
+        val updated = existing.copy(
+            title = title,
+            subtitle = description,
+            pointsCost = pointsCost,
+            availableQuantity = quantityAvailable,
+            validUntilMillis = validUntilMillis ?: existing.validUntilMillis,
+            category = category,
+            isActive = isActive,
+        )
+        if (index != -1) {
+            merchantCoupons[index] = updated
+        } else {
+            merchantCoupons.add(updated)
+        }
+        val availIndex = availableCoupons.indexOfFirst { it.id == couponId }
+        if (availIndex != -1) {
+            availableCoupons[availIndex] = updated
+        }
+        updated
+    }
+
+    override suspend fun deactivateCoupon(couponId: String): Result<Unit> = result {
+        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
+        val index = merchantCoupons.indexOfFirst { it.id == couponId }
+        if (index != -1) {
+            merchantCoupons[index] = merchantCoupons[index].copy(isActive = false)
+        }
+        val availIndex = availableCoupons.indexOfFirst { it.id == couponId }
+        if (availIndex != -1) {
+            availableCoupons[availIndex] = availableCoupons[availIndex].copy(isActive = false)
+        }
+        Unit
+    }
+
+    override suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>> = result {
+        merchantCoupons.toList()
+    }
+
     private inline fun <T> result(block: () -> T): Result<T> =
         error?.let { Result.failure(it) } ?: runCatching(block)
 }
