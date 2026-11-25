@@ -55,13 +55,13 @@ import com.ecoruta.app.features.profile.presentation.components.StoreApplication
 import com.ecoruta.app.features.profile.presentation.components.StoreRequestInReviewScreen
 
 private val SampleUserProfile = UserProfile(
-    fullName = "Camila Restrepo",
+    fullName = "",
     role = UserRole.CIUDADANO,
-    city = "Rionegro, Antioquia",
-    email = "camila.restrepo@ecoruta.co",
-    documentNumber = "1.036.948.210",
+    city = "Tuluá, Valle del Cauca",
+    email = "",
+    documentNumber = "",
     ecoPoints = 0,
-    approvedRoles = setOf(UserRole.CIUDADANO, UserRole.COMERCIO, UserRole.RECICLADOR, UserRole.CHOFER),
+    approvedRoles = setOf(UserRole.CIUDADANO),
 )
 
 private val SampleCompanies = listOf(
@@ -123,13 +123,16 @@ fun NavGraphBuilder.profileGraph(
 
     composable(EcoRutaDestination.CITIZEN_EDIT_PROFILE) {
         val viewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
         val profileState by viewModel.uiState.collectAsStateWithLifecycle()
         val loadedProfile = (profileState as? ProfileUiState.Loaded)?.profile
         var state by remember(loadedProfile) {
             mutableStateOf(
                 CitizenEditProfileUiState(
-                    fullName = loadedProfile?.fullName ?: SampleUserProfile.fullName,
-                    email = loadedProfile?.email ?: SampleUserProfile.email,
+                    fullName = loadedProfile?.fullName.orEmpty(),
+                    email = loadedProfile?.email.orEmpty(),
                 )
             )
         }
@@ -235,11 +238,17 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
         route = EcoRutaDestination.RECYCLER_APPLICATION,
     ) {
         composable(EcoRutaDestination.RECYCLER_APPLICATION_FORM) {
-            var state by remember {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                viewModel.refresh()
+            }
+            val profileState by viewModel.uiState.collectAsStateWithLifecycle()
+            val loadedProfile = (profileState as? ProfileUiState.Loaded)?.profile
+            var state by remember(loadedProfile) {
                 mutableStateOf(
                     RecyclerApplicationUiState(
-                        fullName = SampleUserProfile.fullName,
-                        documentNumber = SampleUserProfile.documentNumber,
+                        fullName = loadedProfile?.fullName.orEmpty(),
+                        documentNumber = loadedProfile?.documentNumber.orEmpty(),
                         modality = RecyclerModality.INDEPENDENT,
                         results = SampleCompanies,
                     ),

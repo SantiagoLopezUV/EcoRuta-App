@@ -24,6 +24,8 @@ import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.features.profile.presentation.ProfileUiState
+import com.ecoruta.app.features.profile.presentation.ProfileViewModel
 import com.ecoruta.app.features.routes.presentation.map.AppNotification
 import com.ecoruta.app.features.routes.presentation.map.CollectionRoute
 import com.ecoruta.app.features.routes.presentation.map.GuestNotificationsScreen
@@ -103,9 +105,15 @@ fun NavGraphBuilder.routesGraph(
     }
 
     composable(EcoRutaDestination.CITIZEN_HOME) {
+        val profileViewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            profileViewModel.refresh()
+        }
+        val profileState by profileViewModel.uiState.collectAsStateWithLifecycle()
+        val userName = (profileState as? ProfileUiState.Loaded)?.profile?.fullName
         HomeScreen(
             isSignedIn = true,
-            userName = "Camila Restrepo",
+            userName = userName,
             actions = HomeActions(
                 onNotificationsClick = { open(EcoRutaDestination.NOTIFICATIONS) },
                 onLogoutClick = { navController.goToPublicHomeAfterSignOut() },
