@@ -13,6 +13,8 @@ import com.ecoruta.app.features.education.data.repository.EducationRepositoryImp
 import com.ecoruta.app.features.education.domain.repository.EducationRepository
 import com.ecoruta.app.features.gamification.data.repository.GamificationRepositoryImpl
 import com.ecoruta.app.features.gamification.domain.repository.GamificationRepository
+import com.ecoruta.app.features.notifications.data.repository.FcmTokenRepositoryImpl
+import com.ecoruta.app.features.notifications.domain.repository.FcmTokenRepository
 import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import com.ecoruta.app.features.reports.data.repository.ReportRepositoryImpl
@@ -78,6 +80,11 @@ abstract class RepositoryModule {
         impl: NeighborhoodRouteRepositoryImpl
     ): NeighborhoodRouteRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindFcmTokenRepository(
+        implementation: FcmTokenRepositoryImpl
+    ): FcmTokenRepository
     // Vincula la interfaz de economía circular y reciclaje con la implementación de Supabase
     @Binds
     @Singleton
