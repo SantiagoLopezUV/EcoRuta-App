@@ -42,7 +42,7 @@ class BenefitsViewModel @Inject constructor(
             val balanceResult = gamificationRepository.getBalance()
             val couponsResult = gamificationRepository.getAvailableCoupons()
 
-            val balance = balanceResult.getOrNull()
+            val balance = balanceResult.getOrNull() ?: 0
             val domainCoupons = couponsResult.getOrNull()
 
             if (balanceResult.isFailure && couponsResult.isFailure) {
@@ -67,12 +67,19 @@ class BenefitsViewModel @Inject constructor(
                 )
             } ?: emptyList()
 
+            // Si el catálogo remoto aún no tiene registros en base de datos, presenta datos de muestra
+            val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
+                uiCoupons to false
+            } else {
+                DefaultSampleCoupons to true
+            }
+
             _benefitsState.update {
                 it.copy(
                     isLoading = false,
                     balance = balance,
-                    coupons = uiCoupons,
-                    isSample = false,
+                    coupons = couponsToShow,
+                    isSample = isSample,
                     error = null,
                 )
             }
@@ -110,7 +117,7 @@ class BenefitsViewModel @Inject constructor(
         val balance = _benefitsState.value.balance
         _redemptionState.update {
             it.copy(
-                isLoading = coupon == null,
+                isLoading = coupon == null && _benefitsState.value.isLoading,
                 coupon = coupon,
                 balance = balance,
                 step = RedemptionStep.DETAIL,
@@ -118,6 +125,52 @@ class BenefitsViewModel @Inject constructor(
                 receipt = null,
                 error = null,
             )
+        } //implementar el view model para los cupones
+        if (coupon == null && !_benefitsState.value.isLoading) {
+            viewModelScope.launch {
+                val balanceResult = gamificationRepository.getBalance()
+                val couponsResult = gamificationRepository.getAvailableCoupons()
+                val loadedBalance = balanceResult.getOrNull()
+                val domainCoupons = couponsResult.getOrNull()
+                val uiCoupons = domainCoupons?.map { bc ->
+                    Coupon(
+                        id = bc.id,
+                        businessName = bc.businessName,
+                        title = bc.title,
+                        subtitle = bc.subtitle,
+                        category = categoryFromString(bc.category),
+                        pointsCost = bc.pointsCost,
+                        availableQuantity = bc.availableQuantity,
+                        validUntilMillis = bc.validUntilMillis,
+                        conditions = bc.conditions,
+                    )
+                } ?: emptyList()
+
+                val (couponsToShow, isSample) = if (uiCoupons.isNotEmpty()) {
+                    uiCoupons to false
+                } else {
+                    DefaultSampleCoupons to true
+                }
+
+                _benefitsState.update {
+                    it.copy(
+                        isLoading = false,
+                        balance = loadedBalance,
+                        coupons = couponsToShow,
+                        isSample = isSample,
+                        error = null,
+                    )
+                }
+                val found = couponsToShow.find { it.id == couponId }
+                _redemptionState.update {
+                    it.copy(
+                        isLoading = false,
+                        coupon = found,
+                        balance = loadedBalance,
+                        error = if (found == null) R.string.benefits_load_error else null,
+                    )
+                }
+            }
         }
     }
 
@@ -194,3 +247,41 @@ class BenefitsViewModel @Inject constructor(
 
 // Alias de compatibilidad arquitectónica para el issue ECO-1045
 typealias EcoPointsViewModel = BenefitsViewModel
+
+// Catálogo base de cupones de muestra mientras se aprovisionan datos en backend
+val DefaultSampleCoupons = listOf(
+    Coupon(
+        id = "CUP-01",
+        businessName = "Café del Río",
+        title = "20 % de descuento en bebidas calientes",
+        subtitle = "Válido de lunes a viernes",
+        category = CouponCategory.FOOD,
+        pointsCost = 450,
+        availableQuantity = 18,
+        validUntilMillis = 1_795_996_800_000L,
+        conditions = listOf("Un cupón por compra", "Presenta el código QR en caja"),
+    ),
+    Coupon(
+        id = "CUP-02",
+        businessName = "Mercado Saludable Bio",
+        title = "Bono de $ 15.000 en compras superiores a $ 60.000",
+        subtitle = "Aplica en granos y frutos secos",
+        category = CouponCategory.GROCERIES,
+        pointsCost = 300,
+        availableQuantity = 12,
+        validUntilMillis = 1_795_996_800_000L,
+        conditions = listOf("No acumulable con otras promociones"),
+    ),
+    Coupon(
+        id = "CUP-03",
+        businessName = "Papelería San Carlos",
+        title = "15 % de descuento en cuadernos ecológicos",
+        subtitle = "Válido todo el mes",
+        category = CouponCategory.STATIONERY,
+        pointsCost = 200,
+        availableQuantity = 25,
+        validUntilMillis = 1_795_996_800_000L,
+        conditions = listOf("Presenta el código QR antes de pagar"),
+    ),
+)
+

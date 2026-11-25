@@ -47,20 +47,20 @@ class ScheduleRcdViewModel @Inject constructor(
         initCalendarSlots()
     }
 
-    // Inicializa el rango de fechas disponibles en el calendario (lunes a sábado, excluyendo domingos)
+    // Inicializa el rango de fechas disponibles en el calendario y consulta cupos remotos
     fun initCalendarSlots() {
         val baseDay = DayMillis.startOfDay(System.currentTimeMillis())
         val firstSelectableDay = DayMillis.addDays(baseDay, 1)
         val lastSelectableDay = DayMillis.addDays(firstSelectableDay, DebrisRequestUiState.SELECTABLE_DAYS)
         val weekStart = DayMillis.mondayOf(firstSelectableDay)
 
-        val available = mutableSetOf<Long>()
+        val defaultAvailable = mutableSetOf<Long>()
         val calendar = Calendar.getInstance()
         for (i in 0 until DebrisRequestUiState.SELECTABLE_DAYS) {
             val day = DayMillis.addDays(firstSelectableDay, i)
             calendar.timeInMillis = day
             if (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-                available.add(day)
+                defaultAvailable.add(day)
             }
         }
 
@@ -69,9 +69,34 @@ class ScheduleRcdViewModel @Inject constructor(
                 firstSelectableDay = firstSelectableDay,
                 lastSelectableDay = lastSelectableDay,
                 weekStart = weekStart,
-                availableDays = available,
-                isLoadingDays = false,
+                availableDays = defaultAvailable,
+                isLoadingDays = true,
                 daysError = null,
+            )
+        }
+
+        viewModelScope.launch {
+            bulkyWasteRepository.getAvailablePickupDates(
+                startDateMillis = firstSelectableDay,
+                daysCount = DebrisRequestUiState.SELECTABLE_DAYS,
+            ).fold(
+                onSuccess = { slots ->
+                    _uiState.update { current ->
+                        current.copy(
+                            availableDays = if (slots.isNotEmpty()) slots else defaultAvailable,
+                            isLoadingDays = false,
+                            daysAreSample = slots.isEmpty(),
+                        )
+                    }
+                },
+                onFailure = {
+                    _uiState.update { current ->
+                        current.copy(
+                            isLoadingDays = false,
+                            daysAreSample = true,
+                        )
+                    }
+                },
             )
         }
     }
