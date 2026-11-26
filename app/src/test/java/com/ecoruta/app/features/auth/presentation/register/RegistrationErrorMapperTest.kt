@@ -135,7 +135,7 @@ class RegistrationErrorMapperTest {
     @Test
     fun unknownFailure_returnsGenericMessage() {
         assertEquals(
-            R.string.login_error_generic,
+            R.string.registration_error_generic,
             registrationErrorMessage(IllegalStateException("Internal server error")),
         )
     }

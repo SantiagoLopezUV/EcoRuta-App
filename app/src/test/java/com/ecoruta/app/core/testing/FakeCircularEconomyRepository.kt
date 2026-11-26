@@ -1,6 +1,7 @@
 package com.ecoruta.app.core.testing
 
 // Repositorio de economía circular en memoria para pruebas unitarias sin red ni base de datos
+// Permite simular publicaciones de reciclaje, consulta individual y emisión de tokens QR
 
 import com.ecoruta.app.features.circular_economy.domain.model.DeliveryToken
 import com.ecoruta.app.features.circular_economy.domain.model.RecyclableListing
@@ -10,6 +11,11 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
 
     var error: Throwable? = null
     var deliveryError: Throwable? = null
+
+    var nextToken = DeliveryToken(
+        token = "ECO-TEST-0001",
+        expiresAtMillis = System.currentTimeMillis() + 300_000L,
+    )
 
     val listings = mutableListOf(
         RecyclableListing(
@@ -49,20 +55,49 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
         ),
     )
 
-    var nextToken: DeliveryToken = DeliveryToken(
-        token = "ECO-TEST-0001",
-        expiresAtMillis = Long.MAX_VALUE,
-    )
+    // Simula la creación en memoria de una nueva publicación de reciclaje
+    override suspend fun createListing(
+        materialType: String,
+        quantityCategory: String,
+        latitude: Double,
+        longitude: Double,
+        address: String,
+        neighborhood: String,
+        photoUrl: String?,
+        otherMaterial: String?,
+    ): Result<RecyclableListing> {
+        error?.let { return Result.failure(it) }
+        val newListing = RecyclableListing(
+            id = "LST-${listings.size + 1}",
+            code = "ECO-REC-${1000 + listings.size + 1}",
+            material = materialType,
+            otherMaterial = otherMaterial,
+            volume = quantityCategory,
+            address = address,
+            status = "disponible",
+            createdAtMillis = System.currentTimeMillis(),
+            latitude = latitude,
+            longitude = longitude,
+            neighborhood = neighborhood,
+            photoUrl = photoUrl,
+        )
+        listings.add(0, newListing)
+        return Result.success(newListing)
+    }
 
+    // Consulta el listado en memoria de publicaciones
     override suspend fun getMyListings(): Result<List<RecyclableListing>> =
         error?.let { Result.failure(it) } ?: Result.success(listings.toList())
 
-    override suspend fun getListing(id: String): Result<RecyclableListing> =
-        error?.let { Result.failure(it) }
-            ?: listings.find { it.id == id }
-                ?.let { Result.success(it) }
-            ?: Result.failure(NoSuchElementException("Listing $id not found"))
+    // Retorna una publicación individual en memoria por su identificador
+    override suspend fun getListing(id: String): Result<RecyclableListing> {
+        error?.let { return Result.failure(it) }
+        val found = listings.firstOrNull { it.id == id }
+            ?: return Result.failure(NoSuchElementException("Listing no encontrado: $id"))
+        return Result.success(found)
+    }
 
+    // Retorna el token de entrega simulado para la publicación
     override suspend fun requestDeliveryCode(listingId: String): Result<DeliveryToken> =
         deliveryError?.let { Result.failure(it) } ?: Result.success(nextToken)
 }

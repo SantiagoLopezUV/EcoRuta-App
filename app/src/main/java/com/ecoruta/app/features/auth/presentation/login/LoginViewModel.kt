@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecoruta.app.R
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
+import com.ecoruta.app.features.auth.presentation.register.isConnectionFailure
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.exception.AuthRestException
@@ -84,16 +85,16 @@ class LoginViewModel @Inject constructor(
                                 }
                             }
                         }
-                        .onFailure {
-                            _uiState.update { it.copy(isSubmitting = false, noticeRes = R.string.login_error_generic) }
+                        .onFailure { error ->
+                            _uiState.update { it.copy(isSubmitting = false, noticeRes = error.toNoticeRes()) }
                         }
                 }
                 .onFailure { error ->
-                    // Solo la clave o el correo equivocados marcan las credenciales y cualquier otro fallo muestra el aviso general
+                    // Solo la clave o el correo equivocados marcan las credenciales y cualquier otro fallo muestra un aviso
                     if (error.isInvalidCredentials()) {
                         _uiState.update { it.copy(isSubmitting = false, showInvalidCredentials = true) }
                     } else {
-                        _uiState.update { it.copy(isSubmitting = false, noticeRes = R.string.login_error_generic) }
+                        _uiState.update { it.copy(isSubmitting = false, noticeRes = error.toNoticeRes()) }
                     }
                 }
         }
@@ -103,6 +104,10 @@ class LoginViewModel @Inject constructor(
     fun onNavigationHandled() {
         _uiState.update { it.copy(signedInRole = null, passwordChangeRole = null, webOnlyAccess = false) }
     }
+
+    // Elige el aviso de conexión cuando no hubo red y el aviso general en cualquier otro caso
+    private fun Throwable.toNoticeRes(): Int =
+        if (isConnectionFailure(this)) R.string.login_error_no_connection else R.string.login_error_generic
 
     // Reconoce el rechazo del servidor por correo o contraseña incorrectos
     // Se compara el código crudo porque esta versión del cliente no trae ese código en su lista conocida

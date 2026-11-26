@@ -278,16 +278,16 @@ fun CouponCodeCard(redeemed: RedeemedCoupon, isSample: Boolean) {
     ) {
         Text(redeemed.coupon.businessName, style = EcoTextStyles.FieldLabel, color = EcoSubtitle)
         Text(redeemed.coupon.title, style = EcoTextStyles.ButtonText, color = EcoTitle, textAlign = TextAlign.Center)
+        Box(
+            modifier = Modifier
+                .size(180.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(EcoWhite)
+                .padding(14.dp)
+                .semantics { contentDescription = qrDescription },
+            contentAlignment = Alignment.Center,
+        ) { EcoSampleQrCode(seed = redeemed.code) }
         if (isSample) {
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(EcoWhite)
-                    .padding(14.dp)
-                    .semantics { contentDescription = qrDescription },
-                contentAlignment = Alignment.Center,
-            ) { EcoSampleQrCode(seed = redeemed.code) }
             EcoStatusChip(stringResource(R.string.recycling_qr_sample_label), EcoTitle, EcoWhite)
         }
         Text(stringResource(R.string.coupon_code_label), style = EcoTextStyles.FieldLabel, color = EcoSubtitle)

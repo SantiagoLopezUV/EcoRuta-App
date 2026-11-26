@@ -44,6 +44,11 @@ class ProfileViewModel @Inject constructor(
         loadRoles()
     }
 
+    // Consulta el perfil actualizado con su rol activo y saldo de EcoPuntos
+    fun refresh() {
+        loadRoles()
+    }
+
     // Cambia el rol activo solo si está aprobado, no es el actual y no hay otro cambio en curso
     fun onSwitchRole(role: UserRole) {
         val current = _uiState.value as? ProfileUiState.Loaded ?: return

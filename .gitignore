@@ -16,10 +16,7 @@ build/
 
 # Local Android configuration
 local.properties
-<<<<<<< Updated upstream
 /.idea/
-=======
->>>>>>> Stashed changes
 
 # Kotlin
 .kotlin/
@@ -87,11 +84,16 @@ design-exports/
 *.rej
 
 # npm
-<<<<<<< Updated upstream
 node_modules/
 
-# Local Configuration of MCP Tools and Secret Keys
+# AI Tools — MCP, Claude Code, Cursor, Aider, Continue, Codeium
 .mcp.json
-=======
-node_modules/
->>>>>>> Stashed changes
+.claude/
+CLAUDE.md
+.cursorrules
+.cursor/
+.aider*
+.continue/
+.codeium/
+*.ai-context
+.copilot/

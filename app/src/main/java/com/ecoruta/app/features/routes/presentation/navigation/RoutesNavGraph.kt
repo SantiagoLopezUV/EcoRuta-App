@@ -4,12 +4,15 @@ package com.ecoruta.app.features.routes.presentation.navigation
 // Gestiona el acceso público y autenticado a los horarios de recolección y alertas
 
 import androidx.compose.animation.EnterTransition
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,6 +24,8 @@ import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.navigation.goToPublicHomeAfterSignOut
 import com.ecoruta.app.core.navigation.navigateToCitizenTab
 import com.ecoruta.app.core.navigation.navigateToPublicTab
+import com.ecoruta.app.features.profile.presentation.ProfileUiState
+import com.ecoruta.app.features.profile.presentation.ProfileViewModel
 import com.ecoruta.app.features.routes.presentation.map.AppNotification
 import com.ecoruta.app.features.routes.presentation.map.CollectionRoute
 import com.ecoruta.app.features.routes.presentation.map.GuestNotificationsScreen
@@ -39,7 +44,9 @@ import com.ecoruta.app.features.routes.presentation.map.RouteActions
 import com.ecoruta.app.features.routes.presentation.map.RouteLiveStatus
 import com.ecoruta.app.features.routes.presentation.map.RouteScreen
 import com.ecoruta.app.features.routes.presentation.map.RouteUiState
+import com.ecoruta.app.features.routes.presentation.radar.ProximityAlertEvent
 import com.ecoruta.app.features.routes.presentation.radar.ProximityAlertScreen
+import com.ecoruta.app.features.routes.presentation.radar.ProximityAlertsViewModel
 import com.ecoruta.app.features.routes.presentation.radar.RadarActions
 import com.ecoruta.app.features.routes.presentation.radar.RadarScreen
 import com.ecoruta.app.features.routes.presentation.radar.RadarUiState
@@ -98,9 +105,15 @@ fun NavGraphBuilder.routesGraph(
     }
 
     composable(EcoRutaDestination.CITIZEN_HOME) {
+        val profileViewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            profileViewModel.refresh()
+        }
+        val profileState by profileViewModel.uiState.collectAsStateWithLifecycle()
+        val userName = (profileState as? ProfileUiState.Loaded)?.profile?.fullName
         HomeScreen(
             isSignedIn = true,
-            userName = "Camila Restrepo",
+            userName = userName,
             actions = HomeActions(
                 onNotificationsClick = { open(EcoRutaDestination.NOTIFICATIONS) },
                 onLogoutClick = { navController.goToPublicHomeAfterSignOut() },
@@ -195,10 +208,32 @@ private fun NavGraphBuilder.neighborhoodDestinations(
     composable(EcoRutaDestination.RADAR, arguments = idArgument) { entry ->
         val id = entry.arguments?.getString(EcoRutaDestination.ARG_ID).orEmpty()
         val neighborhood = SampleNeighborhoods.find { it.id == id } ?: SampleNeighborhoods.first()
-        var state by remember { mutableStateOf(RadarUiState(neighborhoodName = neighborhood.name)) }
+        val viewModel: ProximityAlertsViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         val context = LocalContext.current
+
+        LaunchedEffect(id) {
+            viewModel.setNeighborhood(id, neighborhood.name)
+        }
+
+        LaunchedEffect(viewModel) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is ProximityAlertEvent.Saved -> {
+                        navController.navigate(
+                            EcoRutaDestination.proximityAlert(id, event.radiusMeters, event.notificationsEnabled),
+                        ) { launchSingleTop = true }
+                    }
+                    is ProximityAlertEvent.ShowNotice -> {
+                        showNotice(context.getString(event.messageRes))
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
         RadarScreen(
-            state = state,
+            state = state.toRadarUiState(),
             actions = RadarActions(
                 onBack = { navController.popBackStack() },
                 onChangeNeighborhood = {
@@ -206,13 +241,9 @@ private fun NavGraphBuilder.neighborhoodDestinations(
                         navController.navigate(EcoRutaDestination.NEIGHBORHOOD_SELECTION) { launchSingleTop = true }
                     }
                 },
-                onRadiusChange = { state = state.copy(radiusMeters = it) },
-                onNotificationsChange = { state = state.copy(notificationsEnabled = it) },
-                onSave = {
-                    navController.navigate(
-                        EcoRutaDestination.proximityAlert(id, state.radiusMeters, state.notificationsEnabled),
-                    ) { launchSingleTop = true }
-                },
+                onRadiusChange = viewModel::onRadiusChange,
+                onNotificationsChange = viewModel::onNotificationsChange,
+                onSave = viewModel::onSave,
                 onNotificationsDenied = { showNotice(context.getString(R.string.radar_notifications_denied)) },
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
