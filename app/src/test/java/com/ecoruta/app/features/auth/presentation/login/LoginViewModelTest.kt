@@ -8,6 +8,11 @@ import com.ecoruta.app.core.testing.TestDataFactory
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.profile.domain.model.UserRole
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.url
+import io.ktor.http.HttpMethod
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -52,6 +57,14 @@ class LoginViewModelTest {
         profileRepository = FakeProfileRepository()
         viewModel = LoginViewModel(countingRepository, profileRepository)
     }
+
+    // Arma la petición que el cliente de Supabase guarda dentro de sus excepciones de red
+    private fun signInRequest() = HttpRequestBuilder().apply {
+        method = HttpMethod.Post
+        url("http://10.0.2.2:54321/auth/v1/token")
+    }
+
+    private fun offlineError() = HttpRequestException("Failed to connect to /10.0.2.2:54321", signInRequest())
 
     private fun fillValidCredentials() {
         viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
@@ -193,8 +206,45 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun networkError_showsGenericNoticeAndKeepsFields() = runTest {
-        authRepository.error = IOException("Sin conexión")
+    fun networkError_showsConnectionNoticeAndKeepsFields() = runTest {
+        authRepository.error = offlineError()
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_no_connection, state.noticeRes)
+        assertFalse(state.showInvalidCredentials)
+        assertFalse(state.isSubmitting)
+        assertEquals(TestDataFactory.DEFAULT_EMAIL, state.email)
+        assertEquals(TestDataFactory.DEFAULT_PASSWORD, state.password)
+    }
+
+    @Test
+    fun requestTimeout_showsConnectionNotice() = runTest {
+        authRepository.error = HttpRequestTimeoutException(signInRequest())
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_no_connection, state.noticeRes)
+        assertFalse(state.showInvalidCredentials)
+    }
+
+    @Test
+    fun networkErrorNestedInAnotherError_showsConnectionNotice() = runTest {
+        authRepository.error = IllegalStateException("No se pudo iniciar sesión", offlineError())
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        assertEquals(R.string.login_error_no_connection, viewModel.uiState.value.noticeRes)
+    }
+
+    @Test
+    fun unknownError_showsGenericNotice() = runTest {
+        authRepository.error = IOException("Error inesperado")
         fillValidCredentials()
         viewModel.onSubmit()
         advanceUntilIdle()
@@ -202,9 +252,19 @@ class LoginViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(R.string.login_error_generic, state.noticeRes)
         assertFalse(state.showInvalidCredentials)
+    }
+
+    @Test
+    fun profileNetworkError_showsConnectionNoticeWithoutRole() = runTest {
+        profileRepository.error = offlineError()
+        fillValidCredentials()
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_no_connection, state.noticeRes)
+        assertNull(state.signedInRole)
         assertFalse(state.isSubmitting)
-        assertEquals(TestDataFactory.DEFAULT_EMAIL, state.email)
-        assertEquals(TestDataFactory.DEFAULT_PASSWORD, state.password)
     }
 
     @Test
@@ -273,11 +333,11 @@ class LoginViewModelTest {
 
     @Test
     fun retryAfterNetworkError_succeeds() = runTest {
-        authRepository.error = IOException("Sin conexión")
+        authRepository.error = offlineError()
         fillValidCredentials()
         viewModel.onSubmit()
         advanceUntilIdle()
-        assertEquals(R.string.login_error_generic, viewModel.uiState.value.noticeRes)
+        assertEquals(R.string.login_error_no_connection, viewModel.uiState.value.noticeRes)
 
         authRepository.error = null
         viewModel.onSubmit()

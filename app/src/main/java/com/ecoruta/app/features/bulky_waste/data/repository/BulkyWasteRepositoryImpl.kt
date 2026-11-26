@@ -6,17 +6,20 @@ package com.ecoruta.app.features.bulky_waste.data.repository
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.AuthorizedRcdManagerDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.BulkyWasteCreateDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.BulkyWasteRequestDto
+import com.ecoruta.app.features.bulky_waste.data.remote.dto.WeeklyPickupCapacityDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.toDomain
 import com.ecoruta.app.features.bulky_waste.domain.model.BulkyWasteRequest
 import com.ecoruta.app.features.bulky_waste.domain.model.RcdManagerOrientation
 import com.ecoruta.app.features.bulky_waste.domain.model.toDbCode
 import com.ecoruta.app.features.bulky_waste.domain.repository.BulkyWasteRepository
+import com.ecoruta.app.features.bulky_waste.presentation.schedule.DayMillis
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisType
 import com.ecoruta.app.features.reports.data.remote.dto.formatPostgisPoint
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -111,5 +114,94 @@ class BulkyWasteRepositoryImpl @Inject constructor(
             }
             .decodeList<AuthorizedRcdManagerDto>()
             .map { it.toDomain() }
+    }
+
+    // Consulta las fechas disponibles para agendamiento calculando cupos disponibles frente a solicitudes activas
+    override suspend fun getAvailablePickupDates(
+        startDateMillis: Long,
+        daysCount: Int,
+    ): Result<Set<Long>> = runCatching {
+        val capacities = runCatching {
+            postgrest.from("weekly_pickup_capacities")
+                .select()
+                .decodeList<WeeklyPickupCapacityDto>()
+        }.getOrDefault(emptyList())
+
+        val capacityByDayOfWeek = capacities
+            .groupBy { it.dayOfWeek }
+            .mapValues { (_, list) -> list.sumOf { it.maxSlots } }
+
+        val startDay = DayMillis.startOfDay(startDateMillis)
+        val endDay = DayMillis.addDays(startDay, daysCount)
+
+        val startIsoDate = formatIsoDate(startDay)
+        val endIsoDate = formatIsoDate(endDay)
+
+        val existingRequests = runCatching {
+            postgrest.from("bulky_waste_requests")
+                .select {
+                    filter {
+                        neq("status", "cancelado")
+                        gte("scheduled_date", startIsoDate)
+                        lte("scheduled_date", endIsoDate)
+                    }
+                }
+                .decodeList<BulkyWasteRequestDto>()
+        }.getOrDefault(emptyList())
+
+        val bookedCounts = existingRequests
+            .mapNotNull { it.scheduledDate?.take(10) }
+            .groupingBy { it }
+            .eachCount()
+
+        val available = mutableSetOf<Long>()
+        val calendar = Calendar.getInstance()
+
+        for (i in 0 until daysCount) {
+            val dayMillis = DayMillis.addDays(startDay, i)
+            calendar.timeInMillis = dayMillis
+
+            val calDay = calendar.get(Calendar.DAY_OF_WEEK)
+            val isoDayOfWeek = if (calDay == Calendar.SUNDAY) 7 else calDay - 1
+
+            val maxSlots = capacityByDayOfWeek[isoDayOfWeek] ?: if (isoDayOfWeek == 7) 0 else 10
+            val dateStr = formatIsoDate(dayMillis)
+            val booked = bookedCounts[dateStr] ?: 0
+
+            if (maxSlots > 0 && booked < maxSlots) {
+                available.add(dayMillis)
+            }
+        }
+
+        available
+    }
+
+    // Asigna la fecha programada de recolección a una solicitud existente
+    override suspend fun scheduleRequestDate(
+        requestId: String,
+        scheduledDateMillis: Long,
+    ): Result<Unit> = runCatching {
+        require(requestId.isNotBlank()) { "El identificador de la solicitud no puede estar vacío" }
+
+        val scheduledDateStr = formatIsoDate(scheduledDateMillis)
+
+        postgrest.from("bulky_waste_requests")
+            .update(mapOf("scheduled_date" to scheduledDateStr)) {
+                filter {
+                    eq("id", requestId)
+                }
+            }
+        Unit
+    }
+
+    private fun formatIsoDate(millis: Long): String {
+        val cal = Calendar.getInstance().apply { timeInMillis = millis }
+        return String.format(
+            Locale.US,
+            "%04d-%02d-%02d",
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH) + 1,
+            cal.get(Calendar.DAY_OF_MONTH),
+        )
     }
 }

@@ -62,6 +62,7 @@
     <!-- Sin diseño en Figma: requieren definición -->
     <string name="login_error_password_empty">Ingresa tu contraseña</string>
     <string name="login_error_generic">No pudimos iniciar sesión. Inténtalo de nuevo.</string>
+    <string name="login_error_no_connection">No pudimos conectarnos con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.</string>
 
     <!-- Avisos de acciones pendientes (no simulan operaciones) -->
     <string name="notice_login_pending">Inicio de sesión pendiente: falta conectar la autenticación con Supabase.</string>
@@ -172,6 +173,7 @@
     <string name="registration_error_phone_invalid">Ingresa un celular válido de 10 dígitos, como 300 123 4567.</string>
     <string name="registration_error_no_connection">No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="registration_error_already_registered">Este correo o esta cédula ya están registrados.</string>
+    <string name="registration_error_generic">No pudimos crear tu cuenta. Inténtalo de nuevo.</string>
     <string name="registration_error_policy_required">Debes aceptar la política de tratamiento de datos para crear tu cuenta.</string>
     <string name="document_cc_short">C. C.</string>
     <string name="document_ti_short">T. I.</string>
@@ -569,6 +571,7 @@
     <string name="recycling_volume_required">Elige el volumen estimado.</string>
     <string name="recycling_address_label">Dirección de entrega</string>
     <string name="recycling_address_required">Escribe la dirección donde el reciclador recogerá el material.</string>
+    <string name="recycling_location_required">Activa la ubicación para marcar el punto de entrega.</string>
     <string name="recycling_photo_label">Foto del material (opcional)</string>
     <string name="recycling_add_photo">Añadir foto</string>
     <string name="recycling_add_photo_hint">Ayuda a identificar tu material.</string>

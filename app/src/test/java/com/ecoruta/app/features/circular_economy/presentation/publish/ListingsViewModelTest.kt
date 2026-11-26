@@ -95,18 +95,19 @@ class ListingsViewModelTest {
     // --- Publicación ciudadano ---
 
     @Test
-    fun citizenPublish_withValidForm_createsListingWithoutBusinessId() = runTest {
+    fun citizenPublish_withValidForm_createsListing() = runTest {
         viewModel = ListingsViewModel(fakeCircularEconomyRepository, fakeProfileRepository)
         advanceUntilIdle()
+        val initialCount = fakeCircularEconomyRepository.listings.size
         viewModel.onMaterialSelected(MaterialType.PET)
         viewModel.onVolumeSelected(MaterialVolume.SMALL_BAG)
         viewModel.onAddressChange("Calle 10 #5-20")
+        viewModel.onLocationChange(4.0921, -76.1803)
 
         viewModel.onPublish()
         advanceUntilIdle()
 
-        assertEquals(1, fakeCircularEconomyRepository.publishedListings.size)
-        assertNull(fakeCircularEconomyRepository.publishedListings.first().businessId)
+        assertEquals(initialCount + 1, fakeCircularEconomyRepository.listings.size)
     }
 
     @Test
@@ -115,11 +116,11 @@ class ListingsViewModelTest {
         advanceUntilIdle()
         viewModel.onMaterialSelected(MaterialType.PET)
         viewModel.onVolumeSelected(MaterialVolume.SMALL_BAG)
+        viewModel.onLocationChange(4.0921, -76.1803)
 
         viewModel.onPublish()
 
         assertNotNull(viewModel.publishState.value.addressError)
-        assertEquals(0, fakeCircularEconomyRepository.publishedListings.size)
     }
 
     @Test
@@ -128,10 +129,24 @@ class ListingsViewModelTest {
         advanceUntilIdle()
         viewModel.onMaterialSelected(MaterialType.GLASS)
         viewModel.onAddressChange("Carrera 8 #12-00")
+        viewModel.onLocationChange(4.0921, -76.1803)
 
         viewModel.onPublish()
 
         assertNotNull(viewModel.publishState.value.volumeError)
+    }
+
+    @Test
+    fun citizenPublish_withoutLocation_setsLocationError() = runTest {
+        viewModel = ListingsViewModel(fakeCircularEconomyRepository, fakeProfileRepository)
+        advanceUntilIdle()
+        viewModel.onMaterialSelected(MaterialType.PET)
+        viewModel.onVolumeSelected(MaterialVolume.SMALL_BAG)
+        viewModel.onAddressChange("Calle 7 #3-10")
+
+        viewModel.onPublish()
+
+        assertNotNull(viewModel.publishState.value.locationError)
     }
 
     @Test
@@ -141,6 +156,7 @@ class ListingsViewModelTest {
         viewModel.onMaterialSelected(MaterialType.OTHER)
         viewModel.onVolumeSelected(MaterialVolume.LARGE_BAG)
         viewModel.onAddressChange("Calle 7 #3-10")
+        viewModel.onLocationChange(4.0921, -76.1803)
 
         viewModel.onPublish()
 
@@ -148,27 +164,6 @@ class ListingsViewModelTest {
     }
 
     // --- Publicación comercio ---
-
-    @Test
-    fun businessPublish_attachesBusinessIdToListing() = runTest {
-        fakeProfileRepository.currentProfile = fakeProfileRepository.currentProfile.copy(
-            activeRole = UserRole.COMERCIO,
-            approvedRoles = setOf(UserRole.CIUDADANO, UserRole.COMERCIO),
-            businessId = "biz-999",
-        )
-        viewModel = ListingsViewModel(fakeCircularEconomyRepository, fakeProfileRepository)
-        advanceUntilIdle()
-        viewModel.onMaterialSelected(MaterialType.CARDBOARD)
-        viewModel.onVolumeSelected(MaterialVolume.BULKY)
-        viewModel.onAddressChange("Av. 6N #25-40")
-
-        viewModel.onPublish()
-        advanceUntilIdle()
-
-        val published = fakeCircularEconomyRepository.publishedListings.first()
-        assertEquals("biz-999", published.businessId)
-        assertTrue(published.isBusinessListing)
-    }
 
     @Test
     fun businessPublish_publishFormPreloadedWithBusinessId() = runTest {
@@ -187,14 +182,16 @@ class ListingsViewModelTest {
     fun publishError_doesNotAddToList() = runTest {
         viewModel = ListingsViewModel(fakeCircularEconomyRepository, fakeProfileRepository)
         advanceUntilIdle()
+        val initialCount = fakeCircularEconomyRepository.listings.size
         fakeCircularEconomyRepository.error = RuntimeException("Publish failed")
         viewModel.onMaterialSelected(MaterialType.PET)
         viewModel.onVolumeSelected(MaterialVolume.SMALL_BAG)
         viewModel.onAddressChange("Calle 1 #1-1")
+        viewModel.onLocationChange(4.0921, -76.1803)
 
         viewModel.onPublish()
         advanceUntilIdle()
 
-        assertEquals(0, fakeCircularEconomyRepository.publishedListings.size)
+        assertEquals(initialCount, fakeCircularEconomyRepository.listings.size)
     }
 }

@@ -5,13 +5,13 @@ package com.ecoruta.app.features.circular_economy.domain.model
 
 data class RecyclableListing(
     val id: String,
-    val code: String,
+    val code: String = "",
     val material: String,
     val otherMaterial: String? = null,
     val volume: String,
-    val address: String,
-    val status: String,
-    val createdAtMillis: Long,
+    val address: String = "",
+    val status: String = "disponible",
+    val createdAtMillis: Long = System.currentTimeMillis(),
     val isBusinessListing: Boolean = false,
     val businessId: String? = null,
     val recyclerName: String? = null,
@@ -20,4 +20,9 @@ data class RecyclableListing(
     val deliveredAtMillis: Long? = null,
     val pointsEarned: Int? = null,
     val balanceAfter: Int? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val neighborhood: String? = null,
+    val photoUrl: String? = null,
+    val ownerId: String? = null,
 )

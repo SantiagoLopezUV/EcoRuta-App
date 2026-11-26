@@ -76,6 +76,10 @@ class ListingsViewModel @Inject constructor(
         _publishState.value = it.copy(address = value, addressError = null)
     }
 
+    fun onLocationChange(latitude: Double, longitude: Double) = _publishState.value.let {
+        _publishState.value = it.copy(latitude = latitude, longitude = longitude, locationError = null)
+    }
+
     // Valida el formulario y llama al repositorio; el businessId se adjunta si el rol es COMERCIO
     fun onPublish() {
         val form = _publishState.value
@@ -93,16 +97,21 @@ class ListingsViewModel @Inject constructor(
             _publishState.value = _publishState.value.copy(addressError = R.string.recycling_address_required)
             hasError = true
         }
+        if (form.latitude == null || form.longitude == null) {
+            _publishState.value = _publishState.value.copy(locationError = R.string.recycling_location_required)
+            hasError = true
+        }
         if (hasError) return
 
         _publishState.value = _publishState.value.copy(isPublishing = true)
         viewModelScope.launch {
-            val result = circularEconomyRepository.publishListing(
-                material = if (form.material == MaterialType.OTHER) form.otherMaterial else form.material.name,
-                otherMaterial = if (form.material == MaterialType.OTHER) form.otherMaterial else null,
-                volume = form.volume!!.name,
+            val result = circularEconomyRepository.createListing(
+                materialType = if (form.material == MaterialType.OTHER) form.otherMaterial else form.material.name,
+                quantityCategory = form.volume!!.name,
+                latitude = form.latitude!!,
+                longitude = form.longitude!!,
                 address = form.address,
-                businessId = form.businessId,
+                otherMaterial = if (form.material == MaterialType.OTHER) form.otherMaterial else null,
             )
             _publishState.value = _publishState.value.copy(isPublishing = false)
             if (result.isSuccess) {

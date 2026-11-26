@@ -3,19 +3,29 @@ package com.ecoruta.app.features.circular_economy.domain.repository
 // Contrato de dominio para operaciones de reciclaje y bolsa comunitaria
 // Declaración abstracta para publicar, reclamar 1:1 y validar entrega presencial
 
+import com.ecoruta.app.features.circular_economy.domain.model.DeliveryToken
 import com.ecoruta.app.features.circular_economy.domain.model.RecyclableListing
 
 interface CircularEconomyRepository {
 
-    // Retorna las publicaciones del ciudadano o comercio autenticado
+    // Registra una nueva publicación de material reciclable
+    suspend fun createListing(
+        materialType: String,
+        quantityCategory: String,
+        latitude: Double,
+        longitude: Double,
+        address: String = "",
+        neighborhood: String = "",
+        photoUrl: String? = null,
+        otherMaterial: String? = null,
+    ): Result<RecyclableListing>
+
+    // Consulta las publicaciones de reciclaje del ciudadano o comercio autenticado
     suspend fun getMyListings(): Result<List<RecyclableListing>>
 
-    // Publica una oferta de material reciclable; businessId no nulo vincula al comercio
-    suspend fun publishListing(
-        material: String,
-        otherMaterial: String?,
-        volume: String,
-        address: String,
-        businessId: String?,
-    ): Result<RecyclableListing>
+    // Retorna una publicación individual por su identificador
+    suspend fun getListing(id: String): Result<RecyclableListing>
+
+    // Genera un token de entrega de un solo uso válido por 5 minutos para la publicación indicada
+    suspend fun requestDeliveryCode(listingId: String): Result<DeliveryToken>
 }

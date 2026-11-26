@@ -7,14 +7,20 @@ import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.bulky_waste.data.repository.BulkyWasteRepositoryImpl
 import com.ecoruta.app.features.bulky_waste.domain.repository.BulkyWasteRepository
-import com.ecoruta.app.features.education.data.repository.EducationRepositoryImpl
-import com.ecoruta.app.features.education.domain.repository.EducationRepository
-import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
-import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import com.ecoruta.app.features.circular_economy.data.repository.CircularEconomyRepositoryImpl
 import com.ecoruta.app.features.circular_economy.domain.repository.CircularEconomyRepository
+import com.ecoruta.app.features.education.data.repository.EducationRepositoryImpl
+import com.ecoruta.app.features.education.domain.repository.EducationRepository
+import com.ecoruta.app.features.gamification.data.repository.GamificationRepositoryImpl
+import com.ecoruta.app.features.gamification.domain.repository.GamificationRepository
+import com.ecoruta.app.features.notifications.data.repository.FcmTokenRepositoryImpl
+import com.ecoruta.app.features.notifications.domain.repository.FcmTokenRepository
+import com.ecoruta.app.features.profile.data.repository.ProfileRepositoryImpl
+import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import com.ecoruta.app.features.reports.data.repository.ReportRepositoryImpl
 import com.ecoruta.app.features.reports.domain.repository.ReportRepository
+import com.ecoruta.app.features.routes.data.repository.NeighborhoodRouteRepositoryImpl
+import com.ecoruta.app.features.routes.domain.repository.NeighborhoodRouteRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -60,7 +66,27 @@ abstract class RepositoryModule {
         impl: BulkyWasteRepositoryImpl
     ): BulkyWasteRepository
 
-    // Vincula la interfaz de economía circular con la implementación de Supabase
+    // Vincula la interfaz de gamificación, EcoPuntos y cupones con la implementación de Supabase
+    @Binds
+    @Singleton
+    abstract fun bindGamificationRepository(
+        impl: GamificationRepositoryImpl
+    ): GamificationRepository
+
+    // Vincula la interfaz de rutas y radar de proximidad con su implementación
+    @Binds
+    @Singleton
+    abstract fun bindNeighborhoodRouteRepository(
+        impl: NeighborhoodRouteRepositoryImpl
+    ): NeighborhoodRouteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFcmTokenRepository(
+        implementation: FcmTokenRepositoryImpl
+    ): FcmTokenRepository
+
+    // Vincula la interfaz de economía circular y reciclaje con la implementación de Supabase
     @Binds
     @Singleton
     abstract fun bindCircularEconomyRepository(

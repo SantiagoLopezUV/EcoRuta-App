@@ -79,6 +79,9 @@ data class PublishMaterialUiState(
     @StringRes val volumeError: Int? = null,
     val address: String = "",
     @StringRes val addressError: Int? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    @StringRes val locationError: Int? = null,
     val photo: Uri? = null,
     val isPublishing: Boolean = false,
     // Presente cuando el usuario publica en modo comercio; vincula la publicación al negocio
