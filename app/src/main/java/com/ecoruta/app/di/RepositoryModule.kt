@@ -85,6 +85,7 @@ abstract class RepositoryModule {
     abstract fun bindFcmTokenRepository(
         implementation: FcmTokenRepositoryImpl
     ): FcmTokenRepository
+
     // Vincula la interfaz de economía circular y reciclaje con la implementación de Supabase
     @Binds
     @Singleton

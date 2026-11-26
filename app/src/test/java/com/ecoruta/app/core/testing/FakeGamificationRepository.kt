@@ -11,8 +11,11 @@ import com.ecoruta.app.features.gamification.domain.repository.GamificationRepos
 
 class FakeGamificationRepository : GamificationRepository {
 
-    // Permite forzar un error simulado en todas las operaciones
+    // Permite forzar un error simulado en todas las operaciones excepto redeemCoupon
     var error: Throwable? = null
+
+    // Error específico para simular fallos solo en el flujo de canje de cupones
+    var redeemError: Throwable? = null
 
     // Saldo inicial de EcoPuntos simulado para las pruebas
     var balance: Int = 1_250
@@ -24,45 +27,81 @@ class FakeGamificationRepository : GamificationRepository {
         PointsTransaction("MOV-03", "Módulo educativo completado", 1_759_900_000_000L, 50),
     )
 
-    // Catálogo de cupones disponibles en memoria
+    // Catálogo de cupones disponibles en memoria para el ciudadano
     val availableCoupons = mutableListOf(
         BenefitCoupon(
-            id = "CUP-01",
-            businessName = "Café del Río",
-            title = "20 % de descuento en bebidas calientes",
-            subtitle = "Válido de lunes a viernes",
-            pointsCost = 450,
-            availableQuantity = 18,
-            validUntilMillis = 1_795_996_800_000L,
-            conditions = listOf("Un cupón por compra", "Presenta el código QR en caja"),
+            id = "BEN-01",
+            businessName = "Naturalia",
+            title = "10% en frutas y verduras",
+            subtitle = "Solo en frutas y verduras",
+            pointsCost = 400,
+            availableQuantity = 15,
+            validUntilMillis = 1_800_000_000_000L,
+            conditions = listOf("Un cupón por compra"),
             category = "food",
         ),
         BenefitCoupon(
-            id = "CUP-02",
-            businessName = "Tienda Don Julio",
-            title = "5 % de descuento en mercado",
-            subtitle = "Aplica en productos de aseo",
-            pointsCost = 300,
-            availableQuantity = 10,
-            validUntilMillis = 1_795_996_800_000L,
-            conditions = listOf("Mínimo de compra \$30.000"),
+            id = "BEN-02",
+            businessName = "Merkado",
+            title = "Envío gratis en pedidos mayores a \$50.000",
+            subtitle = "Pedidos mayores a \$50.000",
+            pointsCost = 250,
+            availableQuantity = 8,
+            validUntilMillis = 1_780_000_000_000L,
+            conditions = listOf("Aplica solo en domicilios"),
             category = "groceries",
         ),
     )
+
+    // Alias del catálogo para compatibilidad con tests de CouponDirectoryViewModelTest
+    val catalogCoupons get() = availableCoupons
 
     // Cupones canjeados en memoria del ciudadano autenticado
     val redeemedCoupons = mutableListOf(
         RedeemedBenefitCoupon(
             id = "RED-01",
-            couponId = "CUP-01",
-            businessName = "Café del Río",
-            title = "20 % de descuento en bebidas calientes",
-            code = "ECO-CAFE-8492",
+            couponId = "BEN-01",
+            businessName = "Naturalia",
+            title = "10% en frutas y verduras",
+            code = "ECO-NATU-8492",
             redeemedAtMillis = 1_760_050_000_000L,
-            pointsSpent = 450,
-            validUntilMillis = 1_795_996_800_000L,
+            pointsSpent = 400,
+            validUntilMillis = 1_800_000_000_000L,
         ),
     )
+
+    // Cupones propios creados por el comercio en memoria para pruebas de gestión
+    val coupons = mutableListOf(
+        BenefitCoupon(
+            id = "CPN-01",
+            businessName = "Comercio de Prueba",
+            title = "10% en toda la tienda",
+            subtitle = "Aplica para productos no rebajados",
+            pointsCost = 500,
+            availableQuantity = 20,
+            validUntilMillis = 1_800_000_000_000L,
+            conditions = emptyList(),
+            category = "general",
+            isActive = true,
+        ),
+        BenefitCoupon(
+            id = "CPN-02",
+            businessName = "Comercio de Prueba",
+            title = "Envío gratis",
+            subtitle = "Solo pedidos mayores a \$50.000",
+            pointsCost = 300,
+            availableQuantity = 5,
+            validUntilMillis = 1_780_000_000_000L,
+            conditions = emptyList(),
+            category = "shipping",
+            isActive = true,
+        ),
+    )
+
+    // Listas de seguimiento para verificar llamadas en tests
+    val createCalls = mutableListOf<Map<String, Any>>()
+    val updateCalls = mutableListOf<Map<String, Any>>()
+    val deactivatedIds = mutableListOf<String>()
 
     override suspend fun getBalance(): Result<Int> = result { balance }
 
@@ -74,29 +113,34 @@ class FakeGamificationRepository : GamificationRepository {
         availableCoupons.filter { it.availableQuantity > 0 }.toList()
     }
 
-    override suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon> = result {
-        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
-        val coupon = availableCoupons.find { it.id == couponId }
+    override suspend fun getCoupon(couponId: String): Result<BenefitCoupon> = result {
+        availableCoupons.find { it.id == couponId }
             ?: error("Cupón no encontrado con id: $couponId")
+    }
 
-        require(balance >= coupon.pointsCost) {
-            "Saldo insuficiente: tienes $balance EcoPuntos y el cupón cuesta ${coupon.pointsCost}"
+    override suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon> {
+        redeemError?.let { return Result.failure(it) }
+        error?.let { return Result.failure(it) }
+        return runCatching {
+            val coupon = availableCoupons.find { it.id == couponId }
+                ?: error("Cupón no encontrado con id: $couponId")
+            require(balance >= coupon.pointsCost) {
+                "Saldo insuficiente: tienes $balance EcoPuntos y el cupón cuesta ${coupon.pointsCost}"
+            }
+            balance -= coupon.pointsCost
+            val redeemed = RedeemedBenefitCoupon(
+                id = "RED-${redeemedCoupons.size + 1}",
+                couponId = coupon.id,
+                businessName = coupon.businessName,
+                title = coupon.title,
+                code = "ECO-${coupon.businessName.take(4).uppercase()}-${(1000..9999).random()}",
+                redeemedAtMillis = System.currentTimeMillis(),
+                pointsSpent = coupon.pointsCost,
+                validUntilMillis = coupon.validUntilMillis,
+            )
+            redeemedCoupons.add(redeemed)
+            redeemed
         }
-
-        balance -= coupon.pointsCost
-
-        val redeemed = RedeemedBenefitCoupon(
-            id = "RED-${redeemedCoupons.size + 1}",
-            couponId = coupon.id,
-            businessName = coupon.businessName,
-            title = coupon.title,
-            code = "ECO-${coupon.businessName.take(4).uppercase()}-${(1000..9999).random()}",
-            redeemedAtMillis = System.currentTimeMillis(),
-            pointsSpent = coupon.pointsCost,
-            validUntilMillis = coupon.validUntilMillis,
-        )
-        redeemedCoupons.add(redeemed)
-        redeemed
     }
 
     override suspend fun getMyCoupons(): Result<List<RedeemedBenefitCoupon>> = result {
@@ -104,13 +148,9 @@ class FakeGamificationRepository : GamificationRepository {
     }
 
     override suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedBenefitCoupon> = result {
-        require(redeemedCouponId.isNotBlank()) { "El identificador del cupón canjeado no puede estar vacío" }
         redeemedCoupons.find { it.id == redeemedCouponId }
             ?: error("Cupón canjeado no encontrado con id: $redeemedCouponId")
     }
-
-    // Cupones propios creados por el comercio en memoria para pruebas
-    val merchantCoupons = mutableListOf<BenefitCoupon>()
 
     override suspend fun createCoupon(
         title: String,
@@ -124,8 +164,10 @@ class FakeGamificationRepository : GamificationRepository {
         require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
         require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
 
+        createCalls.add(mapOf("title" to title, "pointsCost" to pointsCost, "quantityAvailable" to quantityAvailable))
+
         val created = BenefitCoupon(
-            id = "CUP-${merchantCoupons.size + 100}",
+            id = "CPN-${coupons.size + 100}",
             businessName = "Comercio de Prueba",
             title = title,
             subtitle = description,
@@ -136,7 +178,7 @@ class FakeGamificationRepository : GamificationRepository {
             category = category,
             isActive = true,
         )
-        merchantCoupons.add(created)
+        coupons.add(created)
         availableCoupons.add(created)
         created
     }
@@ -156,8 +198,10 @@ class FakeGamificationRepository : GamificationRepository {
         require(pointsCost > 0) { "El costo en puntos debe ser mayor a cero" }
         require(quantityAvailable >= 0) { "La cantidad disponible no puede ser negativa" }
 
-        val index = merchantCoupons.indexOfFirst { it.id == couponId }
-        val existing = if (index != -1) merchantCoupons[index] else availableCoupons.find { it.id == couponId }
+        updateCalls.add(mapOf("id" to couponId, "title" to title, "isActive" to isActive))
+
+        val index = coupons.indexOfFirst { it.id == couponId }
+        val existing = if (index != -1) coupons[index] else availableCoupons.find { it.id == couponId }
             ?: error("Cupón no encontrado con id: $couponId")
 
         val updated = existing.copy(
@@ -169,33 +213,28 @@ class FakeGamificationRepository : GamificationRepository {
             category = category,
             isActive = isActive,
         )
-        if (index != -1) {
-            merchantCoupons[index] = updated
-        } else {
-            merchantCoupons.add(updated)
-        }
+        if (index != -1) coupons[index] = updated
         val availIndex = availableCoupons.indexOfFirst { it.id == couponId }
-        if (availIndex != -1) {
-            availableCoupons[availIndex] = updated
-        }
+        if (availIndex != -1) availableCoupons[availIndex] = updated
         updated
     }
 
     override suspend fun deactivateCoupon(couponId: String): Result<Unit> = result {
-        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
-        val index = merchantCoupons.indexOfFirst { it.id == couponId }
-        if (index != -1) {
-            merchantCoupons[index] = merchantCoupons[index].copy(isActive = false)
-        }
+        deactivatedIds.add(couponId)
+        val index = coupons.indexOfFirst { it.id == couponId }
+        if (index != -1) coupons[index] = coupons[index].copy(isActive = false)
         val availIndex = availableCoupons.indexOfFirst { it.id == couponId }
-        if (availIndex != -1) {
-            availableCoupons[availIndex] = availableCoupons[availIndex].copy(isActive = false)
-        }
+        if (availIndex != -1) availableCoupons[availIndex] = availableCoupons[availIndex].copy(isActive = false)
         Unit
     }
 
     override suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>> = result {
-        merchantCoupons.toList()
+        coupons.toList()
+    }
+
+    override suspend fun getMerchantCoupon(couponId: String): Result<BenefitCoupon> = result {
+        coupons.find { it.id == couponId }
+            ?: error("Cupón no encontrado con id: $couponId")
     }
 
     private inline fun <T> result(block: () -> T): Result<T> =

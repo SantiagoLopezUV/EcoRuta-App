@@ -18,6 +18,9 @@ interface GamificationRepository {
     // Consulta el catálogo de cupones de beneficios disponibles con stock
     suspend fun getAvailableCoupons(): Result<List<BenefitCoupon>>
 
+    // Retorna un cupón individual del catálogo por su ID para el flujo de redención
+    suspend fun getCoupon(couponId: String): Result<BenefitCoupon>
+
     // Canjea un cupón de forma atómica debitando los EcoPuntos del ciudadano
     suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon>
 
@@ -54,4 +57,7 @@ interface GamificationRepository {
 
     // Consulta todos los cupones creados por el comercio autenticado (activos e inactivos)
     suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>>
+
+    // Retorna un cupón del comercio por su ID para pre-poblar el formulario de edición
+    suspend fun getMerchantCoupon(couponId: String): Result<BenefitCoupon>
 }
