@@ -367,6 +367,25 @@ class GamificationRepositoryImpl @Inject constructor(
             .map { it.toDomain() }
     }
 
+    // Retorna un cupón del comercio por su ID para pre-poblar el formulario de edición
+    override suspend fun getMerchantCoupon(couponId: String): Result<BenefitCoupon> = runCatching {
+        val businessId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para consultar cupones del comercio")
+
+        require(couponId.isNotBlank()) { "El identificador del cupón no puede estar vacío" }
+
+        postgrest.from("coupons")
+            .select {
+                filter {
+                    eq("id", couponId)
+                    eq("business_id", businessId)
+                }
+            }
+            .decodeSingleOrNull<CouponDto>()
+            ?.toDomain()
+            ?: error("Cupón no encontrado con id: $couponId")
+    }
+
     //formato para la fecha del cupon
     private fun formatMillisToIsoDate(millis: Long?): String? {
         if (millis == null || millis <= 0L) return null

@@ -54,4 +54,7 @@ interface GamificationRepository {
 
     // Consulta todos los cupones creados por el comercio autenticado (activos e inactivos)
     suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>>
+
+    // Retorna un cupón del comercio por su ID para pre-poblar el formulario de edición
+    suspend fun getMerchantCoupon(couponId: String): Result<BenefitCoupon>
 }
