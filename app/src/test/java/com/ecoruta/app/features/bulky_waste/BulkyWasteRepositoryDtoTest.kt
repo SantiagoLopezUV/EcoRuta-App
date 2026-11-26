@@ -6,6 +6,7 @@ package com.ecoruta.app.features.bulky_waste
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.AuthorizedRcdManagerDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.BulkyWasteCreateDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.BulkyWasteRequestDto
+import com.ecoruta.app.features.bulky_waste.data.remote.dto.WeeklyPickupCapacityDto
 import com.ecoruta.app.features.bulky_waste.data.remote.dto.toDomain
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisStatus
 import com.ecoruta.app.features.bulky_waste.presentation.schedule.DebrisType
@@ -106,5 +107,24 @@ class BulkyWasteRepositoryDtoTest {
         assertEquals("315 123 4567", domain.phone)
         assertEquals("Carrera 40 #26-10", domain.address)
         assertEquals("Lunes a Viernes 7:00 AM - 5:00 PM", domain.operatingHours)
+    }
+
+    // Valida deserialización de WeeklyPickupCapacityDto para el calendario de recolección semanal
+    @Test
+    fun testWeeklyPickupCapacityDtoDeserialization() {
+        val rawJson = """
+            {
+                "id": "cap-001",
+                "company_id": "comp-789",
+                "day_of_week": 3,
+                "max_slots": 15
+            }
+        """.trimIndent()
+
+        val dto = json.decodeFromString<WeeklyPickupCapacityDto>(rawJson)
+        assertEquals("cap-001", dto.id)
+        assertEquals("comp-789", dto.companyId)
+        assertEquals(3, dto.dayOfWeek)
+        assertEquals(15, dto.maxSlots)
     }
 }

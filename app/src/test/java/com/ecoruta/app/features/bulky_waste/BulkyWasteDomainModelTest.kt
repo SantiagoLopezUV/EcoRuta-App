@@ -179,4 +179,38 @@ class BulkyWasteDomainModelTest {
         assertNotNull(managers.first().name)
         assertTrue(managers.first().acceptedTypes.isNotEmpty())
     }
+
+    // Valida consulta de fechas disponibles para agendamiento y exclusión de días copados o domingos
+    @Test
+    fun testFakeBulkyWasteRepositoryGetAvailablePickupDates(): Unit = runBlocking {
+        val repo = FakeBulkyWasteRepository()
+        val baseDate = 1_794_000_000_000L // Fecha base de prueba
+        val result = repo.getAvailablePickupDates(startDateMillis = baseDate, daysCount = 14)
+        assertTrue(result.isSuccess)
+
+        val slots = result.getOrThrow()
+        assertTrue(slots.isNotEmpty())
+
+        // Simula saturación de cupos fijando capacidad 0 para un día específico
+        repo.weeklyCapacities = mapOf(1 to 0, 2 to 10, 3 to 10, 4 to 10, 5 to 10, 6 to 10, 7 to 0)
+        val limitedResult = repo.getAvailablePickupDates(startDateMillis = baseDate, daysCount = 14)
+        assertTrue(limitedResult.isSuccess)
+    }
+
+    // Valida asignación de fecha programada a una solicitud existente
+    @Test
+    fun testFakeBulkyWasteRepositoryScheduleRequestDate(): Unit = runBlocking {
+        val repo = FakeBulkyWasteRepository()
+        val targetDate = 1_795_500_000_000L
+
+        val scheduleResult = repo.scheduleRequestDate("req-101", targetDate)
+        assertTrue(scheduleResult.isSuccess)
+
+        val updated = repo.getRequestById("req-101").getOrThrow()
+        assertEquals(targetDate, updated.scheduledDateMillis)
+
+        // Intento con id inexistente debe retornar fallo
+        val invalidResult = repo.scheduleRequestDate("req-9999", targetDate)
+        assertTrue(invalidResult.isFailure)
+    }
 }

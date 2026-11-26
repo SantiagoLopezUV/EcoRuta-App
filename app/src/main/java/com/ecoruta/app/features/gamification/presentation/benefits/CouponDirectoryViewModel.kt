@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.NavigationDestination
 import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
-import com.ecoruta.app.features.gamification.domain.model.RedeemedCouponModel
 import com.ecoruta.app.features.gamification.domain.repository.GamificationRepository
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +45,7 @@ class CouponDirectoryViewModel @Inject constructor(
         _catalogState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             val profileResult = profileRepository.getProfile()
-            val couponsResult = gamificationRepository.getCoupons()
+            val couponsResult = gamificationRepository.getAvailableCoupons()
 
             if (couponsResult.isFailure) {
                 _catalogState.update { it.copy(isLoading = false, error = R.string.benefits_load_error) }
@@ -125,9 +124,9 @@ class CouponDirectoryViewModel @Inject constructor(
                             coupon = coupon,
                             code = redeemed.code,
                             redeemedAtMillis = redeemed.redeemedAtMillis,
-                            pointsSpent = redeemed.pointsCost,
+                            pointsSpent = redeemed.pointsSpent,
                         ),
-                        balanceAfter = redeemed.balanceAfter,
+                        balanceAfter = (state.balance ?: 0) - coupon.pointsCost,
                     ),
                 )
             }
@@ -136,9 +135,9 @@ class CouponDirectoryViewModel @Inject constructor(
 
     private fun BenefitCoupon.toPresentation(): Coupon = Coupon(
         id = id,
-        businessName = storeName,
+        businessName = businessName,
         title = title,
-        subtitle = description,
+        subtitle = subtitle,
         category = categoryFrom(category),
         pointsCost = pointsCost,
         availableQuantity = availableQuantity,

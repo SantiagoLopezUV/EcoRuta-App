@@ -3,6 +3,8 @@ package com.ecoruta.app.features.auth.data.repository
 // Implementación concreta del repositorio de autenticación
 // Conecta con el SDK de Supabase Auth, Storage y PostgREST para sesiones, perfiles y credenciales
 
+import android.os.Build
+import android.util.Log
 import com.ecoruta.app.features.auth.data.remote.dto.BusinessDto
 import com.ecoruta.app.features.auth.data.remote.dto.CitizenDto
 import com.ecoruta.app.features.auth.data.remote.dto.ProfileDto
@@ -14,6 +16,8 @@ import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
 import com.ecoruta.app.features.auth.domain.model.UserAccount
 import com.ecoruta.app.features.auth.domain.repository.AuthRepository
 import com.ecoruta.app.features.auth.presentation.first_login.ChangePasswordUiState
+import com.ecoruta.app.features.notifications.domain.repository.FcmTokenRepository
+import com.google.firebase.messaging.FirebaseMessaging
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.Google
@@ -25,17 +29,47 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class AuthRepositoryImpl @Inject constructor(
     private val auth: Auth,
     private val postgrest: Postgrest,
+    private val fcmTokenRepository: FcmTokenRepository,
     private val storage: Storage? = null
 ) : AuthRepository {
+
+    // Obtiene el token FCM del dispositivo y lo registra en Supabase
+    private suspend fun syncFcmTokenSafely() {
+        try {
+            val token = FirebaseMessaging.getInstance().token.await()
+
+            val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
+
+            fcmTokenRepository.registerToken(
+                token = token,
+                deviceModel = deviceModel
+            ).onFailure { error ->
+                Log.w(
+                    "EcoRutaFCM",
+                    "No se pudo registrar el token FCM: ${error.message}"
+                )
+            }
+
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(
+                "EcoRutaFCM",
+                "No se pudo obtener o sincronizar el token FCM: ${error.message}"
+            )
+        }
+    }
 
     // Registra las credenciales en Supabase Auth y retorna la cuenta inicial creada
     override suspend fun signUpWithEmail(
@@ -75,7 +109,7 @@ class AuthRepositoryImpl @Inject constructor(
             .select { filter { eq("id", userInfo.id) } }
             .decodeSingleOrNull<ProfileDto>()
             ?: error("No se encontró el perfil del usuario tras iniciar sesión")
-
+        syncFcmTokenSafely()    // Sincroniza el token FCM del dispositivo
         UserAccount(
             id = userInfo.id,
             email = userInfo.email ?: email,
@@ -109,6 +143,9 @@ class AuthRepositoryImpl @Inject constructor(
         }
         val userInfo = auth.currentUserOrNull()
             ?: error("No se encontró la sesión del usuario tras autenticar con Google")
+
+        syncFcmTokenSafely()    // Sincroniza el token FCM del dispositivo
+
         val fullName = userInfo.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull
             ?: userInfo.userMetadata?.get("name")?.jsonPrimitive?.contentOrNull
         UserAccount(

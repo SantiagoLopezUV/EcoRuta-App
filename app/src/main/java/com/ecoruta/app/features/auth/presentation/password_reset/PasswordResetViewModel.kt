@@ -174,6 +174,8 @@ class PasswordResetViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.updatePassword(current.newPassword)
                 .onSuccess {
+                    // Cierra la sesión temporal para que el usuario inicie otravez con su nueva clave
+                    runCatching { authRepository.signOut() }
                     _uiState.update { it.copy(isSavingPassword = false, isPasswordUpdated = true) }
                 }
                 .onFailure {
