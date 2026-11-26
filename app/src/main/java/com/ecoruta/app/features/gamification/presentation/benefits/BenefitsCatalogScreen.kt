@@ -69,10 +69,20 @@ fun formatPoints(points: Int): String = NumberFormat.getIntegerInstance(SpanishC
 fun formatSignedPoints(points: Int): String = if (points >= 0) "+${formatPoints(points)}" else "−${formatPoints(-points)}"
 
 // Formatea la fecha de vigencia del cupón en texto completo
-fun formatCouponDate(millis: Long): String = SimpleDateFormat("d 'de' MMMM 'de' yyyy", SpanishColombia).format(Date(millis))
+fun formatCouponDate(millis: Long): String = if (millis <= 0L) {
+    val thirtyDaysFromNow = System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000L
+    SimpleDateFormat("d 'de' MMMM 'de' yyyy", SpanishColombia).format(Date(thirtyDaysFromNow))
+} else {
+    SimpleDateFormat("d 'de' MMMM 'de' yyyy", SpanishColombia).format(Date(millis))
+}
 
 // Formatea la fecha del cupón o movimiento en versión abreviada
-fun formatShortCouponDate(millis: Long): String = SimpleDateFormat("d MMM yyyy", SpanishColombia).format(Date(millis))
+fun formatShortCouponDate(millis: Long): String = if (millis <= 0L) {
+    val thirtyDaysFromNow = System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000L
+    SimpleDateFormat("d MMM yyyy", SpanishColombia).format(Date(thirtyDaysFromNow))
+} else {
+    SimpleDateFormat("d MMM yyyy", SpanishColombia).format(Date(millis))
+}
 
 // Indicador de carga centrado para las vistas de beneficios
 @Composable

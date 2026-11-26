@@ -5,11 +5,14 @@ package com.ecoruta.app.features.profile.presentation.navigation
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -33,6 +36,7 @@ import com.ecoruta.app.features.profile.presentation.GuestProfileScreen
 import com.ecoruta.app.features.profile.presentation.ProfileActions
 import com.ecoruta.app.features.profile.presentation.ProfileScreen
 import com.ecoruta.app.features.profile.presentation.ProfileUiState
+import com.ecoruta.app.features.profile.presentation.ProfileViewModel
 import com.ecoruta.app.features.profile.presentation.RecyclerApplicationUiState
 import com.ecoruta.app.features.profile.presentation.RecyclerModality
 import com.ecoruta.app.features.profile.presentation.StoreApplicationUiState
@@ -51,13 +55,13 @@ import com.ecoruta.app.features.profile.presentation.components.StoreApplication
 import com.ecoruta.app.features.profile.presentation.components.StoreRequestInReviewScreen
 
 private val SampleUserProfile = UserProfile(
-    fullName = "Camila Restrepo",
+    fullName = "",
     role = UserRole.CIUDADANO,
-    city = "Rionegro, Antioquia",
-    email = "camila.restrepo@ecoruta.co",
-    documentNumber = "1.036.948.210",
-    ecoPoints = 1_250,
-    approvedRoles = setOf(UserRole.CIUDADANO, UserRole.COMERCIO, UserRole.RECICLADOR, UserRole.CHOFER),
+    city = "Tuluá, Valle del Cauca",
+    email = "",
+    documentNumber = "",
+    ecoPoints = 0,
+    approvedRoles = setOf(UserRole.CIUDADANO),
 )
 
 private val SampleCompanies = listOf(
@@ -83,10 +87,20 @@ fun NavGraphBuilder.profileGraph(
     }
 
     composable(EcoRutaDestination.MY_PROFILE) {
+        val viewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         val context = LocalContext.current
         var localPhoto by remember { mutableStateOf<Uri?>(null) }
+        val displayState = when (val s = state) {
+            is ProfileUiState.Loaded -> s.copy(localPhoto = localPhoto ?: s.localPhoto)
+            else -> s
+        }
+        val currentRole = (state as? ProfileUiState.Loaded)?.profile?.role ?: UserRole.CIUDADANO
         ProfileScreen(
-            state = ProfileUiState.Loaded(profile = SampleUserProfile, localPhoto = localPhoto),
+            state = displayState,
             isSigningOut = false,
             isUpdatingPhoto = false,
             actions = ProfileActions(
@@ -99,18 +113,28 @@ fun NavGraphBuilder.profileGraph(
                 onMyCoupons = { open(EcoRutaDestination.PROFILE_MY_COUPONS) },
                 onChangeProfile = { open(EcoRutaDestination.SWITCH_PROFILE) },
                 onEditProfile = { open(EcoRutaDestination.CITIZEN_EDIT_PROFILE) },
-                onChangePassword = { open(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, SampleUserProfile.role)) },
+                onChangePassword = { open(EcoRutaDestination.changePassword(ChangePasswordMode.PROFILE, currentRole)) },
                 onSignOut = { navController.goToPublicHomeAfterSignOut() },
-                onRetry = {},
+                onRetry = { viewModel.onRetry() },
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
         )
     }
 
     composable(EcoRutaDestination.CITIZEN_EDIT_PROFILE) {
-        // Arranca con el nombre y el correo del perfil ilustrativo y guardar no hace nada hasta que exista el ViewModel
-        var state by remember {
-            mutableStateOf(CitizenEditProfileUiState(fullName = SampleUserProfile.fullName, email = SampleUserProfile.email))
+        val viewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
+        val profileState by viewModel.uiState.collectAsStateWithLifecycle()
+        val loadedProfile = (profileState as? ProfileUiState.Loaded)?.profile
+        var state by remember(loadedProfile) {
+            mutableStateOf(
+                CitizenEditProfileUiState(
+                    fullName = loadedProfile?.fullName.orEmpty(),
+                    email = loadedProfile?.email.orEmpty(),
+                )
+            )
         }
         CitizenEditProfileScreen(
             state = state,
@@ -126,11 +150,17 @@ fun NavGraphBuilder.profileGraph(
     }
 
     composable(EcoRutaDestination.SWITCH_PROFILE) {
+        val viewModel: ProfileViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         ChangeProfileScreen(
-            state = ProfileUiState.Loaded(profile = SampleUserProfile),
+            state = state,
             actions = ChangeProfileActions(
                 onBack = { navController.popBackStack() },
                 onSwitchRole = { role ->
+                    viewModel.onSwitchRole(role)
                     navController.navigate(EcoRutaDestination.homeForRole(role)) {
                         popUpTo(navController.graph.id) { inclusive = true }
                         launchSingleTop = true
@@ -143,7 +173,7 @@ fun NavGraphBuilder.profileGraph(
                         open(EcoRutaDestination.RECYCLER_APPLICATION)
                     }
                 },
-                onRetry = {},
+                onRetry = { viewModel.onRetry() },
                 onTabClick = { tab -> navController.navigateToCitizenTab(tab) },
             ),
         )
@@ -208,11 +238,17 @@ private fun NavGraphBuilder.roleRequestDestinations(navController: NavHostContro
         route = EcoRutaDestination.RECYCLER_APPLICATION,
     ) {
         composable(EcoRutaDestination.RECYCLER_APPLICATION_FORM) {
-            var state by remember {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                viewModel.refresh()
+            }
+            val profileState by viewModel.uiState.collectAsStateWithLifecycle()
+            val loadedProfile = (profileState as? ProfileUiState.Loaded)?.profile
+            var state by remember(loadedProfile) {
                 mutableStateOf(
                     RecyclerApplicationUiState(
-                        fullName = SampleUserProfile.fullName,
-                        documentNumber = SampleUserProfile.documentNumber,
+                        fullName = loadedProfile?.fullName.orEmpty(),
+                        documentNumber = loadedProfile?.documentNumber.orEmpty(),
                         modality = RecyclerModality.INDEPENDENT,
                         results = SampleCompanies,
                     ),
