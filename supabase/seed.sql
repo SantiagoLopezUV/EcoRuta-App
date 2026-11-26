@@ -161,3 +161,90 @@ VALUES
     true
   )
 ON CONFLICT DO NOTHING;
+
+-- Motivo para bonos y pruebas de EcoPuntos
+INSERT INTO public.transaction_reasons (code, name, type, default_points, is_active)
+VALUES ('bono_bienvenida', 'Bono de bienvenida EcoRuta', 'earn', 500, true)
+ON CONFLICT (code) DO NOTHING;
+
+-- Comercios aliados base de prueba para validación de cupones
+INSERT INTO auth.users (
+  id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, is_sso_user, is_anonymous
+) VALUES
+  (
+    '00000000-0000-0000-0000-000000000201',
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'cafedelrio@ecoruta.local',
+    crypt('Comercio123!', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Café del Río Tuluá","role_code":"business","business_name":"Café del Río","category":"Gastronomía","address":"Carrera 26 # 27-14, Centro, Tuluá","document_id":"900123456-1","phone":"3155550199","must_change_password":false}'::jsonb,
+    false,
+    false
+  ),
+  (
+    '00000000-0000-0000-0000-000000000202',
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'elahorro@ecoruta.local',
+    crypt('Comercio123!', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Supermercado El Ahorro","role_code":"business","business_name":"Supermercado El Ahorro","category":"Supermercado","address":"Calle 25 # 22-10, Tuluá","document_id":"900987654-2","phone":"3184440288","must_change_password":false}'::jsonb,
+    false,
+    false
+  )
+ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.businesses
+SET status = 'aprobado'
+WHERE profile_id IN ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000202');
+
+-- Catálogo de cupones reales disponibles
+INSERT INTO public.coupons (id, business_id, title, points_cost, quantity_available, valid_until, is_active)
+VALUES
+  (
+    '00000000-0000-0000-0000-000000000301',
+    '00000000-0000-0000-0000-000000000201',
+    '15% de descuento en Café Especial y Repostería',
+    150,
+    50,
+    CURRENT_DATE + interval '30 days',
+    true
+  ),
+  (
+    '00000000-0000-0000-0000-000000000302',
+    '00000000-0000-0000-0000-000000000201',
+    'Bebida Caliente Gratis por entrega de reciclaje',
+    300,
+    25,
+    CURRENT_DATE + interval '30 days',
+    true
+  ),
+  (
+    '00000000-0000-0000-0000-000000000303',
+    '00000000-0000-0000-0000-000000000202',
+    'Bono de $10.000 COP en compras de mercado',
+    500,
+    30,
+    CURRENT_DATE + interval '30 days',
+    true
+  ),
+  (
+    '00000000-0000-0000-0000-000000000304',
+    '00000000-0000-0000-0000-000000000202',
+    'Bolsa ecológica reutilizable EcoRuta',
+    80,
+    100,
+    CURRENT_DATE + interval '30 days',
+    true
+  )
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  points_cost = EXCLUDED.points_cost,
+  quantity_available = EXCLUDED.quantity_available,
+  valid_until = EXCLUDED.valid_until,
+  is_active = EXCLUDED.is_active;

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.room)
+    alias(libs.plugins.google.services)
 }
 // tabla clave-valor para parsear archivos .properties
 val localProperties = Properties()  // Ruta física al archivo local.properties en la raíz del proyecto
@@ -153,6 +154,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Firebase Cloud Messaging
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.kotlinx.coroutines.play.services)
 }
 
 // Asegurar que cualquier cambio en local.properties invalide el caché y regenere BuildConfig automáticamente

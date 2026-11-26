@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecoruta.app.core.navigation.NavigationDestination
-import com.ecoruta.app.features.gamification.domain.model.MerchantCouponModel
+import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
 import com.ecoruta.app.features.gamification.domain.repository.GamificationRepository
 import com.ecoruta.app.features.gamification.presentation.merchant_dashboard.MerchantCoupon
 import com.ecoruta.app.features.profile.domain.repository.ProfileRepository
@@ -59,7 +59,7 @@ class CouponManagementViewModel @Inject constructor(
                 it.copy(
                     isLoading = false,
                     storeName = profileResult.getOrNull()?.fullName.orEmpty(),
-                    coupons = couponsResult.getOrThrow().map { model -> model.toPresentation() },
+                    coupons = couponsResult.getOrThrow().map { coupon -> coupon.toPresentation() },
                 )
             }
         }
@@ -79,7 +79,7 @@ class CouponManagementViewModel @Inject constructor(
                 it.copy(
                     storeName = profileResult.getOrNull()?.fullName.orEmpty(),
                     title = coupon.title,
-                    description = coupon.description,
+                    description = coupon.subtitle,
                     pointsCost = coupon.pointsCost.toString(),
                     quantity = coupon.availableQuantity.toString(),
                     validUntilMillis = coupon.validUntilMillis,
@@ -116,19 +116,19 @@ class CouponManagementViewModel @Inject constructor(
             val result = if (editCouponId == null) {
                 gamificationRepository.createCoupon(
                     title = form.title.trim(),
-                    description = form.description.trim(),
                     pointsCost = form.pointsCost.toInt(),
-                    quantity = form.quantity.toInt(),
+                    quantityAvailable = form.quantity.toInt(),
                     validUntilMillis = form.validUntilMillis!!,
+                    description = form.description.trim(),
                 )
             } else {
                 gamificationRepository.updateCoupon(
-                    id = editCouponId,
+                    couponId = editCouponId,
                     title = form.title.trim(),
-                    description = form.description.trim(),
                     pointsCost = form.pointsCost.toInt(),
-                    quantity = form.quantity.toInt(),
+                    quantityAvailable = form.quantity.toInt(),
                     validUntilMillis = form.validUntilMillis!!,
+                    description = form.description.trim(),
                     isActive = form.isActive,
                 )
             }
@@ -149,10 +149,10 @@ class CouponManagementViewModel @Inject constructor(
         }
     }
 
-    private fun MerchantCouponModel.toPresentation(): MerchantCoupon = MerchantCoupon(
+    private fun BenefitCoupon.toPresentation(): MerchantCoupon = MerchantCoupon(
         id = id,
         title = title,
-        description = description,
+        description = subtitle,
         pointsCost = pointsCost,
         availableQuantity = availableQuantity,
         validUntil = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(validUntilMillis)),

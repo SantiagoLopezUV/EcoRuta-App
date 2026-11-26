@@ -30,4 +30,16 @@ interface BulkyWasteRepository {
 
     // Consulta el directorio de gestores autorizados y orientación oficial de escombros en Tuluá
     suspend fun getAuthorizedManagers(): Result<List<RcdManagerOrientation>>
+
+    // Consulta las fechas disponibles para agendamiento de recolección según capacidades operativas
+    suspend fun getAvailablePickupDates(
+        startDateMillis: Long,
+        daysCount: Int = 28,
+    ): Result<Set<Long>>
+
+    // Asigna la fecha programada de recolección a una solicitud existente
+    suspend fun scheduleRequestDate(
+        requestId: String,
+        scheduledDateMillis: Long,
+    ): Result<Unit>
 }

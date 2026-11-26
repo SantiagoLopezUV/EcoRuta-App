@@ -1,38 +1,60 @@
 package com.ecoruta.app.features.gamification.domain.repository
 
-// Contrato de dominio para catálogo de beneficios y gamificación
-// Operaciones abstractas de consulta de cupones, canje y validación en caja
+// Contrato de dominio para catálogo de beneficios, gamificación y saldo de EcoPuntos
+// Operaciones abstractas de consulta de cupones, canje atómico, saldo e historial de movimientos
 
-import com.ecoruta.app.features.gamification.domain.model.MerchantCouponModel
+import com.ecoruta.app.features.gamification.domain.model.BenefitCoupon
+import com.ecoruta.app.features.gamification.domain.model.EcoPointsLedger
+import com.ecoruta.app.features.gamification.domain.model.RedeemedBenefitCoupon
 
 interface GamificationRepository {
 
-    // Retorna los cupones publicados por el comercio autenticado
-    suspend fun getMerchantCoupons(): Result<List<MerchantCouponModel>>
+    // Consulta el saldo disponible de EcoPuntos del ciudadano autenticado
+    suspend fun getBalance(): Result<Int>
 
-    // Retorna un cupón del comercio por su ID para pre-poblar el formulario de edición
-    suspend fun getMerchantCoupon(id: String): Result<MerchantCouponModel>
+    // Consulta el historial de movimientos de EcoPuntos (abonos y débitos)
+    suspend fun getPointsLedger(): Result<EcoPointsLedger>
 
-    // Crea un cupón nuevo con los datos del formulario validados en el ViewModel
+    // Consulta el catálogo de cupones de beneficios disponibles con stock
+    suspend fun getAvailableCoupons(): Result<List<BenefitCoupon>>
+
+    // Canjea un cupón de forma atómica debitando los EcoPuntos del ciudadano
+    suspend fun redeemCoupon(couponId: String): Result<RedeemedBenefitCoupon>
+
+    // Consulta el historial de cupones canjeados del ciudadano autenticado
+    suspend fun getMyCoupons(): Result<List<RedeemedBenefitCoupon>>
+
+    // Consulta el detalle de un cupón canjeado por su identificador
+    suspend fun getMyCouponById(redeemedCouponId: String): Result<RedeemedBenefitCoupon>
+
+    // Registra un nuevo cupón de descuento asociado al comercio aliado autenticado
     suspend fun createCoupon(
         title: String,
-        description: String,
         pointsCost: Int,
-        quantity: Int,
-        validUntilMillis: Long,
-    ): Result<Unit>
+        quantityAvailable: Int,
+        validUntilMillis: Long? = null,
+        category: String = "general",
+        description: String = "",
+    ): Result<BenefitCoupon>
 
-    // Actualiza los campos de un cupón existente; solo aplica los campos no nulos
+    // Actualiza los datos de un cupón existente verificando pertenencia al comercio
     suspend fun updateCoupon(
-        id: String,
+        couponId: String,
         title: String,
-        description: String,
         pointsCost: Int,
-        quantity: Int,
-        validUntilMillis: Long,
-        isActive: Boolean,
-    ): Result<Unit>
+        quantityAvailable: Int,
+        validUntilMillis: Long? = null,
+        category: String = "general",
+        description: String = "",
+        isActive: Boolean = true,
+    ): Result<BenefitCoupon>
 
-    // Desactiva un cupón activo para que deje de aparecer en el catálogo de ciudadanos
-    suspend fun deactivateCoupon(id: String): Result<Unit>
+    // Desactiva un cupón del comercio aliado mediante baja lógica sin eliminar redenciones históricas
+    suspend fun deactivateCoupon(couponId: String): Result<Unit>
+
+    // Consulta todos los cupones creados por el comercio autenticado (activos e inactivos)
+    suspend fun getMerchantCoupons(): Result<List<BenefitCoupon>>
+
+    // Retorna un cupón del comercio por su ID para pre-poblar el formulario de edición
+    suspend fun getMerchantCoupon(couponId: String): Result<BenefitCoupon>
 }

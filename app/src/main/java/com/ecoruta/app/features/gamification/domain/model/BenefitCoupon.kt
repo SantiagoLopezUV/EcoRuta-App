@@ -1,26 +1,29 @@
 package com.ecoruta.app.features.gamification.domain.model
 
-// Modelos de dominio para el catálogo de beneficios y la gestión de cupones del comercio
+// Modelo de dominio limpio para cupones de beneficios comerciales
+// Porcentaje de descuento, comercio aliado, costo en EcoPuntos y vigencia
 
-// Cupón del catálogo de beneficios visto por el ciudadano
 data class BenefitCoupon(
     val id: String,
+    val businessName: String,
     val title: String,
-    val description: String,
-    val storeName: String,
+    val subtitle: String,
     val pointsCost: Int,
     val availableQuantity: Int,
     val validUntilMillis: Long,
-    val discountPercent: Int,
+    val conditions: List<String>,
+    val category: String,
+    val isActive: Boolean = true,
 )
 
-// Cupón gestionado por el comercio aliado con sus métricas de disponibilidad
-data class MerchantCouponModel(
+data class RedeemedBenefitCoupon(
     val id: String,
+    val couponId: String,
+    val businessName: String,
     val title: String,
-    val description: String,
-    val pointsCost: Int,
-    val availableQuantity: Int,
+    // Código alfanumérico único para presentar en caja (ej: ECO-CAFE-8492)
+    val code: String,
+    val redeemedAtMillis: Long,
+    val pointsSpent: Int,
     val validUntilMillis: Long,
-    val isActive: Boolean,
 )
