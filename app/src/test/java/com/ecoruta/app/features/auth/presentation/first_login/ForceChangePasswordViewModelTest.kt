@@ -4,6 +4,7 @@ import com.ecoruta.app.R
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
 import com.ecoruta.app.core.testing.TestDataFactory
+import io.github.jan.supabase.auth.exception.AuthRestException
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -159,6 +160,36 @@ class ForceChangePasswordViewModelTest {
         assertEquals(NEW_PASSWORD, state.confirmPassword)
         assertEquals(TEMPORARY_PASSWORD, repository.passwordOf(operator.email))
         assertEquals(listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed)), events)
+    }
+
+    @Test
+    fun serverRejection_marksTemporaryPasswordWrongAndShowsNotice() = runTest {
+        repository.error = AuthRestException("invalid_credentials", "Credenciales inválidas", 400)
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isSaving)
+        assertEquals(R.string.change_password_error_wrong_temporary, state.currentErrorRes)
+        assertEquals(TEMPORARY_PASSWORD, repository.passwordOf(operator.email))
+        assertEquals(listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed)), events)
+    }
+
+    @Test
+    fun failedSave_keepsPasswordChangeRequiredAndDoesNotEmitDone() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        // El operador sigue obligado a cambiar la clave porque el servidor no la guardó
+        assertTrue(repository.getCurrentUser()!!.mustChangePassword)
+        assertFalse(ChangePasswordEvent.Done in events)
     }
 
     @Test
