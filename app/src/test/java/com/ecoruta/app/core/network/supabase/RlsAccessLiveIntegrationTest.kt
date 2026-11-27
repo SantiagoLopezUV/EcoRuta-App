@@ -4,6 +4,7 @@ import com.ecoruta.app.BuildConfig
 import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
 import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
+import com.ecoruta.app.features.notifications.domain.repository.FcmTokenRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.MemoryCodeVerifierCache
@@ -42,6 +43,12 @@ class RlsAccessLiveIntegrationTest {
 
     // Clientes abiertos durante la prueba para cerrarlos y limpiarlos al final
     private val openClients = mutableListOf<SupabaseClient>()
+
+    // Registro de tokens que no hace nada porque estas pruebas no usan notificaciones push
+    private val noOpFcmTokenRepository = object : FcmTokenRepository {
+        override suspend fun registerToken(token: String, deviceModel: String) = Result.success(Unit)
+        override suspend fun removeToken(token: String) = Result.success(Unit)
+    }
 
     @Before
     fun requireLocalDatabase() {
@@ -211,7 +218,7 @@ class RlsAccessLiveIntegrationTest {
     // Registra un ciudadano nuevo con su propio cliente y deja la sesión iniciada
     private suspend fun registerCitizen(): TestUser {
         val client = newClient()
-        val account = AuthRepositoryImpl(client.auth, client.postgrest).signUpCitizen(
+        val account = AuthRepositoryImpl(client.auth, client.postgrest, noOpFcmTokenRepository).signUpCitizen(
             CitizenRegistration(
                 email = uniqueEmail(),
                 password = TEST_PASSWORD,
@@ -227,7 +234,7 @@ class RlsAccessLiveIntegrationTest {
     // Registra un reciclador independiente nuevo, que queda pendiente de aprobación
     private suspend fun registerRecycler(): TestUser {
         val client = newClient()
-        val account = AuthRepositoryImpl(client.auth, client.postgrest).signUpRecycler(
+        val account = AuthRepositoryImpl(client.auth, client.postgrest, noOpFcmTokenRepository).signUpRecycler(
             RecyclerRegistration(
                 email = uniqueEmail(),
                 password = TEST_PASSWORD,

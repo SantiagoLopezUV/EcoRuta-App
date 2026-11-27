@@ -4,6 +4,7 @@ import com.ecoruta.app.core.network.supabase.supabase
 import com.ecoruta.app.features.auth.data.repository.AuthRepositoryImpl
 import com.ecoruta.app.features.auth.domain.model.CitizenRegistration
 import com.ecoruta.app.features.auth.domain.model.RecyclerRegistration
+import com.ecoruta.app.features.notifications.domain.repository.FcmTokenRepository
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.runBlocking
@@ -43,7 +44,12 @@ class AuthLiveIntegrationTest {
 
     private val repository = AuthRepositoryImpl(
         auth = supabase.auth,
-        postgrest = supabase.postgrest
+        postgrest = supabase.postgrest,
+        // Registro de tokens que no hace nada porque estas pruebas no usan notificaciones push
+        fcmTokenRepository = object : FcmTokenRepository {
+            override suspend fun registerToken(token: String, deviceModel: String) = Result.success(Unit)
+            override suspend fun removeToken(token: String) = Result.success(Unit)
+        }
     )
 
     //  testSendPasswordResetEmailReal()
