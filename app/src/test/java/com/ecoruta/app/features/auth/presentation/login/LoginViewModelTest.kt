@@ -15,6 +15,7 @@ import io.ktor.client.request.url
 import io.ktor.http.HttpMethod
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -69,6 +70,20 @@ class LoginViewModelTest {
     private fun fillValidCredentials() {
         viewModel.onEmailChange(TestDataFactory.DEFAULT_EMAIL)
         viewModel.onPasswordChange(TestDataFactory.DEFAULT_PASSWORD)
+    }
+
+    // Inicia sesión con la cuenta de un chofer que todavía tiene su clave provisional
+    private fun TestScope.signInWithTemporaryPassword(password: String = TestDataFactory.DEFAULT_PASSWORD) {
+        val account = TestDataFactory.firstLoginAccount()
+        authRepository.addAccount(account)
+        profileRepository.currentProfile = profileRepository.currentProfile.copy(
+            activeRole = UserRole.CHOFER,
+            approvedRoles = setOf(UserRole.CHOFER),
+        )
+        viewModel.onEmailChange(account.email)
+        viewModel.onPasswordChange(password)
+        viewModel.onSubmit()
+        advanceUntilIdle()
     }
 
     @Test
@@ -306,6 +321,67 @@ class LoginViewModelTest {
         assertNull(state.signedInRole)
         assertNull(state.passwordChangeRole)
         assertFalse(state.isSubmitting)
+    }
+
+    @Test
+    fun temporaryPasswordProfileError_showsGenericNoticeWithoutPasswordChangeRole() = runTest {
+        profileRepository.error = IOException("Sin conexión")
+        signInWithTemporaryPassword()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_generic, state.noticeRes)
+        assertNull(state.passwordChangeRole)
+        assertNull(state.signedInRole)
+        assertFalse(state.isSubmitting)
+    }
+
+    @Test
+    fun temporaryPasswordProfileNetworkError_showsConnectionNoticeWithoutPasswordChangeRole() = runTest {
+        profileRepository.error = offlineError()
+        signInWithTemporaryPassword()
+
+        val state = viewModel.uiState.value
+        assertEquals(R.string.login_error_no_connection, state.noticeRes)
+        assertNull(state.passwordChangeRole)
+        assertNull(state.signedInRole)
+    }
+
+    @Test
+    fun temporaryPasswordWrongPassword_showsInvalidCredentialsWithoutPasswordChangeRole() = runTest {
+        signInWithTemporaryPassword(password = "ClaveEquivocada")
+
+        val state = viewModel.uiState.value
+        assertTrue(state.showInvalidCredentials)
+        assertNull(state.passwordChangeRole)
+        assertNull(state.signedInRole)
+    }
+
+    @Test
+    fun retryAfterProfileErrorWithTemporaryPassword_setsPasswordChangeRoleOnly() = runTest {
+        profileRepository.error = IOException("Sin conexión")
+        signInWithTemporaryPassword()
+        assertNull(viewModel.uiState.value.passwordChangeRole)
+
+        profileRepository.error = null
+        viewModel.onSubmit()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(UserRole.CHOFER, state.passwordChangeRole)
+        assertNull(state.signedInRole)
+        assertNull(state.noticeRes)
+    }
+
+    @Test
+    fun navigationHandledAfterTemporaryPassword_clearsPasswordChangeRole() = runTest {
+        signInWithTemporaryPassword()
+        assertEquals(UserRole.CHOFER, viewModel.uiState.value.passwordChangeRole)
+
+        viewModel.onNavigationHandled()
+
+        val state = viewModel.uiState.value
+        assertNull(state.passwordChangeRole)
+        assertNull(state.signedInRole)
     }
 
     @Test

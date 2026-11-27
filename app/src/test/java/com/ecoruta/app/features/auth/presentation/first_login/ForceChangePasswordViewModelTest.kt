@@ -162,6 +162,36 @@ class ForceChangePasswordViewModelTest {
     }
 
     @Test
+    fun wrongTemporaryPassword_marksTemporaryPasswordWrongAndDoesNotEmitDone() = runTest {
+        val events = collectEvents()
+
+        fillForm(current = "OtraTemporal789")
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isSaving)
+        assertEquals(R.string.change_password_error_wrong_temporary, state.currentErrorRes)
+        assertEquals(TEMPORARY_PASSWORD, repository.passwordOf(operator.email))
+        assertTrue(repository.getCurrentUser()!!.mustChangePassword)
+        assertEquals(listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed)), events)
+    }
+
+    @Test
+    fun failedSave_keepsPasswordChangeRequiredAndDoesNotEmitDone() = runTest {
+        repository.error = IOException("Sin conexión")
+        val events = collectEvents()
+
+        fillForm()
+        viewModel.onSave()
+        advanceUntilIdle()
+
+        // El operador sigue obligado a cambiar la clave porque el servidor no la guardó
+        assertTrue(repository.getCurrentUser()!!.mustChangePassword)
+        assertFalse(ChangePasswordEvent.Done in events)
+    }
+
+    @Test
     fun save_showsLoadingUntilRequestFinishes() = runTest {
         fillForm()
         viewModel.onSave()

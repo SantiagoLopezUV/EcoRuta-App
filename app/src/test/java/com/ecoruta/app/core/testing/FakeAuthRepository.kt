@@ -109,12 +109,16 @@ class FakeAuthRepository : AuthRepository {
             accounts[targetEmail] = stored.copy(password = newPassword)
         }
 
-    // Guarda la nueva clave y apaga la obligación de cambiarla
+    // Comprueba la clave temporal guardada, guarda la nueva clave y apaga la obligación de cambiarla
     override suspend fun updateFirstLoginPassword(
         currentPassword: String,
         newPassword: String): Result<Unit> =
         result {
             val user = requireUser()
+            // Como el servicio real vuelve a iniciar sesión, la clave temporal equivocada da el mismo rechazo
+            if (accounts[user.email]?.password != currentPassword) {
+                throw AuthRestException("invalid_credentials", "Credenciales inválidas", 400)
+            }
             val updated = user.copy(mustChangePassword = false)
             accounts[user.email] = StoredAccount(updated, newPassword)
             session.value = AuthSession.Authenticated(updated)
