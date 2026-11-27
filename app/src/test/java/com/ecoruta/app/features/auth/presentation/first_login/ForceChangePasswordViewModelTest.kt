@@ -4,7 +4,6 @@ import com.ecoruta.app.R
 import com.ecoruta.app.core.testing.FakeAuthRepository
 import com.ecoruta.app.core.testing.MainDispatcherRule
 import com.ecoruta.app.core.testing.TestDataFactory
-import io.github.jan.supabase.auth.exception.AuthRestException
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -163,11 +162,10 @@ class ForceChangePasswordViewModelTest {
     }
 
     @Test
-    fun serverRejection_marksTemporaryPasswordWrongAndShowsNotice() = runTest {
-        repository.error = AuthRestException("invalid_credentials", "Credenciales inválidas", 400)
+    fun wrongTemporaryPassword_marksTemporaryPasswordWrongAndDoesNotEmitDone() = runTest {
         val events = collectEvents()
 
-        fillForm()
+        fillForm(current = "OtraTemporal789")
         viewModel.onSave()
         advanceUntilIdle()
 
@@ -175,6 +173,7 @@ class ForceChangePasswordViewModelTest {
         assertFalse(state.isSaving)
         assertEquals(R.string.change_password_error_wrong_temporary, state.currentErrorRes)
         assertEquals(TEMPORARY_PASSWORD, repository.passwordOf(operator.email))
+        assertTrue(repository.getCurrentUser()!!.mustChangePassword)
         assertEquals(listOf(ChangePasswordEvent.ShowNotice(R.string.recovery_error_request_failed)), events)
     }
 
