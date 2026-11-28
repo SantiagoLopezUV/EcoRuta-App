@@ -9,22 +9,41 @@ import com.ecoruta.app.features.profile.domain.model.UserRole
 
 enum class MaterialType {
     PET,
-    CARDBOARD,
-    GLASS,
-    OTHER,
+    CARTON,
+    VIDRIO,
+    OTRO;
+
+    companion object {
+        val CARDBOARD: MaterialType get() = CARTON
+        val GLASS: MaterialType get() = VIDRIO
+        val OTHER: MaterialType get() = OTRO
+    }
 }
 
 enum class MaterialVolume {
-    SMALL_BAG,
-    LARGE_BAG,
-    BULKY,
+    BOLSA_PEQUENA,
+    BOLSA_GRANDE,
+    VOLUMINOSO;
+
+    companion object {
+        val SMALL_BAG: MaterialVolume get() = BOLSA_PEQUENA
+        val LARGE_BAG: MaterialVolume get() = BOLSA_GRANDE
+        val BULKY: MaterialVolume get() = VOLUMINOSO
+    }
 }
 
+// Estados en español alineados con la restricción check de Supabase (disponible, reservado, completado, cancelado)
 enum class PublicationStatus {
     DISPONIBLE,
-    EN_CAMINO,
-    ENTREGADA,
-    CANCELADA,
+    RESERVADO,
+    COMPLETADO,
+    CANCELADO;
+
+    companion object {
+        val EN_CAMINO: PublicationStatus get() = RESERVADO
+        val ENTREGADA: PublicationStatus get() = COMPLETADO
+        val CANCELADA: PublicationStatus get() = CANCELADO
+    }
 }
 
 data class AssignedRecycler(
@@ -47,6 +66,9 @@ data class RecyclingPublication(
     val deliveredAtMillis: Long? = null,
     val pointsEarned: Int? = null,
     val balanceAfter: Int? = null,
+    val isBusinessListing: Boolean = false,
+    val businessId: String? = null,
+    val photoUrl: String? = null,
 )
 
 data class DeliveryCode(
@@ -78,6 +100,10 @@ data class PublishMaterialUiState(
     val address: String = "",
     @StringRes val addressError: Int? = null,
     val photo: Uri? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val businessId: String? = null,
+    @StringRes val generalError: Int? = null,
     val isPublishing: Boolean = false,
 )
 

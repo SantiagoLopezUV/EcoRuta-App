@@ -3,8 +3,10 @@ package com.ecoruta.app.features.circular_economy.presentation.publish
 // ViewModel para el inicio del módulo de reciclaje
 // Carga el rol activo del usuario y sus publicaciones; vincula listados al negocio si el rol es COMERCIO
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ecoruta.app.R
 import com.ecoruta.app.features.circular_economy.domain.model.RecyclableListing
 import com.ecoruta.app.features.circular_economy.domain.repository.CircularEconomyRepository
 import com.ecoruta.app.features.profile.domain.model.UserRole
@@ -25,6 +27,12 @@ class ListingsViewModel @Inject constructor(
     private val _homeState = MutableStateFlow<RecyclingHomeUiState>(RecyclingHomeUiState.Loading)
     val homeState: StateFlow<RecyclingHomeUiState> = _homeState.asStateFlow()
 
+    private val _publishState = MutableStateFlow(PublishMaterialUiState())
+    val publishState: StateFlow<PublishMaterialUiState> = _publishState.asStateFlow()
+
+    private val _isCancelling = MutableStateFlow(false)
+    val isCancelling: StateFlow<Boolean> = _isCancelling.asStateFlow()
+
     init {
         loadListings()
     }
@@ -42,8 +50,15 @@ class ListingsViewModel @Inject constructor(
             }
 
             val profile = profileResult.getOrNull()
+            val isBusiness = profile?.activeRole == UserRole.COMERCIO
+            // Vincula las publicaciones al negocio si el usuario activo tiene rol de comercio
             val publications = listingsResult.getOrNull()
-                ?.map { it.toPresentation() }
+                ?.map { listing ->
+                    listing.copy(
+                        isBusinessListing = isBusiness,
+                        businessId = if (isBusiness) profile?.id else null,
+                    ).toPresentation()
+                }
                 ?: emptyList()
 
             _homeState.value = RecyclingHomeUiState.Loaded(
@@ -51,6 +66,133 @@ class ListingsViewModel @Inject constructor(
                 publications = publications,
                 activeRole = profile?.activeRole ?: UserRole.CIUDADANO,
             )
+        }
+    }
+
+    fun onMaterialSelected(material: MaterialType) {
+        _publishState.value = _publishState.value.copy(
+            material = material,
+            otherMaterial = if (material != MaterialType.OTRO) "" else _publishState.value.otherMaterial,
+            otherMaterialError = null,
+        )
+    }
+
+    fun onOtherMaterialChange(value: String) {
+        _publishState.value = _publishState.value.copy(
+            otherMaterial = value,
+            otherMaterialError = null,
+        )
+    }
+
+    fun onVolumeSelected(volume: MaterialVolume) {
+        _publishState.value = _publishState.value.copy(
+            volume = volume,
+            volumeError = null,
+        )
+    }
+
+    fun onAddressChange(value: String) {
+        _publishState.value = _publishState.value.copy(
+            address = value,
+            addressError = null,
+        )
+    }
+
+    fun onPhotoSelected(uri: Uri) {
+        _publishState.value = _publishState.value.copy(photo = uri)
+    }
+
+    fun onPhotoRemoved() {
+        _publishState.value = _publishState.value.copy(photo = null)
+    }
+
+    fun onLocationUpdated(latitude: Double, longitude: Double) {
+        _publishState.value = _publishState.value.copy(
+            latitude = latitude,
+            longitude = longitude,
+        )
+    }
+
+    // Valida y publica material reciclable en Supabase vinculando al negocio si el rol es COMERCIO
+    fun publish(onSuccess: () -> Unit = {}) {
+        val form = _publishState.value
+        var hasError = false
+
+        val otherError = if (form.material == MaterialType.OTRO && form.otherMaterial.isBlank()) {
+            hasError = true
+            R.string.recycling_other_required
+        } else null
+
+        val volumeError = if (form.volume == null) {
+            hasError = true
+            R.string.recycling_volume_required
+        } else null
+
+        val addressError = if (form.address.isBlank()) {
+            hasError = true
+            R.string.recycling_address_required
+        } else null
+
+        if (hasError) {
+            _publishState.value = form.copy(
+                otherMaterialError = otherError,
+                volumeError = volumeError,
+                addressError = addressError,
+            )
+            return
+        }
+
+        _publishState.value = form.copy(isPublishing = true, generalError = null)
+        viewModelScope.launch {
+            val profile = profileRepository.getProfile().getOrNull()
+            val materialName = materialTypeToDb(form.material, form.otherMaterial)
+            val volumeName = materialVolumeToDb(form.volume!!)
+            val lat = form.latitude ?: 4.0847
+            val lng = form.longitude ?: -76.1953
+
+            val result = circularEconomyRepository.createListing(
+                materialType = materialName,
+                quantityCategory = volumeName,
+                latitude = lat,
+                longitude = lng,
+                address = form.address.trim(),
+                neighborhood = "Centro",
+                photoUrl = form.photo?.toString(),
+                otherMaterial = if (form.material == MaterialType.OTRO) form.otherMaterial.trim() else null,
+            )
+
+            if (result.isSuccess) {
+                _publishState.value = PublishMaterialUiState()
+                loadListings()
+                onSuccess()
+            } else {
+                _publishState.value = _publishState.value.copy(
+                    isPublishing = false,
+                    generalError = R.string.recycling_publish_error,
+                )
+            }
+        }
+    }
+
+    // Retorna una publicación específica por su ID consultando caché o la base de datos Supabase
+    suspend fun getListingById(id: String): Result<RecyclingPublication> {
+        val cached = (_homeState.value as? RecyclingHomeUiState.Loaded)?.publications?.find { it.id == id }
+        if (cached != null) return Result.success(cached)
+        return circularEconomyRepository.getListing(id).map { it.toPresentation() }
+    }
+
+    // Cancela una publicación propia en Supabase y recarga el listado de publicaciones
+    fun cancelPublication(id: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        _isCancelling.value = true
+        viewModelScope.launch {
+            val result = circularEconomyRepository.cancelListing(id)
+            _isCancelling.value = false
+            if (result.isSuccess) {
+                loadListings()
+                onSuccess()
+            } else {
+                onError(result.exceptionOrNull()?.message ?: "Error al cancelar la publicación")
+            }
         }
     }
 
@@ -63,6 +205,9 @@ class ListingsViewModel @Inject constructor(
         address = address,
         status = publicationStatusFrom(status),
         createdAtMillis = createdAtMillis,
+        isBusinessListing = isBusinessListing,
+        businessId = businessId,
+        photoUrl = photoUrl,
         recycler = recyclerName?.let {
             AssignedRecycler(
                 name = it,
@@ -75,25 +220,46 @@ class ListingsViewModel @Inject constructor(
         balanceAfter = balanceAfter,
     )
 
-    private fun materialTypeFrom(value: String): MaterialType = when (value.uppercase()) {
+    // Convierte el tipo de material seleccionado a su representación en español para Supabase
+    private fun materialTypeToDb(material: MaterialType, otherMaterial: String): String = when (material) {
+        MaterialType.PET -> "PET"
+        MaterialType.CARTON -> "CARTON"
+        MaterialType.VIDRIO -> "VIDRIO"
+        MaterialType.OTRO -> otherMaterial.trim()
+    }
+
+    // Convierte el volumen estimado seleccionado a su categoría en español para Supabase
+    private fun materialVolumeToDb(volume: MaterialVolume): String = when (volume) {
+        MaterialVolume.BOLSA_PEQUENA -> "BOLSA_PEQUEÑA"
+        MaterialVolume.BOLSA_GRANDE -> "BOLSA_GRANDE"
+        MaterialVolume.VOLUMINOSO -> "VOLUMINOSO"
+    }
+
+    // Mapea el tipo de material proveniente de la base de datos al enum
+    private fun materialTypeFrom(value: String): MaterialType = when (value.uppercase().trim()) {
         "PET" -> MaterialType.PET
-        "CARDBOARD", "CARTON", "CARTÓN" -> MaterialType.CARDBOARD
-        "GLASS", "VIDRIO" -> MaterialType.GLASS
-        else -> MaterialType.OTHER
+        "CARTON", "CARTÓN" -> MaterialType.CARTON
+        "VIDRIO" -> MaterialType.VIDRIO
+        else -> MaterialType.OTRO
     }
 
-    private fun materialVolumeFrom(value: String): MaterialVolume = when (value.uppercase()) {
-        "SMALL_BAG", "BOLSA_PEQUEÑA", "BOLSA_PEQUENA" -> MaterialVolume.SMALL_BAG
-        "LARGE_BAG", "BOLSA_GRANDE" -> MaterialVolume.LARGE_BAG
-        "BULKY", "VOLUMINOSO" -> MaterialVolume.BULKY
-        else -> MaterialVolume.SMALL_BAG
+    // Mapea el volumen proveniente de la base de datos al enum
+    private fun materialVolumeFrom(value: String): MaterialVolume {
+        val normalized = value.uppercase().trim().replace(' ', '_')
+        return when (normalized) {
+            "BOLSA_PEQUEÑA", "BOLSA_PEQUENA" -> MaterialVolume.BOLSA_PEQUENA
+            "BOLSA_GRANDE" -> MaterialVolume.BOLSA_GRANDE
+            "VOLUMINOSO" -> MaterialVolume.VOLUMINOSO
+            else -> MaterialVolume.BOLSA_PEQUENA
+        }
     }
 
-    private fun publicationStatusFrom(value: String): PublicationStatus = when (value.uppercase()) {
-        "DISPONIBLE", "AVAILABLE" -> PublicationStatus.DISPONIBLE
-        "EN_CAMINO", "ON_THE_WAY" -> PublicationStatus.EN_CAMINO
-        "ENTREGADA", "DELIVERED" -> PublicationStatus.ENTREGADA
-        "CANCELADA", "CANCELLED" -> PublicationStatus.CANCELADA
+    // Mapea los estados en español de la base de datos Supabase al enum de presentación
+    private fun publicationStatusFrom(value: String): PublicationStatus = when (value.uppercase().trim()) {
+        "DISPONIBLE" -> PublicationStatus.DISPONIBLE
+        "RESERVADO", "RESERVADA" -> PublicationStatus.RESERVADO
+        "COMPLETADO", "COMPLETADA" -> PublicationStatus.COMPLETADO
+        "CANCELADO", "CANCELADA" -> PublicationStatus.CANCELADO
         else -> PublicationStatus.DISPONIBLE
     }
 }
