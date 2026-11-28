@@ -40,7 +40,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class AuthRepositoryImpl @Inject constructor(
     private val auth: Auth,
     private val postgrest: Postgrest,
-    private val fcmTokenRepository: FcmTokenRepository,
+    private val fcmTokenRepository: FcmTokenRepository? = null,
     private val storage: Storage? = null
 ) : AuthRepository {
 
@@ -51,10 +51,10 @@ class AuthRepositoryImpl @Inject constructor(
 
             val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
 
-            fcmTokenRepository.registerToken(
+            fcmTokenRepository?.registerToken(
                 token = token,
                 deviceModel = deviceModel
-            ).onFailure { error ->
+            )?.onFailure { error ->
                 Log.w(
                     "EcoRutaFCM",
                     "No se pudo registrar el token FCM: ${error.message}"
