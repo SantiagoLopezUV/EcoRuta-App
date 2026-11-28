@@ -3,6 +3,10 @@ package com.ecoruta.app.features.circular_economy.presentation.publish
 // Vista composable para que el ciudadano publique material reciclable
 // Formulario de selección de material, volumen, foto opcional y dirección
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -37,13 +41,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +61,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.ecoruta.app.R
 import com.ecoruta.app.core.navigation.components.CitizenTab
 import com.ecoruta.app.core.ui.components.EcoDataLabel
@@ -91,39 +102,39 @@ private fun formatPoints(points: Int): String = NumberFormat.getIntegerInstance(
 @StringRes
 fun MaterialType.labelRes(): Int = when (this) {
     MaterialType.PET -> R.string.material_pet
-    MaterialType.CARDBOARD -> R.string.material_cardboard
-    MaterialType.GLASS -> R.string.material_glass
-    MaterialType.OTHER -> R.string.material_other
+    MaterialType.CARTON -> R.string.material_cardboard
+    MaterialType.VIDRIO -> R.string.material_glass
+    MaterialType.OTRO -> R.string.material_other
 }
 
 @StringRes
 fun MaterialType.hintRes(): Int = when (this) {
     MaterialType.PET -> R.string.material_hint_pet
-    MaterialType.CARDBOARD -> R.string.material_hint_cardboard
-    MaterialType.GLASS -> R.string.material_hint_glass
-    MaterialType.OTHER -> R.string.material_hint_other
+    MaterialType.CARTON -> R.string.material_hint_cardboard
+    MaterialType.VIDRIO -> R.string.material_hint_glass
+    MaterialType.OTRO -> R.string.material_hint_other
 }
 
 @StringRes
 fun MaterialVolume.labelRes(): Int = when (this) {
-    MaterialVolume.SMALL_BAG -> R.string.volume_small_bag
-    MaterialVolume.LARGE_BAG -> R.string.volume_large_bag
-    MaterialVolume.BULKY -> R.string.volume_bulky
+    MaterialVolume.BOLSA_PEQUENA -> R.string.volume_small_bag
+    MaterialVolume.BOLSA_GRANDE -> R.string.volume_large_bag
+    MaterialVolume.VOLUMINOSO -> R.string.volume_bulky
 }
 
 // Devuelve el nombre del material seleccionado o la descripción personalizada cuando se elige otro tipo
 @Composable
 fun RecyclingPublication.materialName(): String =
-    otherMaterial?.takeIf { material == MaterialType.OTHER && it.isNotBlank() } ?: stringResource(material.labelRes())
+    otherMaterial?.takeIf { material == MaterialType.OTRO && it.isNotBlank() } ?: stringResource(material.labelRes())
 
 // Etiqueta de estado para las publicaciones de reciclaje según su avance actual
 @Composable
 fun PublicationStatusChip(status: PublicationStatus, modifier: Modifier = Modifier) {
     val (label, background, content) = when (status) {
         PublicationStatus.DISPONIBLE -> Triple(R.string.publication_status_available, EcoSubtitle, EcoWhite)
-        PublicationStatus.EN_CAMINO -> Triple(R.string.publication_status_on_the_way, EcoAccent, EcoBlack)
-        PublicationStatus.ENTREGADA -> Triple(R.string.publication_status_delivered, EcoGreenSecondary, EcoWhite)
-        PublicationStatus.CANCELADA -> Triple(R.string.publication_status_cancelled, EcoTitle, EcoWhite)
+        PublicationStatus.RESERVADO -> Triple(R.string.publication_status_reserved, EcoAccent, EcoBlack)
+        PublicationStatus.COMPLETADO -> Triple(R.string.publication_status_completed, EcoGreenSecondary, EcoWhite)
+        PublicationStatus.CANCELADO -> Triple(R.string.publication_status_cancelled, EcoTitle, EcoWhite)
     }
     EcoStatusChip(stringResource(label), background, content, modifier)
 }
@@ -179,7 +190,7 @@ fun FocusLayout(
 
 // Indica si la publicación continúa activa para contabilizarla en el resumen superior
 val RecyclingPublication.isOngoing: Boolean
-    get() = status == PublicationStatus.DISPONIBLE || status == PublicationStatus.EN_CAMINO
+    get() = status == PublicationStatus.DISPONIBLE || status == PublicationStatus.RESERVADO
 
 @Composable
 private fun CenteredLoading() {
@@ -312,6 +323,7 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.recycling_publish), style = EcoTextStyles.Title, color = EcoTitle)
             Text(stringResource(R.string.recycling_publish_description), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
+            state.generalError?.let { EcoErrorMessage(text = stringResource(it)) }
         }
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.recycling_material_label), style = EcoTextStyles.FieldLabel, color = EcoTitle)
@@ -328,7 +340,7 @@ fun PublishMaterialScreen(state: PublishMaterialUiState, actions: PublishMateria
                 }
             }
         }
-        if (state.material == MaterialType.OTHER) {
+        if (state.material == MaterialType.OTRO) {
             EcoTextField(
                 value = state.otherMaterial,
                 onValueChange = actions.onOtherMaterialChange,
@@ -414,6 +426,57 @@ private fun PhotoPreview(uri: Uri, onChange: () -> Unit, onRemove: () -> Unit) {
     }
 }
 
+// Carga y decodifica la foto de la publicación optimizada para la vista de detalle
+@Composable
+fun rememberPublicationPhoto(photoUrl: String?, maxSizePx: Int = 720): ImageBitmap? {
+    if (photoUrl.isNullOrBlank()) return null
+    val context = LocalContext.current
+    val uri = remember(photoUrl) { Uri.parse(photoUrl) }
+    val bitmap by produceState<ImageBitmap?>(initialValue = null, uri) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                val openStream: () -> java.io.InputStream? = {
+                    if (uri.scheme?.startsWith("http", ignoreCase = true) == true) {
+                        java.net.URL(uri.toString()).openStream()
+                    } else {
+                        context.contentResolver.openInputStream(uri)
+                    }
+                }
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                openStream()?.use { BitmapFactory.decodeStream(it, null, bounds) }
+                var sample = 1
+                while (bounds.outWidth / (sample * 2) >= maxSizePx && bounds.outHeight / (sample * 2) >= maxSizePx) {
+                    sample *= 2
+                }
+                val decoded = openStream()?.use {
+                    BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
+                } ?: return@runCatching null
+
+                val rotation = openStream()?.use {
+                    when (ExifInterface(it).getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                        else -> 0f
+                    }
+                } ?: 0f
+
+                val finalBitmap = if (rotation == 0f) decoded else {
+                    Bitmap.createBitmap(
+                        decoded, 0, 0, decoded.width, decoded.height,
+                        Matrix().apply { postRotate(rotation) }, true
+                    )
+                }
+                finalBitmap.asImageBitmap()
+            }.getOrNull()
+        }
+    }
+    return bitmap
+}
+
 data class PublicationDetailActions(
     val onBack: () -> Unit = {},
     val onShowQr: () -> Unit = {},
@@ -429,7 +492,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
     val publication = (state as? PublicationUiState.Loaded)?.publication
     var confirmCancel by rememberSaveable { mutableStateOf(false) }
     val bottomActions: (@Composable ColumnScope.() -> Unit)? = when (publication?.status) {
-        PublicationStatus.EN_CAMINO -> {
+        PublicationStatus.RESERVADO -> {
             { EcoPrimaryButton(text = stringResource(R.string.recycling_show_qr), onClick = actions.onShowQr, trailingIconRes = R.drawable.ic_arrow_right) }
         }
         PublicationStatus.DISPONIBLE -> {
@@ -446,7 +509,7 @@ fun PublicationDetailScreen(state: PublicationUiState, isCancelling: Boolean, ac
                 ) { Text(stringResource(R.string.recycling_cancel_publication), style = EcoTextStyles.ButtonText) }
             }
         }
-        PublicationStatus.ENTREGADA -> {
+        PublicationStatus.COMPLETADO -> {
             { EcoPrimaryButton(text = stringResource(R.string.recycling_view_delivery), onClick = actions.onViewDelivery, trailingIconRes = R.drawable.ic_arrow_right) }
         }
         else -> null
@@ -519,7 +582,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
             if (phone != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.recycling_phone, phone), style = EcoTextStyles.Subtitle, color = EcoWhite, modifier = Modifier.weight(1f))
-                    if (publication.status == PublicationStatus.EN_CAMINO) {
+                    if (publication.status == PublicationStatus.RESERVADO) {
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(10.dp))
@@ -537,7 +600,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
             }
             Text(
                 text = when (publication.status) {
-                    PublicationStatus.ENTREGADA -> stringResource(
+                    PublicationStatus.COMPLETADO -> stringResource(
                         R.string.recycling_received_on,
                         publication.deliveredAtMillis?.let(::formatShort) ?: "—",
                     )
@@ -550,7 +613,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
     }
     when (publication.status) {
         PublicationStatus.DISPONIBLE -> EcoInfoHint(text = stringResource(R.string.recycling_available_hint))
-        PublicationStatus.CANCELADA -> EcoInfoHint(text = stringResource(R.string.recycling_cancelled_hint))
+        PublicationStatus.CANCELADO -> EcoInfoHint(text = stringResource(R.string.recycling_cancelled_hint))
         else -> Unit
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -558,7 +621,7 @@ private fun PublicationDetailContent(publication: RecyclingPublication, isSample
         Text(stringResource(R.string.recycling_address_with_area, publication.address, publication.area), style = EcoTextStyles.Subtitle, color = EcoTitle)
         Text(stringResource(R.string.report_default_area), style = EcoTextStyles.Subtitle, color = EcoTitle)
     }
-    if (publication.status == PublicationStatus.EN_CAMINO) {
+    if (publication.status == PublicationStatus.RESERVADO) {
         Text(stringResource(R.string.recycling_qr_instructions), style = EcoTextStyles.Subtitle, color = EcoSubtitle)
     }
 }
@@ -572,8 +635,22 @@ fun PublicationSummary(publication: RecyclingPublication) {
             .clip(RoundedCornerShape(16.dp))
             .background(EcoFieldBackground)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        publication.photoUrl?.let { photoUriOrUrl ->
+            val photoBitmap = rememberPublicationPhoto(photoUriOrUrl)
+            if (photoBitmap != null) {
+                Image(
+                    bitmap = photoBitmap,
+                    contentDescription = stringResource(R.string.recycling_photo_label),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                )
+            }
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(publication.materialName(), style = EcoTextStyles.ButtonText, color = EcoTitle, modifier = Modifier.weight(1f))
             EcoDataLabel(publication.code)
@@ -599,7 +676,7 @@ fun DeliveryCompletedScreen(
         val publication = (state as? PublicationUiState.Loaded)?.publication
         when {
             state is PublicationUiState.Loading -> CenteredLoading()
-            publication == null || publication.status != PublicationStatus.ENTREGADA ->
+            publication == null || publication.status != PublicationStatus.COMPLETADO ->
                 EcoErrorMessage(text = stringResource(R.string.recycling_delivery_not_confirmed))
             else -> {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -678,10 +755,10 @@ private val previewPublicationOnTheWay = RecyclingPublication(
     id = "pub-1",
     code = "ECO-REC-3041",
     material = MaterialType.PET,
-    volume = MaterialVolume.LARGE_BAG,
+    volume = MaterialVolume.BOLSA_GRANDE,
     address = "Cra. 22E #6-40",
     area = "Torobajo",
-    status = PublicationStatus.EN_CAMINO,
+    status = PublicationStatus.RESERVADO,
     createdAtMillis = 1_744_800_000_000L,
     recycler = AssignedRecycler(
         name = "Luis Fernando Córdoba",
@@ -693,8 +770,8 @@ private val previewPublicationOnTheWay = RecyclingPublication(
 private val previewPublicationDelivered = previewPublicationOnTheWay.copy(
     id = "pub-2",
     code = "ECO-REC-2980",
-    material = MaterialType.CARDBOARD,
-    status = PublicationStatus.ENTREGADA,
+    material = MaterialType.CARTON,
+    status = PublicationStatus.COMPLETADO,
     deliveredAtMillis = 1_744_850_000_000L,
     pointsEarned = 80,
     balanceAfter = 1_330,
@@ -722,7 +799,7 @@ private fun PublishMaterialPreview() {
         PublishMaterialScreen(
             state = PublishMaterialUiState(
                 material = MaterialType.PET,
-                volume = MaterialVolume.LARGE_BAG,
+                volume = MaterialVolume.BOLSA_GRANDE,
                 address = "Cra. 22E #6-40 · Torobajo",
             ),
             actions = PublishMaterialActions(),

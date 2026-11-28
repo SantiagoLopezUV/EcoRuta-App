@@ -22,9 +22,9 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
             id = "LST-01",
             code = "ECO-REC-3041",
             material = "PET",
-            volume = "LARGE_BAG",
+            volume = "BOLSA_GRANDE",
             address = "Cra. 22E #6-40",
-            status = "EN_CAMINO",
+            status = "reservado",
             createdAtMillis = 1_760_100_000_000L,
             recyclerName = "Carlos Gómez",
             recyclerAffiliation = "Asorecicladores del Oriente",
@@ -33,10 +33,10 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
         RecyclableListing(
             id = "LST-02",
             code = "ECO-REC-2980",
-            material = "CARDBOARD",
-            volume = "SMALL_BAG",
+            material = "CARTON",
+            volume = "BOLSA_PEQUEÑA",
             address = "Calle 14 #8-20",
-            status = "ENTREGADA",
+            status = "completado",
             createdAtMillis = 1_759_900_000_000L,
             deliveredAtMillis = 1_759_950_000_000L,
             pointsEarned = 80,
@@ -45,10 +45,10 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
         RecyclableListing(
             id = "LST-03",
             code = "ECO-BIZ-0012",
-            material = "GLASS",
-            volume = "BULKY",
+            material = "VIDRIO",
+            volume = "VOLUMINOSO",
             address = "Carrera 15 #25-10",
-            status = "DISPONIBLE",
+            status = "disponible",
             createdAtMillis = 1_760_050_000_000L,
             isBusinessListing = true,
             businessId = "biz-001",
@@ -95,6 +95,15 @@ class FakeCircularEconomyRepository : CircularEconomyRepository {
         val found = listings.firstOrNull { it.id == id }
             ?: return Result.failure(NoSuchElementException("Listing no encontrado: $id"))
         return Result.success(found)
+    }
+
+    // Simula la cancelación de una publicación en memoria actualizando el estado a cancelado
+    override suspend fun cancelListing(id: String): Result<Unit> {
+        error?.let { return Result.failure(it) }
+        val index = listings.indexOfFirst { it.id == id }
+        if (index == -1) return Result.failure(NoSuchElementException("Listing no encontrado: $id"))
+        listings[index] = listings[index].copy(status = "cancelado")
+        return Result.success(Unit)
     }
 
     // Retorna el token de entrega simulado para la publicación
