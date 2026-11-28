@@ -579,9 +579,11 @@
     <string name="recycling_pending">Reciclaje pendiente: falta conectar Supabase.</string>
     <string name="recycling_publish_error">No pudimos publicar el material. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="publication_status_available">Disponible</string>
+    <string name="publication_status_reserved">Reservado</string>
+    <string name="publication_status_completed">Completado</string>
+    <string name="publication_status_cancelled">Cancelado</string>
     <string name="publication_status_on_the_way">En camino</string>
     <string name="publication_status_delivered">Entregada</string>
-    <string name="publication_status_cancelled">Cancelada</string>
     <string name="recycling_detail_title">Detalle de publicación</string>
     <string name="recycling_detail_error">No pudimos cargar la publicación. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="recycling_not_found">Esta publicación ya no está disponible.</string>

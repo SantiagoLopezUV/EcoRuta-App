@@ -79,10 +79,10 @@ data class RecyclerDeliveriesActions(
 )
 
 // Materiales que se pueden filtrar en el mapa, además de la opción «Todos»
-private val FilterMaterials = listOf(MaterialType.PET, MaterialType.CARDBOARD, MaterialType.GLASS)
+private val FilterMaterials = listOf(MaterialType.PET, MaterialType.CARTON, MaterialType.VIDRIO)
 
 // Estados de publicación que el reciclador puede consultar en el mapa
-private val FilterStatuses = listOf(PublicationStatus.DISPONIBLE, PublicationStatus.EN_CAMINO)
+private val FilterStatuses = listOf(PublicationStatus.DISPONIBLE, PublicationStatus.RESERVADO)
 
 // Pantalla principal del reciclador con el mapa ilustrativo, filtros y detalle de la entrega elegida
 @Composable
@@ -460,9 +460,9 @@ private fun DeliveryRow(delivery: RecyclerDelivery, onClick: () -> Unit) {
 // Etiqueta corta del estado usada en los filtros y en las tarjetas del mapa
 private fun PublicationStatus.filterLabelRes(): Int = when (this) {
     PublicationStatus.DISPONIBLE -> R.string.publication_status_available
-    PublicationStatus.EN_CAMINO -> R.string.publication_status_on_the_way
-    PublicationStatus.ENTREGADA -> R.string.publication_status_delivered
-    PublicationStatus.CANCELADA -> R.string.publication_status_cancelled
+    PublicationStatus.RESERVADO -> R.string.publication_status_reserved
+    PublicationStatus.COMPLETADO -> R.string.publication_status_completed
+    PublicationStatus.CANCELADO -> R.string.publication_status_cancelled
 }
 
 // Entregas de ejemplo en Tuluá usadas en las previsualizaciones y en el modo diseño
@@ -474,7 +474,7 @@ val SampleRecyclerDeliveries = listOf(
         zone = "Zona Centro",
         volume = "0,3 m³",
         distance = "0,8 km",
-        material = MaterialType.CARDBOARD,
+        material = MaterialType.CARTON,
         status = PublicationStatus.DISPONIBLE,
         mapX = 0.449f,
         mapY = 0.44f,
@@ -498,7 +498,7 @@ val SampleRecyclerDeliveries = listOf(
         zone = "Zona Céspedes",
         volume = "0,1 m³",
         distance = "1,6 km",
-        material = MaterialType.GLASS,
+        material = MaterialType.VIDRIO,
         status = PublicationStatus.DISPONIBLE,
         mapX = 0.237f,
         mapY = 0.282f,
@@ -510,8 +510,8 @@ val SampleRecyclerDeliveries = listOf(
         zone = "Zona La Campiña",
         volume = "0,4 m³",
         distance = "2,1 km",
-        material = MaterialType.CARDBOARD,
-        status = PublicationStatus.EN_CAMINO,
+        material = MaterialType.CARTON,
+        status = PublicationStatus.RESERVADO,
         mapX = 0.6f,
         mapY = 0.68f,
     ),

@@ -238,8 +238,8 @@ class ListingsViewModel @Inject constructor(
     // Mapea el tipo de material proveniente de la base de datos al enum
     private fun materialTypeFrom(value: String): MaterialType = when (value.uppercase().trim()) {
         "PET" -> MaterialType.PET
-        "CARTON", "CARTÓN" -> MaterialType.CARTON
-        "VIDRIO" -> MaterialType.VIDRIO
+        "CARTON", "CARTÓN", "CARDBOARD" -> MaterialType.CARTON
+        "VIDRIO", "GLASS" -> MaterialType.VIDRIO
         else -> MaterialType.OTRO
     }
 
@@ -247,9 +247,9 @@ class ListingsViewModel @Inject constructor(
     private fun materialVolumeFrom(value: String): MaterialVolume {
         val normalized = value.uppercase().trim().replace(' ', '_')
         return when (normalized) {
-            "BOLSA_PEQUEÑA", "BOLSA_PEQUENA" -> MaterialVolume.BOLSA_PEQUENA
-            "BOLSA_GRANDE" -> MaterialVolume.BOLSA_GRANDE
-            "VOLUMINOSO" -> MaterialVolume.VOLUMINOSO
+            "BOLSA_PEQUEÑA", "BOLSA_PEQUENA", "SMALL_BAG" -> MaterialVolume.BOLSA_PEQUENA
+            "BOLSA_GRANDE", "LARGE_BAG" -> MaterialVolume.BOLSA_GRANDE
+            "VOLUMINOSO", "BULKY" -> MaterialVolume.VOLUMINOSO
             else -> MaterialVolume.BOLSA_PEQUENA
         }
     }
