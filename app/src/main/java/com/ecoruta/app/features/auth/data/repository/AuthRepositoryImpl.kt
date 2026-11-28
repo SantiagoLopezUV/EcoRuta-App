@@ -40,18 +40,20 @@ import kotlin.coroutines.cancellation.CancellationException
 class AuthRepositoryImpl @Inject constructor(
     private val auth: Auth,
     private val postgrest: Postgrest,
-    private val fcmTokenRepository: FcmTokenRepository,
+    private val fcmTokenRepository: FcmTokenRepository? = null,
     private val storage: Storage? = null
 ) : AuthRepository {
 
     // Obtiene el token FCM del dispositivo y lo registra en Supabase
     private suspend fun syncFcmTokenSafely() {
+        //mantiene la compatiblidad en test como en la producción de Hilt
+        val fcmRepo = fcmTokenRepository ?: return
         try {
             val token = FirebaseMessaging.getInstance().token.await()
 
             val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
 
-            fcmTokenRepository.registerToken(
+            fcmRepo.registerToken(
                 token = token,
                 deviceModel = deviceModel
             ).onFailure { error ->

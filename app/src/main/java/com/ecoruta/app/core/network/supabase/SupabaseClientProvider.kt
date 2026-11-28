@@ -20,6 +20,12 @@ import kotlin.time.Duration.Companion.seconds
 // Configura plugins de Auth, Postgrest, Storage y Realtime con motor Ktor
 
 
+// Detecta de forma segura si la ejecución es en un dispositivo Android o en la JVM de pruebas unitarias
+private val isAndroidRuntime: Boolean = runCatching {
+    val vmName = System.getProperty("java.vm.name").orEmpty()
+    vmName.contains("Dalvik", ignoreCase = true)
+}.getOrDefault(false)
+
 val supabase = createSupabaseClient(
     supabaseUrl = BuildConfig.SUPABASE_URL,
     supabaseKey = BuildConfig.SUPABASE_ANON_KEY
@@ -45,16 +51,14 @@ val supabase = createSupabaseClient(
         } catch (e: Throwable) {
             MemoryCodeVerifierCache()
         }
-        // Deshabilita callbacks de ciclo de vida del proceso para compatibilidad con pruebas unitarias en la JVM
-        enableLifecycleCallbacks = false
 
-        //valores po defecto del sdk
-        /*
-        alwaysAutoRefresh = true        //mantiene la sesión activa, renueva el token JWT automáticamente
-        autoLoadFromStorage = true      // persistencia entre los inicios de sesión, carga automáticamente la sesión guardada al abrir la app
-        autoSaveToStorage = true        // Guarda la sesión de forma cifrada en el dispositivo
-        enableLifecycleCallbacks = true // determina si se detiene la actualización automática al perder el foco y si se reanuda al volver a obtenerlo.
-        */
+        // Mantiene la sesión activa y renueva automáticamente el token antes de vencer
+        alwaysAutoRefresh = true // true para que el SDK renueve los token JWT en segundo plano antes de vencerse
+        autoLoadFromStorage = true
+        autoSaveToStorage = true
+
+        // Habilita los callbacks de ciclo de vida en Android para renovar el token al volver a la app
+        enableLifecycleCallbacks = isAndroidRuntime
     }
     install(Postgrest){ // base de datos PostgreSQL
         // Valores predeterminados
