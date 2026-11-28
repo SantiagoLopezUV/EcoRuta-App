@@ -26,6 +26,9 @@ interface CircularEconomyRepository {
     // Retorna una publicación individual por su identificador
     suspend fun getListing(id: String): Result<RecyclableListing>
 
+    // Cancela una publicación propia de material reciclable actualizando su estado a cancelado
+    suspend fun cancelListing(id: String): Result<Unit>
+
     // Genera un token de entrega de un solo uso válido por 5 minutos para la publicación indicada
     suspend fun requestDeliveryCode(listingId: String): Result<DeliveryToken>
 }

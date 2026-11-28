@@ -86,6 +86,21 @@ class CircularEconomyRepositoryImpl @Inject constructor(
             .toDomain()
     }
 
+    // Cancela una publicación propia de material reciclable en Supabase
+    override suspend fun cancelListing(id: String): Result<Unit> = runCatching {
+        val userId = auth.currentUserOrNull()?.id
+            ?: error("No existe una sesión activa para cancelar la publicación")
+
+        postgrest.from("recyclable_material_listings")
+            .update(mapOf("status" to "cancelado")) {
+                filter {
+                    eq("id", id)
+                    eq("owner_id", userId)
+                }
+            }
+        Unit
+    }
+
     // Obtiene el token de entrega dinámico asignado a la recolección de la publicación
     override suspend fun requestDeliveryCode(listingId: String): Result<DeliveryToken> = runCatching {
         val pickup = postgrest.from("recycler_pickups")
