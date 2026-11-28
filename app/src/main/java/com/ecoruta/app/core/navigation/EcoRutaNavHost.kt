@@ -81,19 +81,34 @@ fun EcoRutaNavHost(
         }
     }
 
-    // Redirige al inicio cuando se valida la sesión mediante el enlace del correo en el registro
+    // Redirige al inicio cuando se valida la sesión o limpia el estado si falla el refresco
     LaunchedEffect(navController) {
         supabase.auth.sessionStatus.collect { status ->
-            if (status is SessionStatus.Authenticated) {
-                val currentRoute = navController.currentDestination?.route.orEmpty()
-                val isRegistrationRoute = currentRoute.startsWith("registro")
-                if (isRegistrationRoute) {
-                    val targetHome = resolveHomeDestination()
-                    navController.navigate(targetHome) {
-                        popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = false }
-                        launchSingleTop = true
+            when (status) {
+                is SessionStatus.Authenticated -> {
+                    val currentRoute = navController.currentDestination?.route.orEmpty()
+                    val isRegistrationRoute = currentRoute.startsWith("registro")
+                    if (isRegistrationRoute) {
+                        val targetHome = resolveHomeDestination()
+                        navController.navigate(targetHome) {
+                            popUpTo(EcoRutaDestination.GUEST_USER) { inclusive = false }
+                            launchSingleTop = true
+                        }
                     }
                 }
+                is SessionStatus.RefreshFailure -> {
+                    // Limpia la sesión zombi en el almacenamiento para evitar que el usuario quede atrapado
+                    // Si el token ya vencií y el servidor lo renueva, limpia la sesion local con signOut() y dirige al modo visitante
+                    runCatching { supabase.auth.signOut() }
+                    val currentRoute = navController.currentDestination?.route.orEmpty()
+                    if (currentRoute.isNotBlank() && currentRoute != EcoRutaDestination.LOGIN && currentRoute != EcoRutaDestination.GUEST_USER && currentRoute != EcoRutaDestination.SPLASH) {
+                        showNotice("Tu sesión ha expirado. Por favor inicia sesión nuevamente.")
+                        navController.navigate(EcoRutaDestination.GUEST_USER) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+                else -> Unit
             }
         }
     }
@@ -109,16 +124,26 @@ fun EcoRutaNavHost(
             ) {
                 SplashScreen(
                     onSplashFinished = {
-                        val destination = runCatching {
-                            if (supabase.auth.currentSessionOrNull() != null) {
-                                resolveHomeDestination()
-                            } else {
-                                EcoRutaDestination.GUEST_USER
-                            }
-                        }.getOrDefault(EcoRutaDestination.GUEST_USER)
+                        scope.launch {
+                            val destination = runCatching {
+                                val currentSession = supabase.auth.currentSessionOrNull()
+                                if (currentSession != null) {
+                                    // Intenta refrescar el token si está próximo a vencer antes de entrar al inicio
+                                    val refreshResult = runCatching { supabase.auth.refreshCurrentSession() }
+                                    if (refreshResult.isFailure && supabase.auth.currentSessionOrNull() == null) {
+                                        runCatching { supabase.auth.signOut() }
+                                        EcoRutaDestination.GUEST_USER
+                                    } else {
+                                        resolveHomeDestination()
+                                    }
+                                } else {
+                                    EcoRutaDestination.GUEST_USER
+                                }
+                            }.getOrDefault(EcoRutaDestination.GUEST_USER)
 
-                        navController.navigate(destination) {
-                            popUpTo(EcoRutaDestination.SPLASH) { inclusive = true }
+                            navController.navigate(destination) {
+                                popUpTo(EcoRutaDestination.SPLASH) { inclusive = true }
+                            }
                         }
                     },
                 )
